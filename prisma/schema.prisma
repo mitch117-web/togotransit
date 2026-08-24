@@ -1,0 +1,355 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CompagnieStatut {
+  actif
+  suspendu
+  en_attente
+}
+
+enum UtilisateurRole {
+  voyageur
+  gestionnaire
+  super_admin
+}
+
+enum UtilisateurStatut {
+  actif
+  bloque @map("bloqué")
+}
+
+enum VehiculeStatut {
+  disponible
+  en_maintenance
+  hors_service
+}
+
+enum TrajetStatut {
+  planifie @map("planifié")
+  en_cours
+  termine  @map("terminé")
+  annule   @map("annulé")
+}
+
+enum ReservationStatut {
+  en_attente
+  confirmee  @map("confirmée")
+  annulee    @map("annulée")
+}
+
+enum PaiementMethode {
+  flooz
+  tmoney
+  carte
+  autre
+}
+
+enum PaiementStatut {
+  en_attente
+  reussi     @map("réussi")
+  echoue     @map("échoué")
+}
+
+enum BilletStatut {
+  valide
+  utilise @map("utilisé")
+  annule  @map("annulé")
+}
+
+model Compagnie {
+  id               Int             @id @default(autoincrement())
+  nom              String
+  logo             String?
+  description      String?
+  telephone        String?
+  email            String?
+  adresse_siege    String?
+  statut           CompagnieStatut @default(en_attente)
+  date_inscription DateTime        @default(now())
+
+  utilisateurs    Utilisateur[]
+  agences_locales AgenceLocale[]
+  vehicules       Vehicule[]
+  trajets         Trajet[]
+  avis            Avis[]
+  colis           Parcel[]
+  tarifs          Fare[]
+
+  @@index([statut])
+  @@map("compagnies")
+}
+
+model Utilisateur {
+  id            Int               @id @default(autoincrement())
+  nom           String
+  prenom        String
+  email         String?           @unique
+  telephone     String            @unique
+  mot_de_passe  String
+  role          UtilisateurRole   @default(voyageur)
+  compagnie_id  Int?
+  compagnie     Compagnie?        @relation(fields: [compagnie_id], references: [id], onDelete: SetNull)
+  date_creation DateTime          @default(now())
+  statut        UtilisateurStatut @default(actif)
+
+  reservations     Reservation[]
+  avis             Avis[]
+  notifications    Notification[]
+  colis_envoyes    Parcel[]       @relation("Sender")
+  colis_livres     Parcel[]       @relation("DriverParcel")
+  trajets_conduits Trajet[]       @relation("Driver")
+
+  @@index([role])
+  @@index([compagnie_id])
+  @@index([statut])
+  @@map("utilisateurs")
+}
+
+model Ville {
+  id     Int     @id @default(autoincrement())
+  nom    String  @unique
+  region String?
+
+  agences_depart  AgenceLocale[] @relation("VilleAgence")
+  trajets_depart  Trajet[]       @relation("TrajetDepart")
+  trajets_arrivee Trajet[]       @relation("TrajetArrivee")
+
+  @@index([region])
+  @@map("villes")
+}
+
+model AgenceLocale {
+  id           Int       @id @default(autoincrement())
+  compagnie_id Int
+  compagnie    Compagnie @relation(fields: [compagnie_id], references: [id], onDelete: Cascade)
+  ville_id     Int
+  ville        Ville     @relation("VilleAgence", fields: [ville_id], references: [id], onDelete: Cascade)
+  nom_agence   String
+  adresse      String?
+  telephone    String?
+
+  @@unique([compagnie_id, ville_id, nom_agence])
+  @@index([compagnie_id])
+  @@index([ville_id])
+  @@map("agences_locales")
+}
+
+model Vehicule {
+  id              Int            @id @default(autoincrement())
+  compagnie_id    Int
+  compagnie       Compagnie      @relation(fields: [compagnie_id], references: [id], onDelete: Cascade)
+  immatriculation String         @unique
+  type            String
+  nombre_places   Int
+  statut          VehiculeStatut @default(disponible)
+
+  trajets Trajet[]
+
+  @@index([compagnie_id])
+  @@index([statut])
+  @@map("vehicules")
+}
+
+model Trajet {
+  id                 Int          @id @default(autoincrement())
+  compagnie_id       Int
+  compagnie          Compagnie    @relation(fields: [compagnie_id], references: [id], onDelete: Cascade)
+  vehicule_id        Int
+  vehicule           Vehicule     @relation(fields: [vehicule_id], references: [id], onDelete: Cascade)
+  ville_depart_id    Int
+  ville_depart       Ville        @relation("TrajetDepart", fields: [ville_depart_id], references: [id], onDelete: Cascade)
+  ville_arrivee_id   Int
+  ville_arrivee      Ville        @relation("TrajetArrivee", fields: [ville_arrivee_id], references: [id], onDelete: Cascade)
+  date_depart        DateTime
+  heure_depart       DateTime
+  duree_estimee      DateTime?
+  prix               Float
+  places_disponibles Int
+  statut             TrajetStatut @default(planifie)
+  driver_id          Int?
+  driver             Utilisateur? @relation("Driver", fields: [driver_id], references: [id], onDelete: SetNull)
+  currentLat         Float?
+  currentLng         Float?
+  lastUpdate         DateTime?
+  createdAt          DateTime     @default(now())
+
+  reservations  Reservation[]
+  notifications Notification[]
+  avis          Avis[]
+
+  @@index([ville_depart_id, ville_arrivee_id, date_depart])
+  @@index([compagnie_id])
+  @@index([statut])
+  @@index([vehicule_id])
+  @@index([driver_id])
+  @@map("trajets")
+}
+
+model Reservation {
+  id               Int               @id @default(autoincrement())
+  utilisateur_id   Int
+  utilisateur      Utilisateur       @relation(fields: [utilisateur_id], references: [id], onDelete: Cascade)
+  trajet_id        Int
+  trajet           Trajet            @relation(fields: [trajet_id], references: [id], onDelete: Cascade)
+  nombre_places    Int
+  montant_total    Float
+  statut           ReservationStatut @default(en_attente)
+  date_reservation DateTime          @default(now())
+
+  passagers Passager[]
+  paiements Paiement[]
+  billets   Billet[]
+
+  @@index([utilisateur_id])
+  @@index([trajet_id])
+  @@index([statut])
+  @@map("reservations")
+}
+
+model Passager {
+  id             Int         @id @default(autoincrement())
+  reservation_id Int
+  reservation    Reservation @relation(fields: [reservation_id], references: [id], onDelete: Cascade)
+  nom_complet    String
+  telephone      String
+  numero_siege   String?
+
+  @@index([reservation_id])
+  @@map("passagers")
+}
+
+model Paiement {
+  id                    Int             @id @default(autoincrement())
+  reservation_id        Int
+  reservation           Reservation     @relation(fields: [reservation_id], references: [id], onDelete: Cascade)
+  methode               PaiementMethode
+  reference_transaction String?
+  montant               Float
+  statut                PaiementStatut  @default(en_attente)
+  date_paiement         DateTime?
+
+  @@index([reservation_id])
+  @@index([statut])
+  @@index([methode])
+  @@map("paiements")
+}
+
+model Billet {
+  id             Int          @id @default(autoincrement())
+  reservation_id Int
+  reservation    Reservation  @relation(fields: [reservation_id], references: [id], onDelete: Cascade)
+  code_qr        String
+  numero_billet  String       @unique
+  date_emission  DateTime     @default(now())
+  statut         BilletStatut @default(valide)
+
+  @@index([reservation_id])
+  @@index([statut])
+  @@index([numero_billet])
+  @@map("billets")
+}
+
+model Avis {
+  id             Int         @id @default(autoincrement())
+  utilisateur_id Int
+  utilisateur    Utilisateur @relation(fields: [utilisateur_id], references: [id], onDelete: Cascade)
+  compagnie_id   Int
+  compagnie      Compagnie   @relation(fields: [compagnie_id], references: [id], onDelete: Cascade)
+  trajet_id      Int
+  trajet         Trajet      @relation(fields: [trajet_id], references: [id], onDelete: Cascade)
+  note           Int
+  commentaire    String?
+  date_avis      DateTime    @default(now())
+
+  @@index([utilisateur_id])
+  @@index([compagnie_id])
+  @@index([trajet_id])
+  @@map("avis")
+}
+
+model Notification {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  user      Utilisateur @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tripId    Int?
+  trip      Trajet?     @relation(fields: [tripId], references: [id], onDelete: SetNull)
+  title     String
+  message   String
+  type      String
+  isRead    Boolean     @default(false)
+  createdAt DateTime    @default(now())
+
+  @@map("notifications")
+}
+
+model Fare {
+  id           Int        @id @default(autoincrement())
+  compagnie_id Int?
+  compagnie    Compagnie? @relation(fields: [compagnie_id], references: [id], onDelete: SetNull)
+  origin       String
+  destination  String
+  pricePerKg   Float
+  baseFare     Float
+  category     String
+  zone         String
+
+  @@map("fares")
+}
+
+model SystemSettings {
+  id          String  @id @default("global")
+  companyName String  @default("TogoTransit S.A.")
+  currency    String  @default("XOF")
+  smsEnabled  Boolean @default(true)
+  maintenance Boolean @default(false)
+
+  @@map("systemsettings")
+}
+
+model POD {
+  id           Int      @id @default(autoincrement())
+  parcelId     Int      @unique
+  parcel       Parcel   @relation(fields: [parcelId], references: [id], onDelete: Cascade)
+  signatureUrl String?
+  photoUrl     String?
+  latitude     Float?
+  longitude    Float?
+  deliveredAt  DateTime @default(now())
+
+  @@map("pods")
+}
+
+model Parcel {
+  id            Int          @id @default(autoincrement())
+  compagnie_id  Int?
+  compagnie     Compagnie?   @relation(fields: [compagnie_id], references: [id], onDelete: SetNull)
+  trackingId    String       @unique
+  senderId      Int?
+  sender        Utilisateur? @relation("Sender", fields: [senderId], references: [id], onDelete: SetNull)
+  driverId      Int?
+  driver        Utilisateur? @relation("DriverParcel", fields: [driverId], references: [id], onDelete: SetNull)
+  senderName    String
+  senderPhone   String
+  receiverName  String
+  receiverPhone String
+  weight        Float
+  category      String
+  deliveryType  String
+  origin        String
+  destination   String
+  status        String
+  price         Float
+  paymentStatus String
+  paymentMethod String?
+  statusHistory String?
+  pod           POD?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("parcels")
+}

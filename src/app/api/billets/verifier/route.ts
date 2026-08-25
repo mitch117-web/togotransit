@@ -27,8 +27,6 @@ export async function POST(request: Request) {
 
     const result = await prisma.$transaction(
       async (tx: any) => {
-        await tx.$executeRawUnsafe('BEGIN IMMEDIATE')
-
         const billet = await tx.billet.findUnique({
           where: { numero_billet },
           include: {
@@ -47,7 +45,6 @@ export async function POST(request: Request) {
         })
 
         if (!billet) {
-          await tx.$executeRawUnsafe('ROLLBACK')
           return {
             status: 404,
             error: 'Billet introuvable. Vérifiez le numéro.',
@@ -57,7 +54,6 @@ export async function POST(request: Request) {
 
         if (auth!.role === 'gestionnaire') {
           if (billet.reservation?.trajet?.compagnie_id !== auth!.compagnieId) {
-            await tx.$executeRawUnsafe('ROLLBACK')
             return {
               status: 403,
               error: 'Ce billet appartient à une autre compagnie.',
@@ -67,7 +63,6 @@ export async function POST(request: Request) {
         }
 
         if (billet.reservation?.statut === 'annulee') {
-          await tx.$executeRawUnsafe('ROLLBACK')
           return {
             status: 409,
             error: 'Réservation annulée — billet invalide.',
@@ -76,7 +71,6 @@ export async function POST(request: Request) {
         }
 
         if (billet.statut === 'annule') {
-          await tx.$executeRawUnsafe('ROLLBACK')
           return {
             status: 409,
             error: 'Billet annulé — invalide.',
@@ -85,7 +79,6 @@ export async function POST(request: Request) {
         }
 
         if (billet.statut === 'utilise') {
-          await tx.$executeRawUnsafe('ROLLBACK')
           return {
             status: 409,
             error: '⚠️  Billet déjà scanné (utilisé)',
@@ -107,8 +100,6 @@ export async function POST(request: Request) {
           where: { id: billet.id },
           data: { statut: 'utilise' },
         })
-
-        await tx.$executeRawUnsafe('COMMIT')
 
         return {
           status: 200,

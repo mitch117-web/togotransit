@@ -36,10 +36,6 @@ export async function POST(request: Request) {
 
     const result = await prisma.$transaction(
       async (tx: any) => {
-        try {
-          await tx.$executeRawUnsafe('PRAGMA busy_timeout = 8000')
-        } catch (_) {}
-
         const trajet = await tx.trajet.findUnique({
           where: { id: trajet_id },
           include: { vehicule: true },

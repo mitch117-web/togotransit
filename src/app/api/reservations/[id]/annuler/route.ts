@@ -19,8 +19,6 @@ export async function POST(
 
     const result = await prisma.$transaction(
       async (tx: any) => {
-        await tx.$executeRawUnsafe('BEGIN IMMEDIATE')
-
         const reservation = await tx.reservation.findUnique({
           where: { id: reservationId },
           include: {
@@ -29,31 +27,26 @@ export async function POST(
         })
 
         if (!reservation) {
-          await tx.$executeRawUnsafe('ROLLBACK')
           return { status: 404, error: 'Réservation non trouvée' }
         }
 
         if (auth!.role === 'voyageur' && reservation.utilisateur_id !== auth!.userId) {
-          await tx.$executeRawUnsafe('ROLLBACK')
           return { status: 403, error: 'Accès refusé' }
         }
 
         if (auth!.role === 'gestionnaire') {
           if (reservation.trajet?.compagnie_id !== auth!.compagnieId) {
-            await tx.$executeRawUnsafe('ROLLBACK')
             return { status: 403, error: 'Accès refusé' }
           }
         }
 
         if (reservation.statut === 'annulee') {
-          await tx.$executeRawUnsafe('ROLLBACK')
           return { status: 400, error: 'Réservation déjà annulée' }
         }
 
         const dateDepart = new Date(reservation.trajet?.date_depart || Date.now())
         const now = new Date()
         if (auth!.role === 'voyageur' && dateDepart.getTime() < now.getTime()) {
-          await tx.$executeRawUnsafe('ROLLBACK')
           return { status: 400, error: 'Impossible d\'annuler un trajet déjà parti.' }
         }
 
@@ -87,7 +80,6 @@ export async function POST(
           })
         } catch (_) { /* optional */ }
 
-        await tx.$executeRawUnsafe('COMMIT')
         return { status: 200, data: { id: reservationId, statut: 'annulee' } }
       },
       {

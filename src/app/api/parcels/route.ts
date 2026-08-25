@@ -64,6 +64,7 @@ export async function POST(request: Request) {
         price: parseFloat(data.price),
         paymentStatus: data.paymentMethod === 'CASH' ? 'PENDING' : 'PAID',
         paymentMethod: data.paymentMethod,
+        photo: data.photo ?? null,
       } as any
     })
 

@@ -359,6 +359,7 @@ model Parcel {
   paymentStatus String
   paymentMethod String?
   statusHistory String?
+  photo         String?
   pod           POD?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt

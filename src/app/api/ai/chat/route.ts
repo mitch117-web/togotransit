@@ -2,10 +2,6 @@ import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import prisma from '@/lib/prisma'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
-
 export async function POST(request: Request) {
   try {
     const { message, trackingId } = await request.json()
@@ -91,6 +87,7 @@ export async function POST(request: Request) {
         ${context ? 'Contexte actuel : ' + context : ''}
       `
 
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
       const response = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [

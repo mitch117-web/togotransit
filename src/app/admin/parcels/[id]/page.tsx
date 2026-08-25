@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import GenerateInvoiceButton from '@/components/admin/GenerateInvoiceButton'
+import { getSessionContext } from '@/lib/session'
 
 export default async function ParcelDetailsPage({
   params,
@@ -20,6 +21,11 @@ export default async function ParcelDetailsPage({
   }) as any
 
   if (!parcel) {
+    notFound()
+  }
+
+  const session = await getSessionContext()
+  if (session?.role === 'gestionnaire' && parcel.compagnie_id !== session.compagnieId) {
     notFound()
   }
 

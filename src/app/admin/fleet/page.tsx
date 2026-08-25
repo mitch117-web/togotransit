@@ -1,12 +1,15 @@
 import React from 'react'
 import prisma from '@/lib/prisma'
+import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 import Link from 'next/link'
 import DeleteVehicleButton from '@/components/admin/DeleteVehicleButton'
 import ExportButton from '@/components/admin/export/ExportButton'
 
 async function getFleetData() {
+  const session = await getSessionContext()
   const vehiclesRaw = await prisma.vehicule.findMany({
+    where: compagnieFilterFor(session),
     include: {
       trajets: {
         where: {

@@ -2,9 +2,12 @@ import React from 'react'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import PrintTicketButton from '@/components/admin/PrintTicketButton'
+import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 export default async function BookingHistoryPage() {
+  const session = await getSessionContext()
   const reservations = await prisma.reservation.findMany({
+    where: { trajet: compagnieFilterFor(session) },
     include: {
       utilisateur: true,
       trajet: { include: { ville_depart: true, ville_arrivee: true } }

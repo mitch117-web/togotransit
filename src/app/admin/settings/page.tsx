@@ -2,9 +2,12 @@ import React from 'react'
 import prisma from '@/lib/prisma'
 import FaresManagement from '@/components/admin/FaresManagement'
 import GeneralSettings from '@/components/admin/GeneralSettings'
+import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 async function getSettingsData() {
+  const session = await getSessionContext()
   const fares = await prisma.fare.findMany({
+    where: compagnieFilterFor(session),
     orderBy: {
       origin: 'asc'
     }
@@ -13,6 +16,7 @@ async function getSettingsData() {
 }
 
 export default async function SettingsPage() {
+  const session = await getSessionContext()
   const { fares } = await getSettingsData()
 
   return (
@@ -32,10 +36,12 @@ export default async function SettingsPage() {
           <FaresManagement initialFares={fares} />
         </div>
 
-        {/* Right Column: Global App Settings */}
-        <div className="flex flex-col gap-6">
-          <GeneralSettings />
-        </div>
+        {/* Right Column: Global App Settings (plateforme uniquement) */}
+        {session?.role === 'super_admin' && (
+          <div className="flex flex-col gap-6">
+            <GeneralSettings />
+          </div>
+        )}
 
       </div>
     </div>

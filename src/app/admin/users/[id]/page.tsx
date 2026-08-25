@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import DeleteUserButton from '@/components/admin/DeleteUserButton'
+import { getSessionContext } from '@/lib/session'
 
 export default async function UserDetailsPage({
   params,
@@ -30,6 +31,11 @@ export default async function UserDetailsPage({
   })
 
   if (!userRaw) {
+    notFound()
+  }
+
+  const session = await getSessionContext()
+  if (session?.role === 'gestionnaire' && userRaw.compagnie_id !== session.compagnieId) {
     notFound()
   }
 

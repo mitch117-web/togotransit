@@ -2,6 +2,7 @@ import React from 'react'
 import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import EditVehicleClient from './EditVehicleClient'
+import { getSessionContext } from '@/lib/session'
 
 export default async function EditVehiclePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -11,6 +12,11 @@ export default async function EditVehiclePage({ params }: { params: Promise<{ id
   })
 
   if (!vehicleRaw) {
+    notFound()
+  }
+
+  const session = await getSessionContext()
+  if (session?.role === 'gestionnaire' && vehicleRaw.compagnie_id !== session.compagnieId) {
     notFound()
   }
 

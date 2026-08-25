@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import SeatSelectionClient from '@/app/admin/bookings/[id]/seats/SeatSelectionClient'
+import { getSessionContext } from '@/lib/session'
 
 export default async function SeatSelectionPage({
   params,
@@ -25,6 +26,11 @@ export default async function SeatSelectionPage({
   })
 
   if (!trajetRaw) {
+    notFound()
+  }
+
+  const session = await getSessionContext()
+  if (session?.role === 'gestionnaire' && trajetRaw.compagnie_id !== session.compagnieId) {
     notFound()
   }
 

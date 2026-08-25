@@ -2,6 +2,7 @@ import React from 'react'
 import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import EditUserClient from './EditUserClient'
+import { getSessionContext } from '@/lib/session'
 
 export default async function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -11,6 +12,11 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
   })
 
   if (!user) {
+    notFound()
+  }
+
+  const session = await getSessionContext()
+  if (session?.role === 'gestionnaire' && user.compagnie_id !== session.compagnieId) {
     notFound()
   }
 

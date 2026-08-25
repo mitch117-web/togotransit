@@ -2,13 +2,16 @@ import React from 'react'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import PrintTicketButton from '@/components/admin/PrintTicketButton'
+import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 async function getBookingsData() {
+  const session = await getSessionContext()
   const trajets = await prisma.trajet.findMany({
     where: {
       date_depart: {
         gte: new Date(new Date().setHours(0, 0, 0, 0))
-      }
+      },
+      ...compagnieFilterFor(session),
     },
     include: {
       vehicule: true,
@@ -36,6 +39,7 @@ async function getBookingsData() {
   }))
 
   const recentReservations = await prisma.reservation.findMany({
+    where: { trajet: compagnieFilterFor(session) },
     take: 5,
     include: {
       utilisateur: true,

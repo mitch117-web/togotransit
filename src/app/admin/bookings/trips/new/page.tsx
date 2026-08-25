@@ -1,10 +1,12 @@
 import React from 'react'
 import prisma from '@/lib/prisma'
 import TripForm from './TripForm'
+import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 export default async function NewTripPage() {
+  const session = await getSessionContext()
   const vehicules = await prisma.vehicule.findMany({
-    where: { statut: 'disponible' as any }
+    where: { statut: 'disponible' as any, ...compagnieFilterFor(session) }
   })
 
   const vehicles: any[] = vehicules.map((v: any) => ({
@@ -16,7 +18,7 @@ export default async function NewTripPage() {
   }))
 
   const chauffeurs = await prisma.utilisateur.findMany({
-    where: { role: 'gestionnaire' as any }
+    where: { role: 'gestionnaire' as any, ...compagnieFilterFor(session) }
   })
 
   const drivers: any[] = chauffeurs.map((u: any) => ({

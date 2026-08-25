@@ -1,9 +1,12 @@
 import React from 'react'
 import prisma from '@/lib/prisma'
 import UsersClient from './UsersClient'
+import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 export default async function UsersPage() {
+  const session = await getSessionContext()
   const usersRaw = await prisma.utilisateur.findMany({
+    where: compagnieFilterFor(session),
     include: {
       compagnie: true,
     },

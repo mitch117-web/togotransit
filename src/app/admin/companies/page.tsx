@@ -1,8 +1,15 @@
 import React from 'react'
 import prisma from '@/lib/prisma'
 import CompaniesClient from './CompaniesClient'
+import { getSessionContext } from '@/lib/session'
+import { redirect } from 'next/navigation'
 
 export default async function CompaniesPage() {
+  const session = await getSessionContext()
+  if (session?.role !== 'super_admin') {
+    redirect('/admin/dashboard')
+  }
+
   const companiesRaw = await prisma.compagnie.findMany({
     include: {
       agences_locales: {

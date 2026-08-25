@@ -1,14 +1,17 @@
 import React from 'react'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
+import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 export default async function NewBookingPage() {
+  const session = await getSessionContext()
   const trajets = await prisma.trajet.findMany({
     where: {
       statut: 'planifie' as any,
       date_depart: {
         gte: new Date()
-      }
+      },
+      ...compagnieFilterFor(session),
     },
     include: {
       vehicule: true,

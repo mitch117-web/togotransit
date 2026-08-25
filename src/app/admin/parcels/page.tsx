@@ -2,10 +2,12 @@ import React from 'react'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import ExportButton from '@/components/admin/export/ExportButton'
+import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 async function getParcels(search?: string, status?: string) {
-  const where: any = {}
-  
+  const session = await getSessionContext()
+  const where: any = compagnieFilterFor(session)
+
   if (search) {
     where.OR = [
       { trackingId: { contains: search } },

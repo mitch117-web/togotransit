@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import DeleteVehicleButton from '@/components/admin/DeleteVehicleButton'
+import { getSessionContext } from '@/lib/session'
 
 export default async function VehicleDetailsPage({
   params,
@@ -31,6 +32,11 @@ export default async function VehicleDetailsPage({
   })
 
   if (!vehicleRaw) {
+    notFound()
+  }
+
+  const session = await getSessionContext()
+  if (session?.role === 'gestionnaire' && vehicleRaw.compagnie_id !== session.compagnieId) {
     notFound()
   }
 

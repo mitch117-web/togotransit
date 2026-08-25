@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   try {
     // Protection brute-force : 5 tentatives / minute / IP
     const ip = getClientIp(request)
-    const { limited, retryAfterSec } = isRateLimited(ip)
+    const { limited, retryAfterSec } = await isRateLimited(`login:${ip}`)
     if (limited) {
       return NextResponse.json(
         { error: `Trop de tentatives. Réessayez dans ${retryAfterSec} secondes.` },

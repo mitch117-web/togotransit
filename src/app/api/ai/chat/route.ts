@@ -1,9 +1,21 @@
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import prisma from '@/lib/prisma'
+import { isRateLimited, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   try {
+    // Widget public (visible sur tout le site) : on limite l'abus plutôt que
+    // d'exiger une connexion, pour ne pas casser le support pour les visiteurs.
+    const ip = getClientIp(request)
+    const { limited, retryAfterSec } = await isRateLimited(`chat:${ip}`)
+    if (limited) {
+      return NextResponse.json(
+        { message: `Trop de messages envoyés. Réessayez dans ${retryAfterSec} secondes.` },
+        { status: 429 }
+      )
+    }
+
     const { message, trackingId } = await request.json()
 
     // Récupérer des informations contextuelles

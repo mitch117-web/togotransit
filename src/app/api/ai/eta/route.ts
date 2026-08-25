@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
+import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 
 // Distance approximative entre villes togolaises (km)
 const cityDistances: Record<string, Record<string, number>> = {
@@ -14,6 +14,10 @@ const AVERAGE_SPEED_KMH = 50 // Vitesse moyenne en km/h
 
 export async function POST(request: Request) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { origin, destination, parcelId } = await request.json()
 
     const distance = cityDistances[origin]?.[destination] || 200

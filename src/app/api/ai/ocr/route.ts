@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server'
+import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 
 // Pour utiliser Google Cloud Vision, vous aurez besoin d'installer @google-cloud/vision
 // et de configurer les credentials
 
 export async function POST(request: Request) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { imageBase64 } = await request.json()
 
     // Exemple de réponse (en production, connectez-vous à Google Cloud Vision)

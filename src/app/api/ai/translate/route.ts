@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 
 // Pour utiliser DeepL ou Google Translate, installez le SDK correspondant
 // Exemple avec DeepL: npm install deepl-node
@@ -29,6 +30,10 @@ const translations: Record<string, Record<string, string>> = {
 
 export async function POST(request: Request) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { text, targetLang } = await request.json()
 
     // Traduction simple (en production, connectez-vous à DeepL/Google Translate)

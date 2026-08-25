@@ -311,6 +311,18 @@ model SystemSettings {
   @@map("systemsettings")
 }
 
+// Store partagé pour le rate-limiting (remplace un store en mémoire, qui ne
+// fonctionne pas de façon fiable sur des fonctions serverless sans état
+// partagé entre instances, comme Vercel).
+model RateLimitEntry {
+  key     String   @id
+  count   Int      @default(1)
+  resetAt DateTime
+
+  @@index([resetAt])
+  @@map("rate_limit_entries")
+}
+
 model POD {
   id           Int      @id @default(autoincrement())
   parcelId     Int      @unique

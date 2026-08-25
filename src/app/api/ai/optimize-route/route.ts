@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 
 interface DeliveryPoint {
   id: string
@@ -9,6 +10,10 @@ interface DeliveryPoint {
 
 export async function POST(request: Request) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { deliveryPoints }: { deliveryPoints: DeliveryPoint[] } = await request.json()
 
     // Algorithme simple d'optimisation : tri par priorité + distance approximative

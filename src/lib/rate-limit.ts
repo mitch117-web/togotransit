@@ -1,32 +1,46 @@
+import prisma from './prisma'
+
 /**
- * Rate-limiting en mémoire (par IP) — suffisant pour un contexte académique.
- * Pour une production multi-instance, remplacer par un store partagé (Redis...).
+ * Rate-limiting adossé à PostgreSQL (table partagée `rate_limit_entries`).
+ *
+ * Un store en mémoire ne fonctionne pas de façon fiable sur des fonctions
+ * serverless (Vercel) : chaque invocation peut atterrir sur une instance
+ * différente, sans mémoire partagée entre elles. En passant par la base de
+ * données déjà utilisée par l'application, le compteur est correct quel que
+ * soit le nombre d'instances actives.
  */
 const WINDOW_MS = 60 * 1000
 const MAX_ATTEMPTS = 5
 
-const attempts = new Map<string, { count: number; resetAt: number }>()
+export async function isRateLimited(key: string): Promise<{ limited: boolean; retryAfterSec: number }> {
+  const now = new Date()
 
-export function isRateLimited(ip: string): { limited: boolean; retryAfterSec: number } {
-  const now = Date.now()
-  const entry = attempts.get(ip)
+  const entry = await prisma.rateLimitEntry.findUnique({ where: { key } })
 
   if (!entry || entry.resetAt <= now) {
-    attempts.set(ip, { count: 1, resetAt: now + WINDOW_MS })
+    await prisma.rateLimitEntry.upsert({
+      where: { key },
+      update: { count: 1, resetAt: new Date(now.getTime() + WINDOW_MS) },
+      create: { key, count: 1, resetAt: new Date(now.getTime() + WINDOW_MS) },
+    })
     return { limited: false, retryAfterSec: 0 }
   }
 
-  entry.count += 1
-  if (entry.count > MAX_ATTEMPTS) {
-    const retryAfterSec = Math.ceil((entry.resetAt - now) / 1000)
+  const updated = await prisma.rateLimitEntry.update({
+    where: { key },
+    data: { count: { increment: 1 } },
+  })
+
+  if (updated.count > MAX_ATTEMPTS) {
+    const retryAfterSec = Math.ceil((entry.resetAt.getTime() - now.getTime()) / 1000)
     return { limited: true, retryAfterSec }
   }
 
   return { limited: false, retryAfterSec: 0 }
 }
 
-export function resetRateLimit(ip: string) {
-  attempts.delete(ip)
+export async function resetRateLimit(key: string): Promise<void> {
+  await prisma.rateLimitEntry.deleteMany({ where: { key } })
 }
 
 export function getClientIp(request: Request): string {

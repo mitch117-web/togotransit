@@ -7,7 +7,10 @@ export interface JwtPayload {
   compagnieId: number | null
 }
 
-export const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me'
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is not set')
+}
+export const JWT_SECRET = process.env.JWT_SECRET
 const JWT_EXPIRES_IN = '24h'
 
 export function signToken(payload: JwtPayload): string {

@@ -22,6 +22,13 @@ export async function extractAuthFromRequest(request: NextRequest): Promise<Auth
     return verifyToken(token)
   }
 
+  // Fallback pour le front web (Server Actions / fetch client) qui s'appuie
+  // sur le cookie de session plutôt que sur un header Authorization explicite.
+  const cookieToken = request.cookies.get('auth_token')?.value
+  if (cookieToken) {
+    return verifyToken(cookieToken)
+  }
+
   return null
 }
 

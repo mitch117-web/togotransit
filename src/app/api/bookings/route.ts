@@ -54,7 +54,9 @@ export async function POST(request: Request) {
       } as any,
       include: {
         trajet: true,
-        utilisateur: true,
+        utilisateur: {
+          select: { id: true, nom: true, prenom: true, telephone: true, email: true }
+        },
       }
     })
 
@@ -108,7 +110,9 @@ export async function GET(request: Request) {
     const bookings = await prisma.reservation.findMany({
       where,
       include: {
-        utilisateur: true,
+        utilisateur: {
+          select: { id: true, nom: true, prenom: true, telephone: true, email: true }
+        },
         trajet: {
           include: {
             vehicule: true,

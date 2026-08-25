@@ -110,9 +110,10 @@ export async function GET(request: Request) {
     }
 
     if (auth.role === 'voyageur') {
-      // Un voyageur ne voit jamais que ses propres colis, quel que soit le
-      // paramètre `phone` envoyé par le client.
-      where.OR = [{ senderId: auth.userId }, { senderPhone: phone ?? undefined }]
+      // Un voyageur voit ses propres envois (en tant qu'expéditeur) ainsi que
+      // les colis qui lui sont assignés en tant que chauffeur — jamais les
+      // colis d'un tiers, quel que soit le paramètre `phone` envoyé par le client.
+      where.OR = [{ senderId: auth.userId }, { driverId: auth.userId }, { senderPhone: phone ?? undefined }]
     } else {
       // gestionnaire / super_admin
       if (auth.role === 'gestionnaire') {
@@ -130,7 +131,9 @@ export async function GET(request: Request) {
       where,
       include: {
         pod: true,
-        driver: true
+        driver: {
+          select: { id: true, nom: true, prenom: true, telephone: true }
+        }
       } as any,
       orderBy: { createdAt: 'desc' },
       take: limit ? parseInt(limit) : undefined

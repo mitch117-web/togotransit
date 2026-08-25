@@ -42,7 +42,9 @@ export async function GET(
     }
 
     if (auth!.role === 'voyageur') {
-      if (parcel.senderId !== auth!.userId) {
+      const isSender = parcel.senderId === auth!.userId
+      const isAssignedDriver = parcel.driverId === auth!.userId
+      if (!isSender && !isAssignedDriver) {
         return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
       }
     } else {

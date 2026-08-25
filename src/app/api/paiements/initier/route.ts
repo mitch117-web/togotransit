@@ -77,7 +77,54 @@ export async function POST(request: Request) {
       )
     }
 
-    // --- Appel à PayGate (règles activées seulement si credentials configurés) ---
+    // --- Mode démo : si PayGate n'est pas configuré sur cet environnement, on
+    // simule un paiement "en_attente" plutôt que de bloquer tout le tunnel de
+    // réservation. Le voyageur peut alors utiliser les boutons de test
+    // (POST /api/paiements/webhook/mock) pour simuler le retour de l'opérateur,
+    // exactement comme le fait déjà src/lib/sms.ts pour les SMS. La référence
+    // est préfixée "MOCK-" pour que le webhook de démo ne puisse jamais agir
+    // sur un vrai paiement PayGate.
+    const paygateConfigured = !!(
+      process.env.PAYGATE_MERCHANT_ID &&
+      process.env.PAYGATE_API_KEY &&
+      process.env.PAYGATE_API_URL &&
+      process.env.PAYGATE_WEBHOOK_SECRET
+    )
+
+    if (!paygateConfigured) {
+      const montantTotal = reservation.montant_total
+      const reference = `MOCK-${methode.toUpperCase()}-${reservation.id}-${Date.now().toString(36).toUpperCase()}`
+
+      const paiement = await prisma.paiement.create({
+        data: {
+          reservation_id,
+          methode,
+          montant: montantTotal,
+          reference_transaction: reference,
+          statut: 'en_attente',
+        },
+      })
+
+      return NextResponse.json({
+        success: true,
+        mode_demo: true,
+        paiement: {
+          id: paiement.id,
+          reference_transaction: reference,
+          methode: paiement.methode,
+          montant: paiement.montant,
+          statut: paiement.statut,
+          provider_label: (methode === 'flooz' ? 'Flooz (Moov Money Togo)' : 'T-Money (Togocom)') + ' — mode démo',
+          instructions: [
+            'PayGate n\'est pas configuré sur cet environnement : ceci est une simulation.',
+            'Utilisez les boutons « Simuler succès / échec » ci-dessous pour continuer le test.',
+          ],
+        },
+        date_expiration_attente: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      })
+    }
+
+    // --- Appel à PayGate (mode réel) ---
     try {
       // On détermine le montant total de la réservation
       const montantTotal = reservation.montant_total

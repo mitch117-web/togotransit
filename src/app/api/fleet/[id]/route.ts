@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { extractAuthFromRequest, requireAnyRole, assertCompagnieOwnership } from '@/lib/auth'
 
 const statusMap: Record<string, any> = {
   AVAILABLE: 'disponible',
@@ -11,19 +12,25 @@ const statusMap: Record<string, any> = {
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { id } = 'then' in params ? await params : params
     const idNum = parseInt(id, 10)
     const vehicle = await prisma.vehicule.findUnique({
       where: { id: idNum }
     })
-    
+
     if (!vehicle) {
       return NextResponse.json({ error: 'Vehicle not found' }, { status: 404 })
     }
+    const ownershipError = await assertCompagnieOwnership(auth, vehicle.compagnie_id)
+    if (ownershipError) return ownershipError
 
     return NextResponse.json(vehicle)
   } catch (error) {
@@ -36,10 +43,22 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { id } = 'then' in params ? await params : params
     const idNum = parseInt(id, 10)
+
+    const existing = await prisma.vehicule.findUnique({ where: { id: idNum } })
+    if (!existing) {
+      return NextResponse.json({ error: 'Vehicle not found' }, { status: 404 })
+    }
+    const ownershipError = await assertCompagnieOwnership(auth, existing.compagnie_id)
+    if (ownershipError) return ownershipError
+
     const data = await request.json()
-    
+
     const statut = statusMap[data.status] ?? data.statut ?? undefined
     const nombre_places = data.capacity !== undefined ? parseInt(data.capacity) : (data.nombre_places !== undefined ? parseInt(data.nombre_places) : undefined)
 
@@ -51,7 +70,10 @@ export async function PATCH(
     if (data.modele !== undefined) updateData.type = data.modele
     if (nombre_places !== undefined) updateData.nombre_places = nombre_places
     if (statut !== undefined) updateData.statut = statut
-    if (data.compagnie_id !== undefined) updateData.compagnie_id = data.compagnie_id
+    // Seul un super_admin peut transférer un véhicule vers une autre compagnie.
+    if (auth!.role === 'super_admin' && data.compagnie_id !== undefined) {
+      updateData.compagnie_id = data.compagnie_id
+    }
 
     const updatedVehicle = await prisma.vehicule.update({
       where: { id: idNum },
@@ -66,21 +88,32 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { id } = 'then' in params ? await params : params
     const idNum = parseInt(id, 10)
-    
+
+    const vehicle = await prisma.vehicule.findUnique({ where: { id: idNum } })
+    if (!vehicle) {
+      return NextResponse.json({ error: 'Vehicle not found' }, { status: 404 })
+    }
+    const ownershipError = await assertCompagnieOwnership(auth, vehicle.compagnie_id)
+    if (ownershipError) return ownershipError
+
     // Vérifier s'il y a des voyages liés à ce véhicule
     const relatedTrips = await prisma.trajet.findFirst({
       where: { vehicule_id: idNum }
     })
 
     if (relatedTrips) {
-      return NextResponse.json({ 
-        error: "Impossible de supprimer ce véhicule car il a des voyages enregistrés dans l'historique." 
+      return NextResponse.json({
+        error: "Impossible de supprimer ce véhicule car il a des voyages enregistrés dans l'historique."
       }, { status: 400 })
     }
 

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { extractAuthFromRequest, requireRole } from '@/lib/auth'
 
 export async function GET() {
   try {
@@ -21,8 +22,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireRole(auth, 'super_admin')
+    if (blocked) return blocked
+
     const data = await request.json()
-    
+
     const settings = await prisma.systemSettings.upsert({
       where: { id: 'global' },
       update: {

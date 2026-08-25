@@ -15,9 +15,11 @@ export async function GET(request: Request) {
     const auth = await extractAuthFromRequest(request as any)
     const blocked = requireRole(auth!, 'gestionnaire')
     if (blocked) return blocked
+    if (auth!.role === 'gestionnaire' && !auth!.compagnieId) {
+      return NextResponse.json({ error: 'Gestionnaire sans compagnie' }, { status: 403 })
+    }
 
-    const where: any = {}
-    applyCompagnieFilterToWhere(where, auth, 'compagnie_id')
+    const where = applyCompagnieFilterToWhere({}, auth, 'compagnie_id')
 
     const vehicules = await prisma.vehicule.findMany({
       where,

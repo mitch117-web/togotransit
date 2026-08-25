@@ -1,11 +1,16 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { id } = 'then' in params ? await params : params
     const idNum = parseInt(id, 10)
     const { latitude, longitude } = await request.json()
@@ -28,11 +33,17 @@ export async function POST(
       return NextResponse.json({ error: 'Parcel not found' }, { status: 404 })
     }
 
+    // Seul le chauffeur assigné au colis, un gestionnaire de la compagnie
+    // concernée, ou un super_admin peut y injecter une position GPS.
+    const isAssignedDriver = auth!.role === 'voyageur' && parcel.driverId === auth!.userId
+    const isCompagnieManager = auth!.role === 'gestionnaire' && parcel.compagnie_id === auth!.compagnieId
+    if (auth!.role !== 'super_admin' && !isAssignedDriver && !isCompagnieManager) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+    }
+
     // Update statusHistory with new coordinates
     const history = JSON.parse(parcel.statusHistory || '[]')
-    
-    // We only keep the last few GPS updates to avoid bloating the DB
-    // but we ensure the LATEST one is at the end
+
     const newEntry = {
       status: parcel.status, // Keep current status
       timestamp: new Date().toISOString(),
@@ -42,7 +53,7 @@ export async function POST(
 
     history.push(newEntry)
 
-    const updatedParcel = await prisma.parcel.update({
+    await prisma.parcel.update({
       where: { id: parcel.id },
       data: {
         statusHistory: JSON.stringify(history)

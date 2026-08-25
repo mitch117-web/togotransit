@@ -1,29 +1,53 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { sendSMS } from '@/lib/sms'
+import { extractAuthFromRequest, requireAnyRole, assertCompagnieOwnership } from '@/lib/auth'
+
+async function findParcelByIdOrTracking(id: string) {
+  const idNum = parseInt(id, 10)
+  return prisma.parcel.findFirst({
+    where: {
+      OR: [
+        { id: isNaN(idNum) ? undefined : idNum },
+        { trackingId: id }
+      ].filter((x: any) => x.id !== undefined || x.trackingId !== undefined) as any
+    },
+    include: { pod: true }
+  })
+}
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     const { id } = 'then' in params ? await params : params
     const idNum = parseInt(id, 10)
-    
-    const parcel = await prisma.parcel.findFirst({
-      where: {
-        OR: [
-          { id: isNaN(idNum) ? undefined : idNum },
-          { trackingId: id }
-        ].filter((x: any) => x.id !== undefined || x.trackingId !== undefined) as any
-      },
-      include: {
-        pod: true
-      }
-    })
+    const auth = await extractAuthFromRequest(request as any)
 
+    // Un identifiant de tracking (non numérique, ex: TRK-1000) agit comme un
+    // jeton d'accès public à ce seul colis, comme la page web /tracking.
+    if (isNaN(idNum) && !auth) {
+      const parcel = await findParcelByIdOrTracking(id)
+      if (!parcel) return NextResponse.json({ error: 'Parcel not found' }, { status: 404 })
+      return NextResponse.json(parcel)
+    }
+
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
+    const parcel = await findParcelByIdOrTracking(id)
     if (!parcel) {
       return NextResponse.json({ error: 'Parcel not found' }, { status: 404 })
+    }
+
+    if (auth!.role === 'voyageur') {
+      if (parcel.senderId !== auth!.userId) {
+        return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+      }
+    } else {
+      const ownershipError = await assertCompagnieOwnership(auth, parcel.compagnie_id)
+      if (ownershipError) return ownershipError
     }
 
     return NextResponse.json(parcel)
@@ -38,23 +62,20 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { id } = 'then' in params ? await params : params
-    const idNum = parseInt(id, 10)
-    const data = await request.json()
-    
-    const oldParcel = await prisma.parcel.findUnique({
-      where: { id: isNaN(idNum) ? undefined : idNum } as any
-    }) as any
-
+    const oldParcel = await findParcelByIdOrTracking(id)
     if (!oldParcel) {
-      // Try trackingId fallback
-      const byTracking = await prisma.parcel.findFirst({ where: { trackingId: id } })
-      if (!byTracking) {
-        return NextResponse.json({ error: 'Parcel not found' }, { status: 404 })
-      }
+      return NextResponse.json({ error: 'Parcel not found' }, { status: 404 })
     }
+    const ownershipError = await assertCompagnieOwnership(auth, oldParcel.compagnie_id)
+    if (ownershipError) return ownershipError
 
-    const numericId = oldParcel?.id ?? idNum
+    const data = await request.json()
+    const numericId = oldParcel.id
 
     // Convert string values to numbers if necessary
     const weight = typeof data.weight === 'string' ? parseFloat(data.weight) : data.weight
@@ -120,15 +141,23 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const { id } = 'then' in params ? await params : params
-    const idNum = parseInt(id, 10)
-    await prisma.parcel.delete({
-      where: { id: isNaN(idNum) ? undefined : idNum } as any
-    })
+    const parcel = await findParcelByIdOrTracking(id)
+    if (!parcel) {
+      return NextResponse.json({ error: 'Parcel not found' }, { status: 404 })
+    }
+    const ownershipError = await assertCompagnieOwnership(auth, parcel.compagnie_id)
+    if (ownershipError) return ownershipError
+
+    await prisma.parcel.delete({ where: { id: parcel.id } })
     return NextResponse.json({ message: 'Parcel deleted successfully' })
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete parcel' }, { status: 500 })

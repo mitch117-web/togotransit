@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 
 const statutMap: Record<string, any> = {
   PLANNED: 'planifie',
@@ -14,10 +15,26 @@ const statutMap: Record<string, any> = {
 
 export async function POST(request: Request) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+    if (auth!.role === 'gestionnaire' && !auth!.compagnieId) {
+      return NextResponse.json({ error: 'Gestionnaire sans compagnie' }, { status: 403 })
+    }
+
     const data = await request.json()
-    
+
     const statut = statutMap[data.status] ?? 'planifie'
     const vehiculeId = typeof data.vehicleId === 'string' ? parseInt(data.vehicleId, 10) : data.vehicleId
+    // Un gestionnaire ne peut créer un trajet que pour sa propre compagnie.
+    const compagnie_id = auth!.role === 'gestionnaire' ? auth!.compagnieId : (data.compagnie_id ?? null)
+
+    if (vehiculeId) {
+      const vehicule = await prisma.vehicule.findUnique({ where: { id: vehiculeId } })
+      if (!vehicule || (auth!.role === 'gestionnaire' && vehicule.compagnie_id !== auth!.compagnieId)) {
+        return NextResponse.json({ error: 'Véhicule invalide ou non autorisé' }, { status: 403 })
+      }
+    }
 
     const trajet = await prisma.trajet.create({
       data: {
@@ -28,7 +45,7 @@ export async function POST(request: Request) {
         prix: parseFloat(data.price ?? data.prix ?? 0),
         vehicule_id: vehiculeId ?? null,
         statut,
-        compagnie_id: data.compagnie_id ?? null,
+        compagnie_id,
         places_disponibles: parseInt(data.capacity ?? data.nombre_places ?? data.places_disponibles ?? 30),
       } as any,
       include: { vehicule: true, ville_depart: true, ville_arrivee: true }

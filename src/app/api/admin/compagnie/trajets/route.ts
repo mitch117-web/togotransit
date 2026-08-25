@@ -20,16 +20,19 @@ export async function GET(request: Request) {
     const auth = await extractAuthFromRequest(request as any)
     const blocked = requireRole(auth!, 'gestionnaire')
     if (blocked) return blocked
+    if (auth!.role === 'gestionnaire' && !auth!.compagnieId) {
+      return NextResponse.json({ error: 'Gestionnaire sans compagnie' }, { status: 403 })
+    }
 
     const { searchParams } = new URL(request.url)
     const statut = searchParams.get('statut') as any
     const limit = Math.min(parseInt(searchParams.get('limit') || '100', 10), 200)
 
-    const where: any = {}
+    let where: any = {}
     if (statut && ['planifie', 'en_cours', 'termine', 'annule'].includes(statut)) {
       where.statut = statut
     }
-    applyCompagnieFilterToWhere(where, auth, 'compagnie_id')
+    where = applyCompagnieFilterToWhere(where, auth, 'compagnie_id')
 
     const trajets = await prisma.trajet.findMany({
       where,

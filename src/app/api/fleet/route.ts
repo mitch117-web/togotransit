@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { extractAuthFromRequest, requireAnyRole, applyCompagnieFilterToWhere } from '@/lib/auth'
 
 const statusMap: Record<string, any> = {
   AVAILABLE: 'disponible',
@@ -12,10 +13,19 @@ const statusMap: Record<string, any> = {
 
 export async function POST(request: Request) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+    if (auth!.role === 'gestionnaire' && !auth!.compagnieId) {
+      return NextResponse.json({ error: 'Gestionnaire sans compagnie' }, { status: 403 })
+    }
+
     const data = await request.json()
-    
+
     const statut = statusMap[data.status] || data.status || 'disponible'
     const nombre_places = parseInt(data.capacity ?? data.nombre_places ?? '0') || 0
+    // Un gestionnaire ne peut créer un véhicule que pour sa propre compagnie.
+    const compagnie_id = auth!.role === 'gestionnaire' ? auth!.compagnieId : (data.compagnie_id ?? null)
 
     const newVehicle = await prisma.vehicule.create({
       data: {
@@ -23,7 +33,7 @@ export async function POST(request: Request) {
         type: data.type ?? data.modele ?? data.model ?? '',
         nombre_places,
         statut,
-        compagnie_id: data.compagnie_id ?? null,
+        compagnie_id,
       } as any
     })
 
@@ -34,9 +44,18 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+    if (auth!.role === 'gestionnaire' && !auth!.compagnieId) {
+      return NextResponse.json({ error: 'Gestionnaire sans compagnie' }, { status: 403 })
+    }
+
+    const where = applyCompagnieFilterToWhere({}, auth, 'compagnie_id')
     const vehicles = await prisma.vehicule.findMany({
+      where,
       orderBy: { immatriculation: 'asc' }
     })
     return NextResponse.json(vehicles)

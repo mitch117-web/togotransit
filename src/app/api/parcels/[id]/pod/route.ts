@@ -1,24 +1,54 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { sendSMS } from '@/lib/sms'
+import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
+
+async function findParcel(id: string) {
+  const idNum = parseInt(id, 10)
+  return prisma.parcel.findFirst({
+    where: {
+      OR: [
+        { id: isNaN(idNum) ? undefined : idNum },
+        { trackingId: id }
+      ].filter((x: any) => x.id !== undefined || x.trackingId !== undefined) as any
+    }
+  })
+}
+
+function canAccessParcel(auth: NonNullable<Awaited<ReturnType<typeof extractAuthFromRequest>>>, parcel: { compagnie_id: number | null; driverId: number | null }) {
+  if (auth.role === 'super_admin') return true
+  if (auth.role === 'gestionnaire') return parcel.compagnie_id === auth.compagnieId
+  if (auth.role === 'voyageur') return parcel.driverId === auth.userId
+  return false
+}
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     const { id } = 'then' in params ? await params : params
     const idNum = parseInt(id, 10)
-    
-    const pod = await prisma.pOD.findFirst({
-      where: {
-        OR: [
-          { parcelId: isNaN(idNum) ? undefined : idNum },
-          !isNaN(idNum) ? undefined : { parcel: { trackingId: id } }
-        ].filter(Boolean) as any
-      }
-    })
+    const auth = await extractAuthFromRequest(request as any)
 
+    // Un identifiant de tracking (non numérique) reste consultable publiquement,
+    // comme la page web /tracking.
+    if (isNaN(idNum) && !auth) {
+      const pod = await prisma.pOD.findFirst({ where: { parcel: { trackingId: id } } })
+      if (!pod) return NextResponse.json({ error: 'POD not found' }, { status: 404 })
+      return NextResponse.json(pod)
+    }
+
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
+    const parcel = await findParcel(id)
+    if (!parcel) return NextResponse.json({ error: 'Parcel not found' }, { status: 404 })
+    if (!canAccessParcel(auth!, parcel)) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
+    }
+
+    const pod = await prisma.pOD.findUnique({ where: { parcelId: parcel.id } })
     if (!pod) {
       return NextResponse.json({ error: 'POD not found' }, { status: 404 })
     }
@@ -34,22 +64,21 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const { id } = 'then' in params ? await params : params
-    const idNum = parseInt(id, 10)
-    const data = await request.json()
-    
-    // Find parcel first to get its real UUID if trackingId was provided
-    const parcel = await prisma.parcel.findFirst({
-      where: {
-        OR: [
-          { id: isNaN(idNum) ? undefined : idNum },
-          { trackingId: id }
-        ].filter((x: any) => x.id !== undefined || x.trackingId !== undefined) as any
-      }
-    })
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    if (blocked) return blocked
 
+    const { id } = 'then' in params ? await params : params
+    const data = await request.json()
+
+    const parcel = await findParcel(id)
     if (!parcel) {
       return NextResponse.json({ error: 'Parcel not found' }, { status: 404 })
+    }
+    // Seul le chauffeur assigné, un gestionnaire de la compagnie du colis, ou
+    // un super_admin peut certifier une livraison (preuve de livraison).
+    if (!canAccessParcel(auth!, parcel)) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
 
     const parcelUuid = parcel.id

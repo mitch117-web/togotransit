@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 
 const statutMap: Record<string, any> = {
   CONFIRMED: 'confirmee',
@@ -15,6 +16,11 @@ const statutMap: Record<string, any> = {
 
 export async function POST(request: Request) {
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    // Réservation créée pour un client par un agent au guichet (walk-in).
+    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
     const data = await request.json()
     const trajetId = typeof data.tripId === 'string' ? parseInt(data.tripId, 10) : data.tripId
     const userIdNum = typeof data.userId === 'string' ? parseInt(data.userId, 10) : data.userId
@@ -28,6 +34,9 @@ export async function POST(request: Request) {
 
     if (!trajet) {
       return NextResponse.json({ error: 'Trajet non trouvé' }, { status: 404 })
+    }
+    if (auth!.role === 'gestionnaire' && trajet.compagnie_id !== auth!.compagnieId) {
+      return NextResponse.json({ error: 'Accès refusé. Ce trajet appartient à une autre compagnie.' }, { status: 403 })
     }
 
     // Vérifier disponibilité via places_disponibles
@@ -59,11 +68,11 @@ export async function POST(request: Request) {
     try {
       await prisma.notification.create({
         data: {
-          utilisateur_id: userIdNum,
-          titre: 'Réservation confirmée ! 🎫',
+          userId: userIdNum,
+          title: 'Réservation confirmée ! 🎫',
           message: `Réservation #${newReservation.id} confirmée pour le trajet.`,
           type: 'RESERVATION',
-        } as any
+        }
       })
     } catch (_) { /* notification optionnelle */ }
 
@@ -75,17 +84,26 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const tripId = searchParams.get('tripId')
-  const userId = searchParams.get('userId')
-  const status = searchParams.get('status')
-  const limit = searchParams.get('limit')
-
   try {
+    const auth = await extractAuthFromRequest(request as any)
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    if (blocked) return blocked
+
+    const { searchParams } = new URL(request.url)
+    const tripId = searchParams.get('tripId')
+    const status = searchParams.get('status')
+    const limit = searchParams.get('limit')
+
     const where: any = {}
     if (tripId) where.trajet_id = parseInt(tripId, 10)
-    if (userId) where.utilisateur_id = parseInt(userId, 10)
     if (status) where.statut = statutMap[status] ?? status
+
+    if (auth!.role === 'voyageur') {
+      // Toujours ses propres réservations — le paramètre `userId` éventuel est ignoré.
+      where.utilisateur_id = auth!.userId
+    } else if (auth!.role === 'gestionnaire') {
+      where.trajet = { compagnie_id: auth!.compagnieId ?? -1 }
+    }
 
     const bookings = await prisma.reservation.findMany({
       where,

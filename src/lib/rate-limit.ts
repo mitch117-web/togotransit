@@ -10,9 +10,12 @@ import prisma from './prisma'
  * soit le nombre d'instances actives.
  */
 const WINDOW_MS = 60 * 1000
-const MAX_ATTEMPTS = 5
+const MAX_ATTEMPTS_DEFAUT = 5
 
-export async function isRateLimited(key: string): Promise<{ limited: boolean; retryAfterSec: number }> {
+export async function isRateLimited(
+  key: string,
+  maxAttempts: number = MAX_ATTEMPTS_DEFAUT
+): Promise<{ limited: boolean; retryAfterSec: number }> {
   const now = new Date()
 
   const entry = await prisma.rateLimitEntry.findUnique({ where: { key } })
@@ -31,7 +34,7 @@ export async function isRateLimited(key: string): Promise<{ limited: boolean; re
     data: { count: { increment: 1 } },
   })
 
-  if (updated.count > MAX_ATTEMPTS) {
+  if (updated.count > maxAttempts) {
     const retryAfterSec = Math.ceil((entry.resetAt.getTime() - now.getTime()) / 1000)
     return { limited: true, retryAfterSec }
   }

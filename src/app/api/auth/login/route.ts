@@ -16,9 +16,13 @@ const BCRYPT_PREFIX = '$2'
 
 export async function POST(request: Request) {
   try {
-    // Protection brute-force : 5 tentatives / minute / IP
+    // Protection brute-force : 20 tentatives / minute / IP. Plus permissif
+    // qu'un simple anti-bruteforce mono-compte car une même IP (agence,
+    // démonstration) peut légitimement enchaîner les connexions à plusieurs
+    // comptes différents en quelques secondes ; 20/min reste dérisoire pour
+    // deviner un mot de passe bcrypt.
     const ip = getClientIp(request)
-    const { limited, retryAfterSec } = await isRateLimited(`login:${ip}`)
+    const { limited, retryAfterSec } = await isRateLimited(`login:${ip}`, 20)
     if (limited) {
       return NextResponse.json(
         { error: `Trop de tentatives. Réessayez dans ${retryAfterSec} secondes.` },

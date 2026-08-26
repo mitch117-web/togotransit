@@ -96,6 +96,7 @@ model Utilisateur {
   compagnie     Compagnie?        @relation(fields: [compagnie_id], references: [id], onDelete: SetNull)
   date_creation DateTime          @default(now())
   statut        UtilisateurStatut @default(actif)
+  notifications_enabled Boolean   @default(true)
 
   reservations     Reservation[]
   avis             Avis[]

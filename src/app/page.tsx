@@ -26,19 +26,22 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 mt-4">
-            <Link 
-              href="/login" 
+            <Link
+              href="/login"
               className="bg-white text-primary px-8 py-4 rounded-2xl font-black text-lg hover:bg-secondary hover:text-on-secondary transition-all shadow-xl shadow-primary/20"
             >
-              ESPACE AGENT
+              ESPACE PRO / ADMIN
             </Link>
           </div>
+          <p className="text-sm opacity-70 -mt-2">
+            Voyageur ? Réservez vos trajets et suivez vos colis depuis l&apos;application mobile TogoTransit.
+          </p>
         </div>
       </header>
 
       {/* Main Actions */}
       <main className="max-w-6xl mx-auto w-full p-4 -mt-16 relative z-20 flex flex-col gap-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="max-w-xl mx-auto w-full">
           {/* Tracking Card */}
           <Link href="/tracking" className="group bg-white p-10 rounded-[3rem] border border-outline-variant shadow-2xl hover:border-primary transition-all duration-500 flex flex-col gap-6">
             <div className="w-20 h-20 rounded-3xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-all duration-500">
@@ -50,21 +53,6 @@ export default function LandingPage() {
             </div>
             <div className="mt-4 flex items-center gap-2 font-black text-primary uppercase tracking-widest text-sm">
               Commencer le suivi
-              <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_forward</span>
-            </div>
-          </Link>
-
-          {/* Booking Card */}
-          <Link href="/trips" className="group bg-white p-10 rounded-[3rem] border border-outline-variant shadow-2xl hover:border-secondary transition-all duration-500 flex flex-col gap-6">
-            <div className="w-20 h-20 rounded-3xl bg-secondary/10 text-secondary flex items-center justify-center group-hover:bg-secondary group-hover:text-on-secondary transition-all duration-500">
-              <span className="material-symbols-outlined text-5xl">confirmation_number</span>
-            </div>
-            <div className="flex flex-col gap-2">
-              <h3 className="text-3xl font-black text-secondary uppercase tracking-tighter">Réserver un ticket</h3>
-              <p className="text-on-surface-variant text-lg">Consultez les horaires de bus et réservez votre place pour votre prochain voyage.</p>
-            </div>
-            <div className="mt-4 flex items-center gap-2 font-black text-secondary uppercase tracking-widest text-sm">
-              Voir les départs
               <span className="material-symbols-outlined group-hover:translate-x-2 transition-transform">arrow_forward</span>
             </div>
           </Link>

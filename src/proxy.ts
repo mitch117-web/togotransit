@@ -9,7 +9,8 @@ import { verifyToken } from '@/lib/jwt'
  * - Routes /admin/** → exiger un JWT signé valide avec rôle gestionnaire ou super_admin
  * - Le rôle est lu UNIQUEMENT depuis le JWT vérifié (jamais depuis un cookie non vérifié)
  * - Si non authentifié ou rôle insuffisant → rediriger vers /login
- * - Les voyageurs connectés qui tentent /admin → redirigés vers /trips
+ * - Les voyageurs utilisent exclusivement l'application mobile : un voyageur
+ *   connecté qui tente /admin est renvoyé vers /login avec un message dédié.
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -38,9 +39,16 @@ export function proxy(request: NextRequest) {
       return response
     }
 
-    // Voyageur tentant d'accéder à /admin → rediriger vers /trips
+    // Voyageur tentant d'accéder à /admin → aucune interface web pour ce
+    // rôle, on renvoie vers /login avec un message explicatif.
     if (payload.role === 'voyageur') {
-      return NextResponse.redirect(new URL('/trips', request.url))
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('mobileOnly', '1')
+      const response = NextResponse.redirect(loginUrl)
+      response.cookies.delete('auth_token')
+      response.cookies.delete('auth_role')
+      response.cookies.delete('compagnie_id')
+      return response
     }
 
     // Rôle inconnu ou manquant

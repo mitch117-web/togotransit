@@ -66,12 +66,6 @@ export default function AdminLayout({
             <div className="hidden sm:block">
               <LanguageSelector />
             </div>
-            <Link 
-              href="/trips" 
-              className="text-xs font-bold text-primary hover:underline px-2 py-1 bg-surface-container-high rounded-lg"
-            >
-              Vue Voyageur ↗
-            </Link>
             <LogoutButton />
           </div>
         </header>

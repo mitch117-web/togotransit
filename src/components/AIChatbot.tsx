@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { useTheme } from '@/lib/theme/ThemeContext'
 
 interface Message {
@@ -11,12 +12,18 @@ interface Message {
 }
 
 export default function AIChatbot() {
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { colors, theme, toggleTheme } = useTheme()
+
+  // Assistant réservé à l'espace voyageur — jamais sur le dashboard admin.
+  if (pathname?.startsWith('/admin')) {
+    return null
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

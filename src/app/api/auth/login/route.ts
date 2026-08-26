@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     }
 
     const { identifier, email, telephone, mot_de_passe } = parsed.data
-    const idValue = identifier || email || telephone
+    const idValue = (identifier || email || telephone)?.trim()
 
     if (!idValue) {
       return NextResponse.json(

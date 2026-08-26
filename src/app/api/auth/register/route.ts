@@ -23,13 +23,17 @@ export async function POST(request: Request) {
       )
     }
 
-    const { nom, prenom, email, telephone, mot_de_passe } = parsed.data
+    const { mot_de_passe } = parsed.data
+    const nom = parsed.data.nom.trim()
+    const prenom = parsed.data.prenom.trim()
+    const telephone = parsed.data.telephone.trim()
+    const email = parsed.data.email?.trim() || undefined
 
     const existing = await prisma.utilisateur.findFirst({
       where: {
         OR: [
           { telephone },
-          ...(email ? [{ email }] : []),
+          ...(email ? [{ email: { equals: email, mode: 'insensitive' as const } }] : []),
         ],
       },
     })

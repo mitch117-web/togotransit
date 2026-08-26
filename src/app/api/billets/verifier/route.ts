@@ -11,7 +11,9 @@ const verifierSchema = z.object({
 export async function POST(request: Request) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    // Un voyageur ne peut valider un embarquement que s'il est le chauffeur
+    // assigné au trajet du billet — vérifié après lecture du billet ci-dessous.
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
     if (blocked) return blocked
 
     const body = await request.json()
@@ -58,6 +60,18 @@ export async function POST(request: Request) {
               status: 403,
               error: 'Ce billet appartient à une autre compagnie.',
               code: 'MAUVAISE_COMPAGNIE',
+            }
+          }
+        }
+
+        // Un voyageur ne peut valider que les billets de son propre trajet
+        // (il est chauffeur, pas agent de compagnie).
+        if (auth!.role === 'voyageur') {
+          if (billet.reservation?.trajet?.driver_id !== auth!.userId) {
+            return {
+              status: 403,
+              error: "Ce billet ne concerne pas votre trajet.",
+              code: 'MAUVAIS_TRAJET',
             }
           }
         }

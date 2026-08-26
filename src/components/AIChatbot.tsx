@@ -20,8 +20,14 @@ export default function AIChatbot() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { colors, theme, toggleTheme } = useTheme()
 
-  // Assistant réservé à l'espace voyageur — jamais sur le dashboard admin.
-  if (pathname?.startsWith('/admin')) {
+  // Le web est réservé au pro/admin (voyageurs = mobile uniquement) : le
+  // chat n'a de sens que sur les pages publiques d'aide (accueil, suivi de
+  // colis), jamais sur l'écran de connexion ni le dashboard admin.
+  const PAGES_PUBLIQUES = ['/', '/tracking']
+  const estPagePublique = pathname != null && PAGES_PUBLIQUES.some(
+    (p) => pathname === p || pathname.startsWith(p + '/')
+  )
+  if (!estPagePublique) {
     return null
   }
 

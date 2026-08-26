@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     const user = await prisma.utilisateur.findFirst({
       where: {
         OR: [
-          { email: idValue },
+          { email: { equals: idValue, mode: 'insensitive' } },
           { telephone: idValue }
         ]
       },

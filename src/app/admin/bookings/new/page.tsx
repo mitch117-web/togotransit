@@ -61,7 +61,7 @@ export default async function NewBookingPage() {
                     {new Date(trip.departureTime).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </span>
                 </div>
-                <span className="text-[10px] font-black uppercase text-on-surface-variant bg-white px-2 py-0.5 rounded shadow-sm">
+                <span className="text-[10px] font-black uppercase text-on-surface-variant bg-surface-container-lowest px-2 py-0.5 rounded shadow-sm">
                   {trip.vehicle?.type}
                 </span>
               </div>

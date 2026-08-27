@@ -95,11 +95,11 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
             disabled={isTaken || loading}
             onClick={() => setSelectedSeat(i)}
             className={`w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold transition-all border-2 ${
-              isTaken 
-                ? 'bg-gray-200 border-gray-300 text-gray-400 cursor-not-allowed' 
+              isTaken
+                ? 'bg-surface-variant border-outline-variant text-on-surface-variant/50 cursor-not-allowed'
                 : isSelected
                   ? 'bg-secondary-container border-secondary text-on-secondary-container shadow-md'
-                  : 'bg-white border-outline-variant text-primary hover:border-primary'
+                  : 'bg-surface-container border-outline-variant text-primary hover:border-primary'
             }`}
           >
             {i}
@@ -134,8 +134,8 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
         <div className="lg:col-span-2 bg-surface-container-lowest p-8 rounded-3xl border border-outline-variant shadow-lg flex flex-col items-center h-fit">
           <div className="w-full max-w-sm flex flex-col gap-6">
             {/* Avant du bus */}
-            <div className="w-full h-12 bg-gray-100 rounded-t-[40px] border-x-2 border-t-2 border-gray-300 flex items-center justify-center">
-              <span className="material-symbols-outlined text-gray-400">directions_bus</span>
+            <div className="w-full h-12 bg-surface-container-high rounded-t-[40px] border-x-2 border-t-2 border-outline-variant flex items-center justify-center">
+              <span className="material-symbols-outlined text-on-surface-variant">directions_bus</span>
             </div>
 
             {/* Grille des sièges */}
@@ -144,18 +144,18 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
             </div>
 
             {/* Légende */}
-            <div className="flex justify-center gap-6 mt-8 pt-6 border-t border-gray-100">
+            <div className="flex justify-center gap-6 mt-8 pt-6 border-t border-outline-variant/30">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-white border-2 border-outline-variant rounded"></div>
-                <span className="text-[10px] font-bold uppercase text-gray-500">Libre</span>
+                <div className="w-4 h-4 bg-surface-container border-2 border-outline-variant rounded"></div>
+                <span className="text-[10px] font-bold uppercase text-on-surface-variant">Libre</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-gray-200 border-2 border-gray-300 rounded"></div>
-                <span className="text-[10px] font-bold uppercase text-gray-500">Occupé</span>
+                <div className="w-4 h-4 bg-surface-variant border-2 border-outline-variant rounded"></div>
+                <span className="text-[10px] font-bold uppercase text-on-surface-variant">Occupé</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-secondary-container border-2 border-secondary rounded"></div>
-                <span className="text-[10px] font-bold uppercase text-gray-500">Sélectionné</span>
+                <span className="text-[10px] font-bold uppercase text-on-surface-variant">Sélectionné</span>
               </div>
             </div>
           </div>

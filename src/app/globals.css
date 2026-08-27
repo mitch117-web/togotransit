@@ -1,40 +1,42 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #002653;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #1a3c6e;
-  --color-on-primary-container: #8aa8e0;
-  
+  /* Identité "marine + or" — même palette que l'app mobile et la page de
+     connexion web, pour une cohérence de marque sur toutes les surfaces. */
+  --color-primary: #fd761a;
+  --color-on-primary: #1a0800;
+  --color-primary-container: #3a2414;
+  --color-on-primary-container: #ffb673;
+
   --color-secondary: #9d4300;
   --color-on-secondary: #ffffff;
   --color-secondary-container: #fd761a;
   --color-on-secondary-container: #5c2400;
-  
-  --color-background: #f8f9ff;
-  --color-on-background: #0b1c30;
-  
-  --color-surface: #f8f9ff;
-  --color-on-surface: #0b1c30;
-  --color-surface-variant: #d3e4fe;
-  --color-on-surface-variant: #43474f;
-  
-  --color-outline: #747780;
-  --color-outline-variant: #c4c6d0;
-  
-  --color-surface-container-low: #eff4ff;
-  --color-surface-container: #e5eeff;
-  --color-surface-container-high: #dce9ff;
-  --color-surface-container-highest: #d3e4fe;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-bright: #f8f9ff;
+
+  --color-background: #070d1a;
+  --color-on-background: #f5f7ff;
+
+  --color-surface: #131b2c;
+  --color-on-surface: #f5f7ff;
+  --color-surface-variant: #1b2436;
+  --color-on-surface-variant: #a3acc2;
+
+  --color-outline: #6b7690;
+  --color-outline-variant: #2a3450;
+
+  --color-surface-container-low: #111a2b;
+  --color-surface-container: #161f33;
+  --color-surface-container-high: #1d283e;
+  --color-surface-container-highest: #26314a;
+  --color-surface-container-lowest: #0d1420;
+  --color-surface-bright: #26314a;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 :root {
-  --background: #f8f9ff;
-  --foreground: #0b1c30;
+  --background: #070d1a;
+  --foreground: #f5f7ff;
 }
 
 body {

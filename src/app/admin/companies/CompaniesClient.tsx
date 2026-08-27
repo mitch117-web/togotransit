@@ -119,26 +119,26 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
 
       {/* Stats rapides */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
+        <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[11px] font-black uppercase text-outline">Total Compagnies</span>
           <span className="text-3xl font-black text-primary mt-1">{companies.length}</span>
           <span className="text-[10px] text-green-700 font-bold mt-1">✓ Actives sur le réseau</span>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
+        <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[11px] font-black uppercase text-outline">Agences Physiques</span>
           <span className="text-3xl font-black text-secondary mt-1">
             {companies.reduce((acc, c) => acc + c.agencesCount, 0)}
           </span>
           <span className="text-[10px] text-on-surface-variant font-bold mt-1">Réparties dans les 5 régions</span>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
+        <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[11px] font-black uppercase text-outline">Flotte Globale</span>
           <span className="text-3xl font-black text-primary mt-1">
             {companies.reduce((acc, c) => acc + c.stats.vehicles, 0)}
           </span>
           <span className="text-[10px] text-on-surface-variant font-bold mt-1">Autocars & Minibus agréés</span>
         </div>
-        <div className="bg-white p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
+        <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[11px] font-black uppercase text-outline">Trajets Opérés</span>
           <span className="text-3xl font-black text-emerald-700 mt-1">
             {companies.reduce((acc, c) => acc + c.stats.trips, 0)}
@@ -148,7 +148,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
       </div>
 
       {/* Barre de Recherche et Filtres */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-outline-variant shadow-sm">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant shadow-sm">
         <div className="flex flex-wrap gap-2">
           {['ALL', 'actif', 'suspendu'].map(s => (
             <button
@@ -182,7 +182,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
         {filteredCompanies.map((c) => (
           <div
             key={c.id}
-            className="bg-white rounded-2xl border border-outline-variant p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-6"
+            className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-6"
           >
             <div className="flex flex-col gap-4">
               {/* Entête Compagnie */}
@@ -198,8 +198,8 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                 </div>
                 <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
                   c.statut === 'actif'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
+                    ? 'bg-emerald-500/15 text-emerald-400'
+                    : 'bg-red-500/15 text-red-400'
                 }`}>
                   {c.statut}
                 </span>
@@ -256,8 +256,8 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                 onClick={() => toggleCompanyStatus(c)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   c.statut === 'actif'
-                    ? 'border border-red-200 text-red-700 hover:bg-red-50'
-                    : 'bg-green-700 text-white hover:bg-green-800'
+                    ? 'border border-red-500/30 text-red-400 hover:bg-red-500/10'
+                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
                 }`}
               >
                 {c.statut === 'actif' ? 'Suspendre' : 'Réactiver'}
@@ -270,7 +270,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
       {/* Modal Détails Agences */}
       {selectedCompany && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl flex flex-col gap-6 max-h-[85vh] overflow-y-auto">
+          <div className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl flex flex-col gap-6 max-h-[85vh] overflow-y-auto">
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-xl font-black text-primary">{selectedCompany.nom}</h3>
@@ -309,7 +309,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
       {/* Modal Nouvelle Compagnie */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl flex flex-col gap-6">
+          <div className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl flex flex-col gap-6">
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-black text-primary">Agréer une nouvelle compagnie</h3>
               <button

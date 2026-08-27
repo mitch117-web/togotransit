@@ -329,7 +329,7 @@ export default function EditParcelClient({ parcel, drivers }: { parcel: Parcel, 
             </select>
           </div>
 
-          <div className="bg-white p-4 rounded-xl border border-primary/30 flex flex-col justify-center">
+          <div className="bg-surface-container-lowest p-4 rounded-xl border border-primary/30 flex flex-col justify-center">
             <p className="font-label-sm text-on-surface-variant uppercase text-center">Prix estimé</p>
             <p className="font-headline-lg text-headline-lg text-primary font-black text-center">
               {watch('price')?.toLocaleString('fr-FR')} F

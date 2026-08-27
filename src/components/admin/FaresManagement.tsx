@@ -115,7 +115,7 @@ export default function FaresManagement({ initialFares }: { initialFares: Fare[]
   return (
     <div className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden shadow-sm relative">
       {loading && (
-        <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center">
+        <div className="absolute inset-0 bg-background/70 z-10 flex items-center justify-center">
           <span className="animate-spin material-symbols-outlined text-primary text-3xl">sync</span>
         </div>
       )}

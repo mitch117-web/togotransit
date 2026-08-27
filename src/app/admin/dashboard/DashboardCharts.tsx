@@ -6,7 +6,21 @@ import {
   LineChart, Line, AreaChart, Area, PieChart, Pie, Cell 
 } from 'recharts'
 
-const COLORS = ['#002653', '#fd761a', '#0056b3', '#28a745', '#ffc107']
+// Palette de graphiques adaptée à l'identité marine + or (dashboard en thème
+// sombre) : or (marque), émeraude, ciel, ambre, rose — des teintes qui restent
+// lisibles et distinctes sur fond marine quasi-noir.
+const COLORS = ['#fd761a', '#34d399', '#38bdf8', '#fbbf24', '#f472b6']
+const GRID_STROKE = 'rgba(245,247,255,0.08)'
+const AXIS_TICK = { fontSize: 10, fill: '#a3acc2' }
+const TOOLTIP_STYLE = {
+  borderRadius: 12,
+  border: '1px solid rgba(255,255,255,0.12)',
+  boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+  backgroundColor: '#131b2c',
+  color: '#f5f7ff',
+}
+const TOOLTIP_ITEM_STYLE = { color: '#f5f7ff' }
+const TOOLTIP_LABEL_STYLE = { color: '#a3acc2' }
 
 export default function DashboardCharts({ 
   data, 
@@ -33,23 +47,25 @@ export default function DashboardCharts({
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f1f1" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10, fill: '#747780' }} 
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GRID_STROKE} />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={AXIS_TICK}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10, fill: '#747780' }} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={AXIS_TICK}
                 />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  cursor={{ fill: '#f8f9ff' }}
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
+                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                 />
-                <Bar dataKey="colis" fill="#002653" radius={[4, 4, 0, 0]} barSize={30} />
+                <Bar dataKey="colis" fill="#fd761a" radius={[4, 4, 0, 0]} barSize={30} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -66,31 +82,33 @@ export default function DashboardCharts({
               <AreaChart data={monthlyRevenue}>
                 <defs>
                   <linearGradient id="colorMonthly" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#28a745" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#28a745" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#34d399" stopOpacity={0.35}/>
+                    <stop offset="95%" stopColor="#34d399" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f1f1" />
-                <XAxis 
-                  dataKey="month" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10, fill: '#747780' }} 
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GRID_STROKE} />
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={AXIS_TICK}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10, fill: '#747780' }} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={AXIS_TICK}
                 />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#28a745" 
-                  fillOpacity={1} 
-                  fill="url(#colorMonthly)" 
+                <Area
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="#34d399"
+                  fillOpacity={1}
+                  fill="url(#colorMonthly)"
                   strokeWidth={3}
                 />
               </AreaChart>
@@ -119,8 +137,10 @@ export default function DashboardCharts({
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -146,8 +166,10 @@ export default function DashboardCharts({
                     <Cell key={`cell-cat-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
                 />
               </PieChart>
             </ResponsiveContainer>

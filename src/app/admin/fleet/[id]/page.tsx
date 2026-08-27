@@ -73,7 +73,7 @@ export default async function VehicleDetailsPage({
       case 'AVAILABLE': return 'bg-green-100 text-green-700 border-green-200'
       case 'IN_SERVICE': return 'bg-blue-100 text-blue-700 border-blue-200'
       case 'MAINTENANCE': return 'bg-error-container/20 text-error border-error-container'
-      default: return 'bg-gray-100 text-gray-700 border-gray-200'
+      default: return 'bg-surface-container-high text-on-surface-variant border-outline-variant'
     }
   }
 

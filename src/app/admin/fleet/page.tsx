@@ -36,7 +36,7 @@ async function getFleetData() {
 
   const stats = {
     total: vehicles.length,
-    inService: vehicles.filter(v => v.status === 'IN_SERVICE' || v.status === 'AVAILABLE').length,
+    inService: vehicles.filter(v => v.status === 'IN_SERVICE').length,
     available: vehicles.filter(v => v.status === 'AVAILABLE').length,
     maintenance: vehicles.filter(v => v.status === 'MAINTENANCE').length,
   }
@@ -105,7 +105,7 @@ export default async function FleetPage() {
           </div>
         </div>
 
-        <div className="bg-error-container/20 p-4 rounded-xl border border-error-container flex flex-col justify-between shadow-sm">
+        <div className="bg-error-container/20 p-4 rounded-xl border border-outline-variant flex flex-col justify-between shadow-sm">
           <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-error mb-4">
             <span className="material-symbols-outlined">build</span>
           </div>
@@ -165,9 +165,9 @@ export default async function FleetPage() {
                 >
                   Détails
                 </Link>
-                <Link 
+                <Link
                   href={`/admin/fleet/${vehicle.id}/edit`}
-                  className="px-3 bg-surface-container-high hover:bg-surface-container-highest text-primary rounded-lg transition-colors flex items-center justify-center"
+                  className="px-3 bg-surface-container-highest hover:bg-primary/20 text-primary border border-outline-variant rounded-lg transition-colors flex items-center justify-center"
                 >
                   <span className="material-symbols-outlined">edit</span>
                 </Link>

@@ -10,7 +10,7 @@ export default function LanguageSelector() {
   const languages = [
     { code: 'fr', label: 'FR', name: 'Français' },
     { code: 'ee', label: 'EE', name: 'Ewe' },
-    { code: 'kbp', label: 'KB', name: 'Kabyè' },
+    { code: 'kbp', label: 'KBP', name: 'Kabyè' },
   ]
 
   return (

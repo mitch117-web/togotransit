@@ -35,9 +35,9 @@ export default function AdminUserBadge() {
       <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-black text-xs border border-outline-variant shadow-sm shrink-0">
         {initials}
       </div>
-      <div className="overflow-hidden">
-        <p className="font-bold text-xs text-primary truncate">{displayName}</p>
-        <p className="text-[0.625rem] text-on-surface-variant font-bold truncate opacity-80">{displayRole}</p>
+      <div className="min-w-0 flex-1">
+        <p title={displayName} className="font-bold text-xs text-primary leading-snug line-clamp-2 break-words">{displayName}</p>
+        <p title={displayRole} className="text-[0.625rem] text-on-surface-variant font-bold truncate opacity-80">{displayRole}</p>
       </div>
     </div>
   )

@@ -120,16 +120,19 @@ export default async function FleetPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {vehicles.map((vehicle) => (
           <div key={vehicle.id} className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
-            <div className="p-4 border-b border-outline-variant bg-surface-bright flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${
+            <div className="p-4 border-b border-outline-variant bg-surface-bright flex justify-between items-center gap-3">
+              <div className="flex items-center gap-2 shrink-0">
+                <div className={`w-3 h-3 rounded-full shrink-0 ${
                   vehicle.status === 'AVAILABLE' ? 'bg-green-500' :
                   vehicle.status === 'IN_SERVICE' ? 'bg-blue-500' :
                   'bg-error'
                 }`}></div>
-                <Link href={`/admin/fleet/${vehicle.id}`} className="font-bold text-primary hover:underline">{vehicle.plateNumber}</Link>
+                <Link href={`/admin/fleet/${vehicle.id}`} className="font-bold text-primary hover:underline whitespace-nowrap">{vehicle.plateNumber}</Link>
               </div>
-              <span className="text-[0.625rem] font-black uppercase text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+              <span
+                title={vehicle.type}
+                className="text-[0.625rem] font-black uppercase text-on-surface-variant bg-surface-container px-2 py-1 rounded truncate max-w-[55%]"
+              >
                 {vehicle.type}
               </span>
             </div>

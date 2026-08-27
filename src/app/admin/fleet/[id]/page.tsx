@@ -70,8 +70,8 @@ export default async function VehicleDetailsPage({
 
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'AVAILABLE': return 'bg-green-100 text-green-700 border-green-200'
-      case 'IN_SERVICE': return 'bg-blue-100 text-blue-700 border-blue-200'
+      case 'AVAILABLE': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+      case 'IN_SERVICE': return 'bg-blue-500/10 text-blue-400 border-blue-500/30'
       case 'MAINTENANCE': return 'bg-error-container/20 text-error border-error-container'
       default: return 'bg-surface-container-high text-on-surface-variant border-outline-variant'
     }
@@ -131,20 +131,20 @@ export default async function VehicleDetailsPage({
           </div>
 
           {/* Stats Card */}
-          <div className="bg-primary text-on-primary p-6 rounded-2xl shadow-lg flex flex-col gap-6">
-            <h3 className="font-headline-sm text-headline-sm font-bold opacity-90">Performance</h3>
+          <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-2xl shadow-sm flex flex-col gap-6">
+            <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface-variant">Performance</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col bg-white/10 p-4 rounded-xl">
-                <span className="text-[0.625rem] font-black uppercase opacity-70">Total Voyages</span>
-                <p className="text-2xl font-black">{totalTrips}</p>
+              <div className="flex flex-col bg-surface-container-low p-4 rounded-xl">
+                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Total Voyages</span>
+                <p className="text-2xl font-black text-primary">{totalTrips}</p>
               </div>
-              <div className="flex flex-col bg-white/10 p-4 rounded-xl">
-                <span className="text-[0.625rem] font-black uppercase opacity-70">Terminés</span>
-                <p className="text-2xl font-black">{completedTrips}</p>
+              <div className="flex flex-col bg-surface-container-low p-4 rounded-xl">
+                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Terminés</span>
+                <p className="text-2xl font-black text-primary">{completedTrips}</p>
               </div>
-              <div className="flex flex-col bg-white/10 p-4 rounded-xl col-span-2">
-                <span className="text-[0.625rem] font-black uppercase opacity-70">Revenu Généré</span>
-                <p className="text-2xl font-black">{totalRevenue.toLocaleString('fr-FR')} F</p>
+              <div className="flex flex-col bg-surface-container-low p-4 rounded-xl col-span-2">
+                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Revenu Généré</span>
+                <p className="text-2xl font-black text-primary">{totalRevenue.toLocaleString('fr-FR')} F</p>
               </div>
             </div>
           </div>
@@ -192,9 +192,9 @@ export default async function VehicleDetailsPage({
                       </td>
                       <td className="p-4">
                         <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border ${
-                          trip.status === 'COMPLETED' ? 'bg-green-100 text-green-700 border-green-200' :
-                          trip.status === 'ONGOING' ? 'bg-blue-100 text-blue-700 border-blue-200' :
-                          'bg-orange-100 text-orange-700 border-orange-200'
+                          trip.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
+                          trip.status === 'ONGOING' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' :
+                          'bg-primary/10 text-primary border-primary/30'
                         }`}>
                           {trip.status}
                         </span>

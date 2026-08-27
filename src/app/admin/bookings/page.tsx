@@ -114,14 +114,17 @@ export default async function BookingsPage() {
               const availableSeats = (trip.vehicle?.capacity || 0) - trip._count.bookings
               return (
                 <div key={trip.id} className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
-                  <div className="p-4 bg-primary text-on-primary flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[1.25rem]">schedule</span>
-                      <span className="font-label-md text-label-md">
+                  <div className="p-4 bg-surface-bright border-b border-outline-variant text-on-surface flex justify-between items-center gap-3">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="material-symbols-outlined text-[1.25rem] text-primary">schedule</span>
+                      <span className="font-label-md text-label-md whitespace-nowrap">
                         {new Date(trip.departureTime).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })} - {new Date(trip.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <span className="bg-white/20 px-2 py-0.5 rounded text-[0.625rem] font-bold uppercase">
+                    <span
+                      title={trip.vehicle?.type}
+                      className="bg-surface-container text-on-surface-variant px-2 py-1 rounded text-[0.625rem] font-bold uppercase truncate max-w-[45%]"
+                    >
                       {trip.vehicle?.type}
                     </span>
                   </div>
@@ -197,7 +200,7 @@ export default async function BookingsPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <PrintTicketButton booking={booking} />
-                      <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-green-100 text-green-700 uppercase">
+                      <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-emerald-500/10 text-emerald-400 uppercase">
                         Confirmé
                       </span>
                     </div>

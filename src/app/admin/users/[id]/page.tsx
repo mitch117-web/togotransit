@@ -123,16 +123,16 @@ export default async function UserDetailsPage({
           </div>
 
           {/* Quick Stats */}
-          <div className="bg-secondary text-on-secondary p-6 rounded-2xl shadow-lg flex flex-col gap-6">
-            <h3 className="font-headline-sm text-headline-sm font-bold opacity-90">Activités</h3>
+          <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-2xl shadow-sm flex flex-col gap-6">
+            <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface-variant">Activités</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col bg-white/10 p-4 rounded-xl">
-                <span className="text-[0.625rem] font-black uppercase opacity-70">Colis Envoyés</span>
-                <p className="text-2xl font-black">{user.parcels.length}</p>
+              <div className="flex flex-col bg-surface-container-low p-4 rounded-xl">
+                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Colis Envoyés</span>
+                <p className="text-2xl font-black text-primary">{user.parcels.length}</p>
               </div>
-              <div className="flex flex-col bg-white/10 p-4 rounded-xl">
-                <span className="text-[0.625rem] font-black uppercase opacity-70">Réservations</span>
-                <p className="text-2xl font-black">{user.bookings.length}</p>
+              <div className="flex flex-col bg-surface-container-low p-4 rounded-xl">
+                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Réservations</span>
+                <p className="text-2xl font-black text-primary">{user.bookings.length}</p>
               </div>
             </div>
           </div>
@@ -164,7 +164,7 @@ export default async function UserDetailsPage({
                       <td className="p-4 text-sm font-medium">{parcel.destination}</td>
                       <td className="p-4">
                         <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border ${
-                          parcel.status === 'DELIVERED' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-blue-100 text-blue-700 border-blue-200'
+                          parcel.status === 'DELIVERED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-blue-500/10 text-blue-400 border-blue-500/30'
                         }`}>
                           {parcel.status}
                         </span>

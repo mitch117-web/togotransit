@@ -183,11 +183,11 @@ export default async function AdminDashboard() {
       {/* Bandeau d'identité compagnie / super-admin */}
       <div className={`rounded-2xl border p-4 flex items-center gap-4 shadow-sm ${
         isSuperAdmin
-          ? 'bg-amber-50 border-amber-200'
+          ? 'bg-secondary-container/20 border-outline-variant'
           : 'bg-primary-container/30 border-outline-variant'
       }`}>
         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black shadow-md flex-shrink-0 ${
-          isSuperAdmin ? 'bg-amber-500 text-white' : 'bg-primary text-on-primary'
+          isSuperAdmin ? 'bg-secondary text-on-secondary' : 'bg-primary text-on-primary'
         }`}>
           {isSuperAdmin ? '👑' : (stats.compagnie?.nom?.charAt(0) ?? 'C')}
         </div>
@@ -200,14 +200,14 @@ export default async function AdminDashboard() {
           </h2>
           {!isSuperAdmin && stats.compagnie && (
             <p className="text-xs text-on-surface-variant opacity-70 mt-0.5">
-              {stats.compagnie.telephone ?? ''} · Statut : <span className={`font-bold ${stats.compagnie.statut === 'actif' ? 'text-green-600' : 'text-red-600'}`}>{stats.compagnie.statut}</span>
+              {stats.compagnie.telephone ?? ''} · Statut : <span className={`font-bold ${stats.compagnie.statut === 'actif' ? 'text-green-600' : 'text-red-400'}`}>{stats.compagnie.statut}</span>
             </p>
           )}
         </div>
         {isSuperAdmin && (
           <Link
             href="/admin/companies"
-            className="text-xs font-black text-amber-800 bg-amber-100 hover:bg-amber-200 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 flex-shrink-0"
+            className="text-xs font-black text-on-primary-container bg-primary-container hover:brightness-110 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 flex-shrink-0"
           >
             <span className="material-symbols-outlined text-[1rem]">domain</span>
             Gérer les compagnies
@@ -228,7 +228,7 @@ export default async function AdminDashboard() {
                 {stats.revenue.toLocaleString('fr-FR')} FCFA
               </h3>
             </div>
-            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs flex items-center gap-1 font-bold">
+            <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs flex items-center gap-1 font-bold">
               <span className="material-symbols-outlined text-[0.875rem]">trending_up</span> +12.5%
             </span>
           </div>
@@ -325,9 +325,9 @@ export default async function AdminDashboard() {
                   <td className="p-4 text-sm font-black text-primary">{parcel.price.toLocaleString('fr-FR')} F</td>
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-[0.625rem] font-black uppercase border shadow-sm ${
-                      parcel.status === 'DELIVERED'  ? 'bg-green-100 text-green-700 border-green-200' :
-                      parcel.status === 'IN_TRANSIT' ? 'bg-blue-100 text-blue-700 border-blue-200'  :
-                                                       'bg-orange-100 text-orange-700 border-orange-200'
+                      parcel.status === 'DELIVERED'  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
+                      parcel.status === 'IN_TRANSIT' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'  :
+                                                       'bg-primary/10 text-primary border-primary/30'
                     }`}>
                       {parcel.status.replace('_', ' ')}
                     </span>

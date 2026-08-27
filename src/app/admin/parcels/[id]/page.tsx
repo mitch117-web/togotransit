@@ -31,10 +31,10 @@ export default async function ParcelDetailsPage({
 
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'DELIVERED': return 'bg-green-100 text-green-700 border-green-200'
-      case 'IN_TRANSIT': return 'bg-blue-100 text-blue-700 border-blue-200'
-      case 'IN_AGENCY': return 'bg-orange-100 text-orange-700 border-orange-200'
-      case 'OUT_FOR_DELIVERY': return 'bg-purple-100 text-purple-700 border-purple-200'
+      case 'DELIVERED': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+      case 'IN_TRANSIT': return 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+      case 'IN_AGENCY': return 'bg-primary/10 text-primary border-primary/30'
+      case 'OUT_FOR_DELIVERY': return 'bg-purple-500/10 text-purple-400 border-purple-500/30'
       default: return 'bg-surface-container-high text-on-surface-variant border-outline-variant'
     }
   }
@@ -177,7 +177,7 @@ export default async function ParcelDetailsPage({
         <div className="flex flex-col gap-6">
           {/* Payment Status Card */}
           <div className={`p-6 rounded-2xl border shadow-md flex flex-col gap-4 ${
-            parcel.paymentStatus === 'PAID' ? 'bg-green-50 border-green-200' : 'bg-error-container/10 border-error-container'
+            parcel.paymentStatus === 'PAID' ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-error-container/10 border-error-container'
           }`}>
             <div className="flex justify-between items-center">
               <h3 className="font-label-md text-label-md font-black uppercase">Statut Paiement</h3>
@@ -209,7 +209,7 @@ export default async function ParcelDetailsPage({
                     {parcel.pod.signatureUrl ? (
                       <img src={parcel.pod.signatureUrl} alt="Signature" className="max-h-full object-contain" />
                     ) : (
-                      <span className="text-xs italic text-gray-400">Signature numérisée</span>
+                      <span className="text-xs italic text-gray-600">Signature numérisée</span>
                     )}
                   </div>
                 </div>

@@ -24,6 +24,11 @@
   --color-outline: #838ea8;
   --color-outline-variant: #2a3450;
 
+  --color-error: #ff6b6b;
+  --color-on-error: #410002;
+  --color-error-container: #542120;
+  --color-on-error-container: #ffb4ab;
+
   --color-surface-container-low: #111a2b;
   --color-surface-container: #161f33;
   --color-surface-container-high: #1d283e;

@@ -54,14 +54,17 @@ export default async function NewBookingPage() {
 
           return (
             <div key={trip.id} className={`bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden flex flex-col shadow-sm transition-all ${isFull ? 'opacity-60' : 'hover:shadow-md hover:border-primary'}`}>
-              <div className="p-4 bg-surface-container-high flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-[1.25rem]">event</span>
-                  <span className="font-bold text-sm">
+              <div className="p-4 bg-surface-container-high flex justify-between items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0 min-w-0">
+                  <span className="material-symbols-outlined text-primary text-[1.25rem] shrink-0">event</span>
+                  <span className="font-bold text-sm whitespace-nowrap truncate">
                     {new Date(trip.departureTime).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
                   </span>
                 </div>
-                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant bg-surface-container-lowest px-2 py-0.5 rounded shadow-sm">
+                <span
+                  title={trip.vehicle?.type}
+                  className="text-[0.625rem] font-black uppercase text-on-surface-variant bg-surface-container-lowest px-2 py-1 rounded shadow-sm truncate max-w-[40%]"
+                >
                   {trip.vehicle?.type}
                 </span>
               </div>

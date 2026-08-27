@@ -98,7 +98,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-black uppercase mb-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary-container text-on-primary-container rounded-full text-xs font-black uppercase mb-1">
             <span className="material-symbols-outlined text-[1rem]">verified</span>
             Super-Admin Plateforme
           </div>
@@ -122,7 +122,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[0.6875rem] font-black uppercase text-outline">Total Compagnies</span>
           <span className="text-3xl font-black text-primary mt-1">{companies.length}</span>
-          <span className="text-[0.625rem] text-green-700 font-bold mt-1">✓ Actives sur le réseau</span>
+          <span className="text-[0.625rem] text-emerald-400 font-bold mt-1">✓ Actives sur le réseau</span>
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[0.6875rem] font-black uppercase text-outline">Agences Physiques</span>
@@ -140,10 +140,10 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[0.6875rem] font-black uppercase text-outline">Trajets Opérés</span>
-          <span className="text-3xl font-black text-emerald-700 mt-1">
+          <span className="text-3xl font-black text-emerald-400 mt-1">
             {companies.reduce((acc, c) => acc + c.stats.trips, 0)}
           </span>
-          <span className="text-[0.625rem] text-emerald-700 font-bold mt-1">Lignes régulières au Togo</span>
+          <span className="text-[0.625rem] text-emerald-400 font-bold mt-1">Lignes régulières au Togo</span>
         </div>
       </div>
 

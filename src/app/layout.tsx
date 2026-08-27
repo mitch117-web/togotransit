@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/i18n/LanguageContext";
 import ClientProviders from "@/components/ClientProviders";
-import AIChatbot from "@/components/AIChatbot";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,7 +28,6 @@ export default function RootLayout({
         <ClientProviders>
           <LanguageProvider>
             {children}
-            <AIChatbot />
           </LanguageProvider>
         </ClientProviders>
       </body>

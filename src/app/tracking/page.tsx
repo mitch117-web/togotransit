@@ -23,15 +23,15 @@ export default async function TrackingPage({
   return (
     <div className="min-h-screen bg-surface-container-low font-sans">
       {/* Public Header */}
-      <header className="bg-primary text-on-primary py-6 px-4 shadow-lg">
+      <header className="bg-surface-container-lowest border-b border-outline-variant py-6 px-4 shadow-lg">
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary font-bold text-xl">T</div>
-            <h1 className="text-2xl font-black tracking-tighter">TOGOTRANSIT</h1>
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-xl">T</div>
+            <h1 className="text-2xl font-black tracking-tighter text-on-surface">TOGOTRANSIT</h1>
           </div>
           <div className="hidden md:block text-right">
-            <p className="text-xs font-bold uppercase opacity-80 tracking-widest">Suivi de Colis</p>
-            <p className="text-[0.625rem] opacity-60">Service National de Logistique</p>
+            <p className="text-xs font-bold uppercase text-primary tracking-widest">Suivi de Colis</p>
+            <p className="text-[0.625rem] text-on-surface-variant">Service National de Logistique</p>
           </div>
         </div>
       </header>

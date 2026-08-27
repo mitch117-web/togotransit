@@ -98,7 +98,7 @@ export default function LoginPage() {
           </Link>
           <div className="text-center">
             <h1 className="text-2xl font-black text-white tracking-tight">TOGOTRANSIT</h1>
-            <p className="text-[0.6875rem] font-bold uppercase tracking-widest text-secondary/90 opacity-90 mt-0.5">
+            <p className="text-[0.6875rem] font-bold uppercase tracking-widest text-primary/90 opacity-90 mt-0.5">
               Espace Professionnel &amp; Administration
             </p>
           </div>
@@ -140,7 +140,7 @@ export default function LoginPage() {
               <label className="text-xs font-black uppercase text-white/50">
                 Mot de passe
               </label>
-              <span className="text-[0.6875rem] text-secondary font-bold opacity-70 cursor-not-allowed">
+              <span className="text-[0.6875rem] text-primary font-bold opacity-70 cursor-not-allowed">
                 Mot de passe oublié ?
               </span>
             </div>

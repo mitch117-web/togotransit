@@ -62,7 +62,7 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
       {initialParcel ? (
         <section className="flex flex-col gap-8">
           {/* Tracking Stepper */}
-          <div className="bg-white p-8 rounded-[2rem] border border-outline-variant shadow-lg flex flex-col gap-10 overflow-hidden relative">
+          <div className="bg-surface-container-lowest p-8 rounded-[2rem] border border-outline-variant shadow-lg flex flex-col gap-10 overflow-hidden relative">
             <div className="flex justify-between items-center border-b border-outline-variant pb-6">
               <div className="flex flex-col">
                 <span className="text-[0.625rem] font-black uppercase text-outline tracking-widest">Colis ID</span>
@@ -77,7 +77,7 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
             {/* Stepper Logic */}
             <div className="relative flex justify-between items-center px-4 md:px-10">
               {/* Progress Line */}
-              <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-100 -translate-y-1/2 z-0">
+              <div className="absolute top-1/2 left-0 right-0 h-1 bg-surface-variant -translate-y-1/2 z-0">
                 <div 
                   className="h-full bg-green-500 transition-all duration-1000 ease-out" 
                   style={{ width: `${((currentStep - 1) / 3) * 100}%` }}
@@ -98,14 +98,14 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
                 return (
                   <div key={index} className="flex flex-col items-center gap-3 relative z-10">
                     <div className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-500 border-4 ${
-                      isActive 
-                        ? 'bg-green-500 border-green-100 text-white shadow-lg shadow-green-200' 
-                        : 'bg-white border-gray-100 text-gray-300'
-                    } ${isCurrent ? 'scale-110 ring-4 ring-green-50' : ''}`}>
+                      isActive
+                        ? 'bg-emerald-600 border-emerald-900/40 text-white shadow-lg shadow-emerald-900/30'
+                        : 'bg-surface-variant border-outline-variant text-on-surface-variant/50'
+                    } ${isCurrent ? 'scale-110 ring-4 ring-emerald-500/20' : ''}`}>
                       <span className="material-symbols-outlined text-2xl md:text-3xl">{step.icon}</span>
                     </div>
-                    <span className={`text-[0.625rem] md:text-xs font-black uppercase tracking-tighter text-center max-w-[60px] md:max-w-none ${
-                      isActive ? 'text-green-600' : 'text-gray-300'
+                    <span className={`text-[0.625rem] md:text-xs font-black uppercase tracking-tighter text-center max-w-[3.75rem] md:max-w-none ${
+                      isActive ? 'text-emerald-400' : 'text-on-surface-variant/50'
                     }`}>
                       {step.label}
                     </span>
@@ -133,7 +133,7 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
                 <span className="material-symbols-outlined text-primary text-3xl opacity-40">payments</span>
                 <div>
                   <p className="text-[0.625rem] font-black uppercase text-outline">Statut Paiement</p>
-                  <p className={`font-bold ${initialParcel.paymentStatus === 'PAID' ? 'text-green-600' : 'text-error'}`}>
+                  <p className={`font-bold ${initialParcel.paymentStatus === 'PAID' ? 'text-emerald-400' : 'text-error'}`}>
                     {initialParcel.paymentStatus === 'PAID' ? 'RÉGLÉ' : 'À PAYER'}
                   </p>
                 </div>
@@ -142,23 +142,23 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
           </div>
 
           {initialParcel.status === 'DELIVERED' && initialParcel.pod && (
-            <div className="bg-green-50 border-2 border-green-200 p-6 rounded-[2rem] flex flex-col md:flex-row items-center gap-6 shadow-sm">
-              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-green-500 shadow-md">
+            <div className="bg-emerald-500/10 border-2 border-emerald-500/30 p-6 rounded-[2rem] flex flex-col md:flex-row items-center gap-6 shadow-sm">
+              <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 shadow-md">
                 <span className="material-symbols-outlined text-4xl">verified_user</span>
               </div>
               <div className="flex-1 text-center md:text-left">
-                <h3 className="text-xl font-black text-green-800">Colis Livré avec succès</h3>
-                <p className="text-green-700 text-sm">Ce colis a été remis en mains propres le {new Date(initialParcel.pod.deliveredAt).toLocaleDateString('fr-FR')} à {new Date(initialParcel.pod.deliveredAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.</p>
+                <h3 className="text-xl font-black text-emerald-400">Colis Livré avec succès</h3>
+                <p className="text-on-surface-variant text-sm">Ce colis a été remis en mains propres le {new Date(initialParcel.pod.deliveredAt).toLocaleDateString('fr-FR')} à {new Date(initialParcel.pod.deliveredAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.</p>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className="w-32 h-20 bg-white/50 border border-green-200 rounded-lg flex items-center justify-center overflow-hidden">
+                <div className="w-32 h-20 bg-white/90 border border-emerald-500/30 rounded-lg flex items-center justify-center overflow-hidden">
                   {initialParcel.pod.signatureUrl ? (
                     <img src={initialParcel.pod.signatureUrl} alt="Signature POD" className="max-h-full object-contain" />
                   ) : (
-                    <span className="material-symbols-outlined text-4xl text-green-200">signature</span>
+                    <span className="material-symbols-outlined text-4xl text-emerald-200">signature</span>
                   )}
                 </div>
-                <span className="text-[0.625rem] font-bold uppercase text-green-800 opacity-60">Signature POD</span>
+                <span className="text-[0.625rem] font-bold uppercase text-emerald-400 opacity-80">Signature POD</span>
               </div>
             </div>
           )}
@@ -185,7 +185,7 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
             { title: 'Rapidité', text: 'Service express entre les grandes villes du Togo.', icon: 'bolt' },
             { title: 'Proximité', text: 'Agences disponibles à Lomé, Kara, Atakpamé et plus.', icon: 'location_on' }
           ].map((item, i) => (
-            <div key={i} className="bg-white p-6 rounded-2xl border border-outline-variant flex flex-col gap-4">
+            <div key={i} className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant flex flex-col gap-4">
               <span className="material-symbols-outlined text-primary text-4xl opacity-20">{item.icon}</span>
               <h4 className="font-black text-primary uppercase text-sm tracking-tighter">{item.title}</h4>
               <p className="text-on-surface-variant text-xs leading-relaxed">{item.text}</p>

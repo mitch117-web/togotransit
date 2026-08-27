@@ -126,7 +126,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[0.6875rem] font-black uppercase text-outline">Agences Physiques</span>
-          <span className="text-3xl font-black text-secondary mt-1">
+          <span className="text-3xl font-black text-primary mt-1">
             {companies.reduce((acc, c) => acc + c.agencesCount, 0)}
           </span>
           <span className="text-[0.625rem] text-on-surface-variant font-bold mt-1">Réparties dans les 5 régions</span>
@@ -216,7 +216,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                   <span className="font-bold">{c.telephone || 'Non renseigné'}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-on-surface-variant truncate">
-                  <span className="material-symbols-outlined text-[1rem] text-secondary">mail</span>
+                  <span className="material-symbols-outlined text-[1rem] text-primary">mail</span>
                   <span className="font-bold truncate">{c.email || 'Non renseigné'}</span>
                 </div>
               </div>
@@ -291,7 +291,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                     <span className="font-black text-primary">{ag.nom}</span>
                     <span className="text-on-surface-variant font-medium">Ville : {ag.ville}</span>
                   </div>
-                  <span className="font-bold text-secondary">{ag.telephone || 'Standard'}</span>
+                  <span className="font-bold text-primary">{ag.telephone || 'Standard'}</span>
                 </div>
               ))}
             </div>

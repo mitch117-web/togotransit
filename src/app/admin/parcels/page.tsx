@@ -160,7 +160,7 @@ export default async function ParcelsPage({
                           <span className="font-body-sm text-body-sm font-medium">{parcel.senderName}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[0.875rem] text-secondary">download</span>
+                          <span className="material-symbols-outlined text-[0.875rem] text-primary">download</span>
                           <span className="font-body-sm text-body-sm text-on-surface-variant">{parcel.receiverName}</span>
                         </div>
                       </div>
@@ -232,7 +232,7 @@ export default async function ParcelsPage({
                         </Link>
                         <Link 
                           href={`/admin/parcels/${parcel.id}/edit`}
-                          className="p-1 text-on-surface-variant hover:text-secondary transition-colors"
+                          className="p-1 text-on-surface-variant hover:text-primary transition-colors"
                           title="Modifier"
                         >
                           <span className="material-symbols-outlined text-[1.25rem]">edit</span>

@@ -4,23 +4,23 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-surface-container-low font-sans flex flex-col">
       {/* Hero Section */}
-      <header className="bg-primary text-on-primary py-20 px-4 relative overflow-hidden">
+      <header className="bg-background text-on-background py-20 px-4 relative overflow-hidden border-b border-outline-variant">
         {/* Background elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-secondary rounded-full -translate-y-1/2 translate-x-1/2 opacity-20 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary-container rounded-full translate-y-1/2 -translate-x-1/2 opacity-10 blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-primary rounded-full -translate-y-1/2 translate-x-1/2 opacity-20 blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary-container rounded-full translate-y-1/2 -translate-x-1/2 opacity-30 blur-3xl"></div>
 
         <div className="max-w-6xl mx-auto relative z-10 flex flex-col items-center text-center gap-8">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-[1.25rem] bg-white flex items-center justify-center text-primary shadow-2xl">
+            <div className="w-16 h-16 rounded-[1.25rem] bg-primary flex items-center justify-center text-on-primary shadow-2xl">
               <span className="text-4xl font-black">T</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter">TOGOTRANSIT</h1>
           </div>
-          
+
           <div className="flex flex-col gap-4 max-w-2xl">
-            <h2 className="text-2xl md:text-4xl font-bold text-secondary">La logistique moderne au Togo</h2>
-            <p className="text-lg opacity-80 leading-relaxed">
-              Expédiez vos colis et réservez vos voyages en toute simplicité. 
+            <h2 className="text-2xl md:text-4xl font-bold text-primary">La logistique moderne au Togo</h2>
+            <p className="text-lg text-on-surface-variant leading-relaxed">
+              Expédiez vos colis et réservez vos voyages en toute simplicité.
               Une plateforme fiable, rapide et sécurisée pour tous vos besoins de transport.
             </p>
           </div>
@@ -28,12 +28,12 @@ export default function LandingPage() {
           <div className="flex flex-wrap justify-center gap-4 mt-4">
             <Link
               href="/login"
-              className="bg-white text-primary px-8 py-4 rounded-2xl font-black text-lg hover:bg-secondary hover:text-on-secondary transition-all shadow-xl shadow-primary/20"
+              className="bg-primary text-on-primary px-8 py-4 rounded-2xl font-black text-lg hover:brightness-110 transition-all shadow-xl shadow-primary/20"
             >
               ESPACE PRO / ADMIN
             </Link>
           </div>
-          <p className="text-sm opacity-70 -mt-2">
+          <p className="text-sm text-on-surface-variant -mt-2">
             Voyageur ? Réservez vos trajets et suivez vos colis depuis l&apos;application mobile TogoTransit.
           </p>
         </div>
@@ -43,7 +43,7 @@ export default function LandingPage() {
       <main className="max-w-6xl mx-auto w-full p-4 -mt-16 relative z-20 flex flex-col gap-12">
         <div className="max-w-xl mx-auto w-full">
           {/* Tracking Card */}
-          <Link href="/tracking" className="group bg-white p-10 rounded-[3rem] border border-outline-variant shadow-2xl hover:border-primary transition-all duration-500 flex flex-col gap-6">
+          <Link href="/tracking" className="group bg-surface-container-lowest p-10 rounded-[3rem] border border-outline-variant shadow-2xl hover:border-primary transition-all duration-500 flex flex-col gap-6">
             <div className="w-20 h-20 rounded-3xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-on-primary transition-all duration-500">
               <span className="material-symbols-outlined text-5xl">local_shipping</span>
             </div>
@@ -60,7 +60,7 @@ export default function LandingPage() {
 
         {/* Features Grid */}
         <section className="py-12 flex flex-col gap-12">
-          <h3 className="text-center text-2xl font-black text-primary opacity-30 uppercase tracking-[0.2em]">Pourquoi nous choisir ?</h3>
+          <h3 className="text-center text-2xl font-black text-on-surface-variant uppercase tracking-[0.2em]">Pourquoi nous choisir ?</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               { title: 'Sécurité', text: 'Vos colis et vos voyages sont assurés et tracés de bout en bout.', icon: 'verified_user' },

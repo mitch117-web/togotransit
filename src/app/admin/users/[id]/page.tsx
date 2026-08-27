@@ -185,8 +185,8 @@ export default async function UserDetailsPage({
           {/* Recent Bookings */}
           <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm overflow-hidden">
             <div className="p-6 border-b border-outline-variant bg-surface-bright flex justify-between items-center">
-              <h3 className="font-headline-sm text-headline-sm text-secondary font-bold">Dernières réservations</h3>
-              <Link href="/admin/bookings" className="text-xs font-bold text-secondary hover:underline">Voir tout</Link>
+              <h3 className="font-headline-sm text-headline-sm text-primary font-bold">Dernières réservations</h3>
+              <Link href="/admin/bookings" className="text-xs font-bold text-primary hover:underline">Voir tout</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -202,7 +202,7 @@ export default async function UserDetailsPage({
                   {user.bookings.length > 0 ? user.bookings.map((booking: any) => (
                     <tr key={booking.id} className="hover:bg-surface-container-low transition-colors">
                       <td className="p-4">
-                        <div className="flex items-center gap-1 font-bold text-secondary text-sm">
+                        <div className="flex items-center gap-1 font-bold text-primary text-sm">
                           <span>{booking.trip.origin}</span>
                           <span className="material-symbols-outlined text-[0.875rem]">arrow_forward</span>
                           <span>{booking.trip.destination}</span>

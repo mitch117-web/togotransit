@@ -135,11 +135,11 @@ export default async function ParcelDetailsPage({
             {/* Receiver */}
             <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-sm flex flex-col gap-4">
               <div className="flex items-center gap-2 border-b border-outline-variant pb-2">
-                <span className="material-symbols-outlined text-secondary">person_pin</span>
+                <span className="material-symbols-outlined text-primary">person_pin</span>
                 <h3 className="font-label-md text-label-md font-black uppercase text-on-surface-variant">Destinataire</h3>
               </div>
               <div>
-                <p className="text-lg font-bold text-secondary">{parcel.receiverName}</p>
+                <p className="text-lg font-bold text-primary">{parcel.receiverName}</p>
                 <p className="text-sm font-medium text-on-surface">{parcel.receiverPhone}</p>
                 <p className="text-xs text-on-surface-variant mt-2 flex items-center gap-1">
                   <span className="material-symbols-outlined text-sm">location_on</span>

@@ -165,7 +165,7 @@ export default function EditParcelClient({ parcel, drivers }: { parcel: Parcel, 
         {/* Section Destinataire */}
         <section className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant flex flex-col gap-4 shadow-sm">
           <div className="flex items-center gap-2 border-b border-outline-variant pb-2 mb-2">
-            <span className="material-symbols-outlined text-secondary">person_pin</span>
+            <span className="material-symbols-outlined text-primary">person_pin</span>
             <h3 className="font-headline-md text-headline-md text-on-surface">Destinataire</h3>
           </div>
           <div className="flex flex-col gap-1">

@@ -82,7 +82,7 @@ export default function AIChatbot() {
     <div className="fixed bottom-8 right-8 z-[1000]">
       {isOpen && (
         <div 
-          className="w-[420px] h-[650px] mb-6 flex flex-col overflow-hidden rounded-3xl shadow-2xl backdrop-blur-sm border transition-all duration-300"
+          className="w-[calc(100vw-2.5rem)] max-w-[26.25rem] h-[80vh] max-h-[40.625rem] mb-6 flex flex-col overflow-hidden rounded-3xl shadow-2xl backdrop-blur-sm border transition-all duration-300"
           style={{
             backgroundColor: colors.surface,
             borderColor: colors.outlineVariant,

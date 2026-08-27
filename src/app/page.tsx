@@ -86,7 +86,7 @@ export default function LandingPage() {
             <h1 className="text-xl font-black tracking-tighter">TOGOTRANSIT</h1>
           </div>
           <p className="text-xs opacity-60">© 2026 TogoTransit S.A. - Service National de Logistique & Transport. Tous droits réservés.</p>
-          <div className="flex justify-center gap-8 font-black uppercase tracking-tighter text-[10px] opacity-40">
+          <div className="flex justify-center gap-8 font-black uppercase tracking-tighter text-[0.625rem] opacity-40">
             <Link href="#">Aide</Link>
             <Link href="#">Agences</Link>
             <Link href="#">Tarifs</Link>

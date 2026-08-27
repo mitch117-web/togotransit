@@ -95,7 +95,7 @@ export default async function VehicleDetailsPage({
             href={`/admin/fleet/${vehicle.id}/edit`}
             className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg hover:brightness-110 transition-all shadow-md flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-[20px]">edit</span>
+            <span className="material-symbols-outlined text-[1.25rem]">edit</span>
             Modifier
           </Link>
           <DeleteVehicleButton vehicleId={vehicle.id} />
@@ -135,15 +135,15 @@ export default async function VehicleDetailsPage({
             <h3 className="font-headline-sm text-headline-sm font-bold opacity-90">Performance</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col bg-white/10 p-4 rounded-xl">
-                <span className="text-[10px] font-black uppercase opacity-70">Total Voyages</span>
+                <span className="text-[0.625rem] font-black uppercase opacity-70">Total Voyages</span>
                 <p className="text-2xl font-black">{totalTrips}</p>
               </div>
               <div className="flex flex-col bg-white/10 p-4 rounded-xl">
-                <span className="text-[10px] font-black uppercase opacity-70">Terminés</span>
+                <span className="text-[0.625rem] font-black uppercase opacity-70">Terminés</span>
                 <p className="text-2xl font-black">{completedTrips}</p>
               </div>
               <div className="flex flex-col bg-white/10 p-4 rounded-xl col-span-2">
-                <span className="text-[10px] font-black uppercase opacity-70">Revenu Généré</span>
+                <span className="text-[0.625rem] font-black uppercase opacity-70">Revenu Généré</span>
                 <p className="text-2xl font-black">{totalRevenue.toLocaleString('fr-FR')} F</p>
               </div>
             </div>
@@ -172,7 +172,7 @@ export default async function VehicleDetailsPage({
                       <td className="p-4">
                         <div className="flex items-center gap-2 font-body-sm font-bold text-primary">
                           <span>{trip.origin}</span>
-                          <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                          <span className="material-symbols-outlined text-[1rem]">arrow_forward</span>
                           <span>{trip.destination}</span>
                         </div>
                       </td>
@@ -191,7 +191,7 @@ export default async function VehicleDetailsPage({
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
+                        <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border ${
                           trip.status === 'COMPLETED' ? 'bg-green-100 text-green-700 border-green-200' :
                           trip.status === 'ONGOING' ? 'bg-blue-100 text-blue-700 border-blue-200' :
                           'bg-orange-100 text-orange-700 border-orange-200'

@@ -62,7 +62,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
             label="Exporter Excel"
           />
           <Link href="/admin/users/new" className="bg-primary text-on-primary rounded-lg py-2.5 px-5 font-label-md text-label-md hover:brightness-110 transition-all shadow-sm flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px]">person_add</span>
+            <span className="material-symbols-outlined text-[1.25rem]">person_add</span>
             Nouvel Utilisateur
           </Link>
         </div>
@@ -126,7 +126,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
                     </Link>
                   </td>
                   <td className="p-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold uppercase border ${getRoleBadgeColor(user.role)}`}>
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[0.6875rem] font-bold uppercase border ${getRoleBadgeColor(user.role)}`}>
                       {user.role}
                     </span>
                   </td>
@@ -140,7 +140,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
                         href={`/admin/users/${user.id}/edit`}
                         className="text-on-surface-variant hover:text-primary p-1 transition-colors"
                       >
-                        <span className="material-symbols-outlined text-[20px]">edit</span>
+                        <span className="material-symbols-outlined text-[1.25rem]">edit</span>
                       </Link>
                       <DeleteUserButton userId={user.id} />
                     </div>

@@ -99,7 +99,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-xs font-black uppercase mb-1">
-            <span className="material-symbols-outlined text-[16px]">verified</span>
+            <span className="material-symbols-outlined text-[1rem]">verified</span>
             Super-Admin Plateforme
           </div>
           <h2 className="font-black text-2xl md:text-3xl text-primary">Gestion des Compagnies Agréées</h2>
@@ -112,7 +112,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
           onClick={() => setShowAddModal(true)}
           className="bg-primary text-on-primary rounded-xl py-3 px-6 font-black text-sm hover:brightness-110 shadow-md flex items-center gap-2"
         >
-          <span className="material-symbols-outlined text-[20px]">add_business</span>
+          <span className="material-symbols-outlined text-[1.25rem]">add_business</span>
           Nouvelle Compagnie
         </button>
       </div>
@@ -120,30 +120,30 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
       {/* Stats rapides */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
-          <span className="text-[11px] font-black uppercase text-outline">Total Compagnies</span>
+          <span className="text-[0.6875rem] font-black uppercase text-outline">Total Compagnies</span>
           <span className="text-3xl font-black text-primary mt-1">{companies.length}</span>
-          <span className="text-[10px] text-green-700 font-bold mt-1">✓ Actives sur le réseau</span>
+          <span className="text-[0.625rem] text-green-700 font-bold mt-1">✓ Actives sur le réseau</span>
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
-          <span className="text-[11px] font-black uppercase text-outline">Agences Physiques</span>
+          <span className="text-[0.6875rem] font-black uppercase text-outline">Agences Physiques</span>
           <span className="text-3xl font-black text-secondary mt-1">
             {companies.reduce((acc, c) => acc + c.agencesCount, 0)}
           </span>
-          <span className="text-[10px] text-on-surface-variant font-bold mt-1">Réparties dans les 5 régions</span>
+          <span className="text-[0.625rem] text-on-surface-variant font-bold mt-1">Réparties dans les 5 régions</span>
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
-          <span className="text-[11px] font-black uppercase text-outline">Flotte Globale</span>
+          <span className="text-[0.6875rem] font-black uppercase text-outline">Flotte Globale</span>
           <span className="text-3xl font-black text-primary mt-1">
             {companies.reduce((acc, c) => acc + c.stats.vehicles, 0)}
           </span>
-          <span className="text-[10px] text-on-surface-variant font-bold mt-1">Autocars & Minibus agréés</span>
+          <span className="text-[0.625rem] text-on-surface-variant font-bold mt-1">Autocars & Minibus agréés</span>
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
-          <span className="text-[11px] font-black uppercase text-outline">Trajets Opérés</span>
+          <span className="text-[0.6875rem] font-black uppercase text-outline">Trajets Opérés</span>
           <span className="text-3xl font-black text-emerald-700 mt-1">
             {companies.reduce((acc, c) => acc + c.stats.trips, 0)}
           </span>
-          <span className="text-[10px] text-emerald-700 font-bold mt-1">Lignes régulières au Togo</span>
+          <span className="text-[0.625rem] text-emerald-700 font-bold mt-1">Lignes régulières au Togo</span>
         </div>
       </div>
 
@@ -196,7 +196,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                     <span className="text-xs text-on-surface-variant">{c.adresse_siege || 'Lomé, Togo'}</span>
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
+                <span className={`px-3 py-1 rounded-full text-[0.625rem] font-black uppercase ${
                   c.statut === 'actif'
                     ? 'bg-emerald-500/15 text-emerald-400'
                     : 'bg-red-500/15 text-red-400'
@@ -212,11 +212,11 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
               {/* Coordonnées */}
               <div className="grid grid-cols-2 gap-2 text-xs bg-surface-container-lowest p-3 rounded-xl border border-outline-variant/30">
                 <div className="flex items-center gap-1.5 text-on-surface-variant truncate">
-                  <span className="material-symbols-outlined text-[16px] text-primary">phone</span>
+                  <span className="material-symbols-outlined text-[1rem] text-primary">phone</span>
                   <span className="font-bold">{c.telephone || 'Non renseigné'}</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-on-surface-variant truncate">
-                  <span className="material-symbols-outlined text-[16px] text-secondary">mail</span>
+                  <span className="material-symbols-outlined text-[1rem] text-secondary">mail</span>
                   <span className="font-bold truncate">{c.email || 'Non renseigné'}</span>
                 </div>
               </div>
@@ -224,19 +224,19 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
               {/* Métriques */}
               <div className="grid grid-cols-4 gap-2 text-center pt-2 border-t border-outline-variant/30">
                 <div>
-                  <span className="text-[10px] font-bold text-outline block">Agences</span>
+                  <span className="text-[0.625rem] font-bold text-outline block">Agences</span>
                   <span className="text-base font-black text-primary">{c.agencesCount}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-outline block">Véhicules</span>
+                  <span className="text-[0.625rem] font-bold text-outline block">Véhicules</span>
                   <span className="text-base font-black text-primary">{c.stats.vehicles}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-outline block">Trajets</span>
+                  <span className="text-[0.625rem] font-bold text-outline block">Trajets</span>
                   <span className="text-base font-black text-primary">{c.stats.trips}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-outline block">Agents</span>
+                  <span className="text-[0.625rem] font-bold text-outline block">Agents</span>
                   <span className="text-base font-black text-primary">{c.stats.users}</span>
                 </div>
               </div>
@@ -248,7 +248,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                 onClick={() => setSelectedCompany(c)}
                 className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
               >
-                <span className="material-symbols-outlined text-[16px]">visibility</span>
+                <span className="material-symbols-outlined text-[1rem]">visibility</span>
                 Voir les agences ({c.agencesCount})
               </button>
 
@@ -257,7 +257,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   c.statut === 'actif'
                     ? 'border border-red-500/30 text-red-400 hover:bg-red-500/10'
-                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                    : 'bg-emerald-700 text-white hover:bg-emerald-800'
                 }`}
               >
                 {c.statut === 'actif' ? 'Suspendre' : 'Réactiver'}
@@ -322,7 +322,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
 
             <form onSubmit={handleCreateCompany} className="flex flex-col gap-4 text-xs font-bold">
               <div className="flex flex-col gap-1">
-                <label className="text-outline uppercase text-[10px]">Nom de la compagnie</label>
+                <label className="text-outline uppercase text-[0.625rem]">Nom de la compagnie</label>
                 <input
                   type="text"
                   required
@@ -335,7 +335,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <label className="text-outline uppercase text-[10px]">Téléphone</label>
+                  <label className="text-outline uppercase text-[0.625rem]">Téléphone</label>
                   <input
                     type="tel"
                     placeholder="+228 90 00 00 00"
@@ -345,7 +345,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-outline uppercase text-[10px]">Email</label>
+                  <label className="text-outline uppercase text-[0.625rem]">Email</label>
                   <input
                     type="email"
                     placeholder="contact@compagnie.tg"
@@ -357,7 +357,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-outline uppercase text-[10px]">Adresse du siège</label>
+                <label className="text-outline uppercase text-[0.625rem]">Adresse du siège</label>
                 <input
                   type="text"
                   placeholder="Ex: Boulevard Circulaire, Lomé"
@@ -368,7 +368,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-outline uppercase text-[10px]">Description & Lignes desservies</label>
+                <label className="text-outline uppercase text-[0.625rem]">Description & Lignes desservies</label>
                 <textarea
                   rows={2}
                   placeholder="Description des liaisons..."

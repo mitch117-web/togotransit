@@ -123,12 +123,12 @@ export default function FaresManagement({ initialFares }: { initialFares: Fare[]
       <div className="p-4 border-b border-outline-variant bg-surface-bright flex justify-between items-center">
         <h3 className="font-headline-md text-headline-md text-primary">Grille Tarifaire (Colis)</h3>
         <div className="flex items-center gap-4">
-          {error && <span className="text-[10px] font-bold text-error uppercase">{error}</span>}
+          {error && <span className="text-[0.625rem] font-bold text-error uppercase">{error}</span>}
           <button 
             onClick={openAddModal}
             className="text-primary font-label-sm text-label-sm hover:underline flex items-center gap-1"
           >
-            <span className="material-symbols-outlined text-[18px]">add</span>
+            <span className="material-symbols-outlined text-[1.125rem]">add</span>
             Ajouter un tarif
           </button>
         </div>
@@ -150,14 +150,14 @@ export default function FaresManagement({ initialFares }: { initialFares: Fare[]
                 <td className="p-4">
                   <div className="flex items-center gap-1 font-body-sm text-body-sm font-medium">
                     <span>{fare.origin}</span>
-                    <span className="material-symbols-outlined text-[14px] text-outline">arrow_forward</span>
+                    <span className="material-symbols-outlined text-[0.875rem] text-outline">arrow_forward</span>
                     <span>{fare.destination}</span>
                   </div>
                 </td>
                 <td className="p-4 font-body-sm text-body-sm">{fare.baseFare.toLocaleString('fr-FR')} F</td>
                 <td className="p-4 font-body-sm text-body-sm font-bold text-primary">{fare.pricePerKg.toLocaleString('fr-FR')} F</td>
                 <td className="p-4">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-container-highest text-on-surface border border-outline-variant">
+                  <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-surface-container-highest text-on-surface border border-outline-variant">
                     {fare.zone}
                   </span>
                 </td>
@@ -167,13 +167,13 @@ export default function FaresManagement({ initialFares }: { initialFares: Fare[]
                       onClick={() => openEditModal(fare)}
                       className="text-on-surface-variant hover:text-primary p-1"
                     >
-                      <span className="material-symbols-outlined text-[20px]">edit</span>
+                      <span className="material-symbols-outlined text-[1.25rem]">edit</span>
                     </button>
                     <button 
                       onClick={() => handleDelete(fare.id)}
                       className="text-on-surface-variant hover:text-error p-1"
                     >
-                      <span className="material-symbols-outlined text-[20px]">delete</span>
+                      <span className="material-symbols-outlined text-[1.25rem]">delete</span>
                     </button>
                   </div>
                 </td>

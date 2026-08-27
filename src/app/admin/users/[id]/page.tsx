@@ -75,7 +75,7 @@ export default async function UserDetailsPage({
             <div>
               <h2 className="font-headline-lg text-headline-lg text-primary">{user.name}</h2>
               <div className="flex items-center gap-2 mt-1">
-                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border ${getRoleBadgeColor(user.role)}`}>
+                <span className={`px-2.5 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border ${getRoleBadgeColor(user.role)}`}>
                   {user.role}
                 </span>
                 <span className="text-xs text-on-surface-variant font-medium">Inscrit le {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span>
@@ -88,7 +88,7 @@ export default async function UserDetailsPage({
             href={`/admin/users/${user.id}/edit`}
             className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg hover:brightness-110 transition-all shadow-md flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-[20px]">edit</span>
+            <span className="material-symbols-outlined text-[1.25rem]">edit</span>
             Modifier Profil
           </Link>
           <DeleteUserButton userId={user.id} />
@@ -106,7 +106,7 @@ export default async function UserDetailsPage({
                   <span className="material-symbols-outlined">call</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-on-surface-variant">Téléphone</p>
+                  <p className="text-[0.625rem] font-black uppercase text-on-surface-variant">Téléphone</p>
                   <p className="font-bold text-on-surface">+228 {user.phone}</p>
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default async function UserDetailsPage({
                   <span className="material-symbols-outlined">mail</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-on-surface-variant">Email</p>
+                  <p className="text-[0.625rem] font-black uppercase text-on-surface-variant">Email</p>
                   <p className="font-bold text-on-surface">{user.email || 'Non renseigné'}</p>
                 </div>
               </div>
@@ -127,11 +127,11 @@ export default async function UserDetailsPage({
             <h3 className="font-headline-sm text-headline-sm font-bold opacity-90">Activités</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col bg-white/10 p-4 rounded-xl">
-                <span className="text-[10px] font-black uppercase opacity-70">Colis Envoyés</span>
+                <span className="text-[0.625rem] font-black uppercase opacity-70">Colis Envoyés</span>
                 <p className="text-2xl font-black">{user.parcels.length}</p>
               </div>
               <div className="flex flex-col bg-white/10 p-4 rounded-xl">
-                <span className="text-[10px] font-black uppercase opacity-70">Réservations</span>
+                <span className="text-[0.625rem] font-black uppercase opacity-70">Réservations</span>
                 <p className="text-2xl font-black">{user.bookings.length}</p>
               </div>
             </div>
@@ -163,7 +163,7 @@ export default async function UserDetailsPage({
                       <td className="p-4 text-sm font-medium">{parcel.receiverName}</td>
                       <td className="p-4 text-sm font-medium">{parcel.destination}</td>
                       <td className="p-4">
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${
+                        <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border ${
                           parcel.status === 'DELIVERED' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-blue-100 text-blue-700 border-blue-200'
                         }`}>
                           {parcel.status}
@@ -204,7 +204,7 @@ export default async function UserDetailsPage({
                       <td className="p-4">
                         <div className="flex items-center gap-1 font-bold text-secondary text-sm">
                           <span>{booking.trip.origin}</span>
-                          <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                          <span className="material-symbols-outlined text-[0.875rem]">arrow_forward</span>
                           <span>{booking.trip.destination}</span>
                         </div>
                       </td>

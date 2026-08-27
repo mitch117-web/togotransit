@@ -19,7 +19,7 @@ export default function LanguageSelector() {
         <button
           key={lang.code}
           onClick={() => setLocale(lang.code as Locale)}
-          className={`px-3 py-1 rounded-full text-[10px] font-black transition-all ${
+          className={`px-3 py-1 rounded-full text-[0.625rem] font-black transition-all ${
             locale === lang.code 
               ? 'bg-primary text-on-primary shadow-sm scale-105' 
               : 'text-on-surface-variant hover:bg-surface-container-highest'

@@ -65,14 +65,14 @@ export default async function ParcelDetailsPage({
             href={`/admin/parcels/${parcel.id}/print`}
             className="bg-surface-container-high hover:bg-surface-container-highest text-primary font-bold py-2 px-4 rounded-lg transition-all border border-outline-variant flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-[20px]">print</span>
+            <span className="material-symbols-outlined text-[1.25rem]">print</span>
             Imprimer Bordereau
           </Link>
           <Link 
             href={`/admin/parcels/${parcel.id}/edit`}
             className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg hover:brightness-110 transition-all shadow-md flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-[20px]">edit</span>
+            <span className="material-symbols-outlined text-[1.25rem]">edit</span>
             Modifier
           </Link>
         </div>
@@ -104,7 +104,7 @@ export default async function ParcelDetailsPage({
                     <p className="font-label-md text-label-md font-bold text-on-surface">
                       {update.status.replace(/_/g, ' ')}
                     </p>
-                    <p className="text-[10px] font-medium text-on-surface-variant">
+                    <p className="text-[0.625rem] font-medium text-on-surface-variant">
                       {new Date(update.timestamp).toLocaleString('fr-FR')} • {update.location}
                     </p>
                     {update.note && <p className="text-xs italic text-on-surface-variant/80 mt-1">{update.note}</p>}
@@ -154,19 +154,19 @@ export default async function ParcelDetailsPage({
             <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">Informations Techniques</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black uppercase text-on-surface-variant">Poids</span>
+                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Poids</span>
                 <p className="text-lg font-bold">{parcel.weight} kg</p>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black uppercase text-on-surface-variant">Catégorie</span>
+                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Catégorie</span>
                 <p className="text-lg font-bold">{parcel.category}</p>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black uppercase text-on-surface-variant">Type</span>
+                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Type</span>
                 <p className="text-lg font-bold">{parcel.deliveryType}</p>
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black uppercase text-on-surface-variant">Prix</span>
+                <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Prix</span>
                 <p className="text-lg font-bold text-primary">{parcel.price.toLocaleString('fr-FR')} F</p>
               </div>
             </div>
@@ -204,7 +204,7 @@ export default async function ParcelDetailsPage({
               
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-black uppercase text-on-surface-variant">Signature</span>
+                  <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Signature</span>
                   <div className="w-full h-32 bg-gray-50 border border-outline-variant rounded-lg flex items-center justify-center overflow-hidden">
                     {parcel.pod.signatureUrl ? (
                       <img src={parcel.pod.signatureUrl} alt="Signature" className="max-h-full object-contain" />
@@ -215,7 +215,7 @@ export default async function ParcelDetailsPage({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-black uppercase text-on-surface-variant">Position GPS</span>
+                  <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Position GPS</span>
                   <div className="bg-surface-container-low p-3 rounded-lg border border-outline-variant flex items-center gap-3">
                     <span className="material-symbols-outlined text-primary">location_on</span>
                     <p className="text-xs font-bold text-primary">
@@ -226,14 +226,14 @@ export default async function ParcelDetailsPage({
 
                 {parcel.pod.photoUrl && (
                   <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-black uppercase text-on-surface-variant">Photo de livraison</span>
+                    <span className="text-[0.625rem] font-black uppercase text-on-surface-variant">Photo de livraison</span>
                     <div className="w-full h-48 bg-gray-50 border border-outline-variant rounded-lg flex items-center justify-center overflow-hidden">
                       <img src={parcel.pod.photoUrl} alt="Preuve de livraison" className="w-full h-full object-cover" />
                     </div>
                   </div>
                 )}
 
-                <p className="text-[10px] text-on-surface-variant italic">
+                <p className="text-[0.625rem] text-on-surface-variant italic">
                   Livré le {new Date(parcel.pod.deliveredAt || parcel.pod.updatedAt).toLocaleString('fr-FR')}
                 </p>
               </div>
@@ -250,11 +250,11 @@ export default async function ParcelDetailsPage({
             <h4 className="font-label-md text-label-md font-black uppercase mb-2">Actions Admin</h4>
             <ul className="text-xs flex flex-col gap-2 opacity-90">
               <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[14px] mt-0.5">info</span>
+                <span className="material-symbols-outlined text-[0.875rem] mt-0.5">info</span>
                 Le changement de statut envoie un SMS automatique au client.
               </li>
               <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[14px] mt-0.5">shield</span>
+                <span className="material-symbols-outlined text-[0.875rem] mt-0.5">shield</span>
                 Les modifications sont tracées dans le journal de sécurité.
               </li>
             </ul>

@@ -37,9 +37,9 @@ export default function DeleteUserButton({ userId }: { userId: string }) {
       className="text-on-surface-variant hover:text-error p-1 transition-colors disabled:opacity-50"
     >
       {loading ? (
-        <span className="animate-spin material-symbols-outlined text-[20px]">sync</span>
+        <span className="animate-spin material-symbols-outlined text-[1.25rem]">sync</span>
       ) : (
-        <span className="material-symbols-outlined text-[20px]">delete</span>
+        <span className="material-symbols-outlined text-[1.25rem]">delete</span>
       )}
     </button>
   )

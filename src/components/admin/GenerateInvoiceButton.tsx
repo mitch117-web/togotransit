@@ -119,7 +119,7 @@ export default function GenerateInvoiceButton({ parcel }: { parcel: Parcel }) {
       onClick={generatePDF}
       className="bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary font-bold py-2 px-4 rounded-lg transition-all flex items-center gap-2"
     >
-      <span className="material-symbols-outlined text-[20px]">description</span>
+      <span className="material-symbols-outlined text-[1.25rem]">description</span>
       Télécharger Facture
     </button>
   )

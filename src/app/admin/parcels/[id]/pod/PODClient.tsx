@@ -80,7 +80,7 @@ export default function PODClient({ parcel }: { parcel: any }) {
             {location ? 'location_on' : 'location_searching'}
           </span>
           <div>
-            <p className="font-label-sm text-[10px] uppercase text-on-surface-variant">Coordonnées GPS</p>
+            <p className="font-label-sm text-[0.625rem] uppercase text-on-surface-variant">Coordonnées GPS</p>
             <p className="font-body-sm text-xs font-bold text-primary">
               {location ? `${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}` : 'Recherche de la position...'}
             </p>

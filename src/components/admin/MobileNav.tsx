@@ -62,10 +62,10 @@ function MobileNavLink({ href, label, icon, isActive }: { href: string, label: s
         isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
       }`}
     >
-      <span className={`material-symbols-outlined text-[24px] ${isActive ? 'fill-icon' : ''}`} style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>
+      <span className={`material-symbols-outlined text-[1.5rem] ${isActive ? 'fill-icon' : ''}`} style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>
         {icon}
       </span>
-      <span className={`text-[10px] font-bold ${isActive ? 'opacity-100' : 'opacity-70'}`}>{label}</span>
+      <span className={`text-[0.625rem] font-bold ${isActive ? 'opacity-100' : 'opacity-70'}`}>{label}</span>
     </Link>
   )
 }

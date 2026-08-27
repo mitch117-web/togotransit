@@ -31,7 +31,7 @@ export default async function TrackingPage({
           </div>
           <div className="hidden md:block text-right">
             <p className="text-xs font-bold uppercase opacity-80 tracking-widest">Suivi de Colis</p>
-            <p className="text-[10px] opacity-60">Service National de Logistique</p>
+            <p className="text-[0.625rem] opacity-60">Service National de Logistique</p>
           </div>
         </div>
       </header>

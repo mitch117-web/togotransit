@@ -129,7 +129,7 @@ export default async function FleetPage() {
                 }`}></div>
                 <Link href={`/admin/fleet/${vehicle.id}`} className="font-bold text-primary hover:underline">{vehicle.plateNumber}</Link>
               </div>
-              <span className="text-[10px] font-black uppercase text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+              <span className="text-[0.625rem] font-black uppercase text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
                 {vehicle.type}
               </span>
             </div>
@@ -137,11 +137,11 @@ export default async function FleetPage() {
             <div className="p-4 flex flex-col gap-4">
               <div className="flex justify-between items-center">
                 <span className="text-on-surface-variant font-body-sm text-body-sm flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[18px]">group</span>
+                  <span className="material-symbols-outlined text-[1.125rem]">group</span>
                   Capacité: {vehicle.capacity} places
                 </span>
                 <span className="text-on-surface-variant font-body-sm text-body-sm flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[18px]">history</span>
+                  <span className="material-symbols-outlined text-[1.125rem]">history</span>
                   Dernier trajet: Hier
                 </span>
               </div>

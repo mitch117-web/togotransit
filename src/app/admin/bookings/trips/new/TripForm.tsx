@@ -60,7 +60,7 @@ export default function TripForm({ vehicles, drivers, cities }: { vehicles: any[
               <option value="">Sélectionner une ville</option>
               {cities.map(city => <option key={city} value={city}>{city}</option>)}
             </select>
-            {errors.origin && <span className="text-[10px] text-error font-bold">{errors.origin.message}</span>}
+            {errors.origin && <span className="text-[0.625rem] text-error font-bold">{errors.origin.message}</span>}
           </div>
 
           <div className="flex flex-col gap-1">
@@ -72,7 +72,7 @@ export default function TripForm({ vehicles, drivers, cities }: { vehicles: any[
               <option value="">Sélectionner une ville</option>
               {cities.map(city => <option key={city} value={city}>{city}</option>)}
             </select>
-            {errors.destination && <span className="text-[10px] text-error font-bold">{errors.destination.message}</span>}
+            {errors.destination && <span className="text-[0.625rem] text-error font-bold">{errors.destination.message}</span>}
           </div>
         </div>
 
@@ -96,7 +96,7 @@ export default function TripForm({ vehicles, drivers, cities }: { vehicles: any[
                 </option>
               ))}
             </select>
-            {errors.vehicleId && <span className="text-[10px] text-error font-bold">{errors.vehicleId.message}</span>}
+            {errors.vehicleId && <span className="text-[0.625rem] text-error font-bold">{errors.vehicleId.message}</span>}
           </div>
 
           <div className="flex flex-col gap-1">
@@ -121,7 +121,7 @@ export default function TripForm({ vehicles, drivers, cities }: { vehicles: any[
               {...register('price', { valueAsNumber: true })}
               className="bg-surface-container-low p-3 rounded-xl border border-outline-variant outline-none focus:border-primary transition-all font-medium"
             />
-            {errors.price && <span className="text-[10px] text-error font-bold">{errors.price.message}</span>}
+            {errors.price && <span className="text-[0.625rem] text-error font-bold">{errors.price.message}</span>}
           </div>
         </div>
 
@@ -140,7 +140,7 @@ export default function TripForm({ vehicles, drivers, cities }: { vehicles: any[
                 {...register('departureTime')}
                 className="bg-surface-container-low p-3 rounded-xl border border-outline-variant outline-none focus:border-primary transition-all font-medium"
               />
-              {errors.departureTime && <span className="text-[10px] text-error font-bold">{errors.departureTime.message}</span>}
+              {errors.departureTime && <span className="text-[0.625rem] text-error font-bold">{errors.departureTime.message}</span>}
             </div>
 
             <div className="flex flex-col gap-1">

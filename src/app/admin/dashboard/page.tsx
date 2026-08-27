@@ -192,7 +192,7 @@ export default async function AdminDashboard() {
           {isSuperAdmin ? '👑' : (stats.compagnie?.nom?.charAt(0) ?? 'C')}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-widest text-on-surface-variant opacity-60">
+          <p className="text-[0.6875rem] font-black uppercase tracking-widest text-on-surface-variant opacity-60">
             {isSuperAdmin ? 'Vue Super-Admin — Plateforme TogoTransit' : 'Espace Compagnie'}
           </p>
           <h2 className="font-black text-lg text-on-surface truncate">
@@ -209,7 +209,7 @@ export default async function AdminDashboard() {
             href="/admin/companies"
             className="text-xs font-black text-amber-800 bg-amber-100 hover:bg-amber-200 px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 flex-shrink-0"
           >
-            <span className="material-symbols-outlined text-[16px]">domain</span>
+            <span className="material-symbols-outlined text-[1rem]">domain</span>
             Gérer les compagnies
           </Link>
         )}
@@ -229,11 +229,11 @@ export default async function AdminDashboard() {
               </h3>
             </div>
             <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs flex items-center gap-1 font-bold">
-              <span className="material-symbols-outlined text-[14px]">trending_up</span> +12.5%
+              <span className="material-symbols-outlined text-[0.875rem]">trending_up</span> +12.5%
             </span>
           </div>
           <div className="mt-auto relative z-10">
-            <p className="text-[10px] text-on-surface-variant font-bold uppercase opacity-50">Performance temps réel</p>
+            <p className="text-[0.625rem] text-on-surface-variant font-bold uppercase opacity-50">Performance temps réel</p>
           </div>
           <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-700" />
         </div>
@@ -249,7 +249,7 @@ export default async function AdminDashboard() {
               <h3 className="text-2xl text-primary font-black">{stats.inTransitParcels}</h3>
               <span className="text-error text-xs mb-1 font-bold">ACTIFS</span>
             </div>
-            <p className="text-[10px] text-on-surface-variant opacity-50 mt-1">sur {stats.totalParcels} total</p>
+            <p className="text-[0.625rem] text-on-surface-variant opacity-50 mt-1">sur {stats.totalParcels} total</p>
           </div>
         </Link>
 
@@ -284,7 +284,7 @@ export default async function AdminDashboard() {
             <span className="material-symbols-outlined text-primary">history</span>
             <h3 className="font-bold text-primary">Dernières Expéditions</h3>
             {!isSuperAdmin && stats.compagnie && (
-              <span className="text-[10px] bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full font-black uppercase">
+              <span className="text-[0.625rem] bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full font-black uppercase">
                 {stats.compagnie.nom}
               </span>
             )}
@@ -314,7 +314,7 @@ export default async function AdminDashboard() {
                   <td className="p-4 text-sm text-on-surface font-medium">{parcel.senderName}</td>
                   <td className="p-4 text-sm text-on-surface-variant">
                     <span className="font-bold text-on-surface">{parcel.origin}</span>
-                    <span className="material-symbols-outlined text-[14px] align-middle mx-1.5 opacity-30">arrow_forward</span>
+                    <span className="material-symbols-outlined text-[0.875rem] align-middle mx-1.5 opacity-30">arrow_forward</span>
                     <span className="font-bold text-on-surface">{parcel.destination}</span>
                   </td>
                   {isSuperAdmin && (
@@ -324,7 +324,7 @@ export default async function AdminDashboard() {
                   )}
                   <td className="p-4 text-sm font-black text-primary">{parcel.price.toLocaleString('fr-FR')} F</td>
                   <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border shadow-sm ${
+                    <span className={`px-3 py-1 rounded-full text-[0.625rem] font-black uppercase border shadow-sm ${
                       parcel.status === 'DELIVERED'  ? 'bg-green-100 text-green-700 border-green-200' :
                       parcel.status === 'IN_TRANSIT' ? 'bg-blue-100 text-blue-700 border-blue-200'  :
                                                        'bg-orange-100 text-orange-700 border-orange-200'

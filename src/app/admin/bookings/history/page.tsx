@@ -74,14 +74,14 @@ export default async function BookingHistoryPage() {
                       </div>
                       <div>
                         <p className="font-bold text-sm text-on-surface">{booking.user.name}</p>
-                        <p className="text-[10px] text-on-surface-variant">{booking.user.phone}</p>
+                        <p className="text-[0.625rem] text-on-surface-variant">{booking.user.phone}</p>
                       </div>
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2 font-bold text-primary text-sm">
                       <span>{booking.trip.origin}</span>
-                      <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                      <span className="material-symbols-outlined text-[0.875rem]">arrow_forward</span>
                       <span>{booking.trip.destination}</span>
                     </div>
                   </td>
@@ -93,7 +93,7 @@ export default async function BookingHistoryPage() {
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <PrintTicketButton booking={booking} />
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-green-100 text-green-700 uppercase">
+                      <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-green-100 text-green-700 uppercase">
                         Confirmé
                       </span>
                     </div>

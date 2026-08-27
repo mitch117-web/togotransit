@@ -37,7 +37,7 @@ export default function AdminUserBadge() {
       </div>
       <div className="overflow-hidden">
         <p className="font-bold text-xs text-primary truncate">{displayName}</p>
-        <p className="text-[10px] text-on-surface-variant font-bold truncate opacity-80">{displayRole}</p>
+        <p className="text-[0.625rem] text-on-surface-variant font-bold truncate opacity-80">{displayRole}</p>
       </div>
     </div>
   )

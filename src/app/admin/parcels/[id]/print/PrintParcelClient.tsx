@@ -80,19 +80,19 @@ export default function PrintParcelClient({ parcel }: { parcel: any }) {
           <h3 className="text-xs font-black uppercase text-gray-500">Détails de l'Envoi</h3>
           <div className="grid grid-cols-4 gap-4 text-center">
             <div className="flex flex-col">
-              <span className="text-[10px] uppercase font-bold text-gray-400">Poids</span>
+              <span className="text-[0.625rem] uppercase font-bold text-gray-400">Poids</span>
               <span className="text-lg font-black">{parcel.weight} kg</span>
             </div>
             <div className="flex flex-col border-l border-gray-200">
-              <span className="text-[10px] uppercase font-bold text-gray-400">Catégorie</span>
+              <span className="text-[0.625rem] uppercase font-bold text-gray-400">Catégorie</span>
               <span className="text-sm font-bold">{parcel.category}</span>
             </div>
             <div className="flex flex-col border-l border-gray-200">
-              <span className="text-[10px] uppercase font-bold text-gray-400">Livraison</span>
+              <span className="text-[0.625rem] uppercase font-bold text-gray-400">Livraison</span>
               <span className="text-sm font-bold">{parcel.deliveryType}</span>
             </div>
             <div className="flex flex-col border-l border-gray-200">
-              <span className="text-[10px] uppercase font-bold text-gray-400">Montant</span>
+              <span className="text-[0.625rem] uppercase font-bold text-gray-400">Montant</span>
               <span className="text-lg font-black">{parcel.price.toLocaleString('fr-FR')} F</span>
             </div>
           </div>
@@ -102,20 +102,20 @@ export default function PrintParcelClient({ parcel }: { parcel: any }) {
         <div className="flex justify-between items-end mt-4">
           <div className="flex flex-col items-center gap-2">
             <QRCodeSVG value={parcel.trackingId} size={100} level="H" />
-            <p className="text-[10px] font-bold tracking-widest">{parcel.trackingId}</p>
+            <p className="text-[0.625rem] font-bold tracking-widest">{parcel.trackingId}</p>
           </div>
 
           <div className="flex flex-col gap-12 w-48 text-center border-t border-black pt-2">
-            <p className="text-[10px] font-bold uppercase">Signature Client</p>
+            <p className="text-[0.625rem] font-bold uppercase">Signature Client</p>
           </div>
 
           <div className="flex flex-col gap-12 w-48 text-center border-t border-black pt-2">
-            <p className="text-[10px] font-bold uppercase">Cachet Agence</p>
+            <p className="text-[0.625rem] font-bold uppercase">Cachet Agence</p>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-8 text-[10px] text-gray-400 text-center italic border-t border-gray-100 pt-4">
+        <div className="mt-8 text-[0.625rem] text-gray-400 text-center italic border-t border-gray-100 pt-4">
           Merci d'avoir choisi TogoTransit. Suivez votre colis sur www.togotransit.tg avec votre ID de tracking.
           <br />Conditions générales applicables.
         </div>

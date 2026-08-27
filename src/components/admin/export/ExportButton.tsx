@@ -16,7 +16,7 @@ export default function ExportButton({ data, filename, label }: { data: any[], f
       onClick={handleExport}
       className="flex items-center gap-2 bg-surface-container-high hover:bg-surface-container-highest text-primary font-bold py-2 px-4 rounded-lg transition-all border border-outline-variant shadow-sm text-sm"
     >
-      <span className="material-symbols-outlined text-[18px]">download</span>
+      <span className="material-symbols-outlined text-[1.125rem]">download</span>
       {label}
     </button>
   )

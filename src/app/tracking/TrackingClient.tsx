@@ -65,11 +65,11 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
           <div className="bg-white p-8 rounded-[2rem] border border-outline-variant shadow-lg flex flex-col gap-10 overflow-hidden relative">
             <div className="flex justify-between items-center border-b border-outline-variant pb-6">
               <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase text-outline tracking-widest">Colis ID</span>
+                <span className="text-[0.625rem] font-black uppercase text-outline tracking-widest">Colis ID</span>
                 <span className="text-2xl font-black text-primary">{initialParcel.trackingId}</span>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-black uppercase text-outline tracking-widest">Destination</span>
+                <span className="text-[0.625rem] font-black uppercase text-outline tracking-widest">Destination</span>
                 <span className="text-2xl font-black text-primary">{initialParcel.destination}</span>
               </div>
             </div>
@@ -104,7 +104,7 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
                     } ${isCurrent ? 'scale-110 ring-4 ring-green-50' : ''}`}>
                       <span className="material-symbols-outlined text-2xl md:text-3xl">{step.icon}</span>
                     </div>
-                    <span className={`text-[10px] md:text-xs font-black uppercase tracking-tighter text-center max-w-[60px] md:max-w-none ${
+                    <span className={`text-[0.625rem] md:text-xs font-black uppercase tracking-tighter text-center max-w-[60px] md:max-w-none ${
                       isActive ? 'text-green-600' : 'text-gray-300'
                     }`}>
                       {step.label}
@@ -118,21 +118,21 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
               <div className="flex items-center gap-4 p-4 bg-surface rounded-2xl border border-outline-variant/50">
                 <span className="material-symbols-outlined text-primary text-3xl opacity-40">calendar_today</span>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-outline">Date d'expédition</p>
+                  <p className="text-[0.625rem] font-black uppercase text-outline">Date d'expédition</p>
                   <p className="font-bold">{new Date(initialParcel.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 p-4 bg-surface rounded-2xl border border-outline-variant/50">
                 <span className="material-symbols-outlined text-primary text-3xl opacity-40">weight</span>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-outline">Poids</p>
+                  <p className="text-[0.625rem] font-black uppercase text-outline">Poids</p>
                   <p className="font-bold">{initialParcel.weight} kg</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 p-4 bg-surface rounded-2xl border border-outline-variant/50">
                 <span className="material-symbols-outlined text-primary text-3xl opacity-40">payments</span>
                 <div>
-                  <p className="text-[10px] font-black uppercase text-outline">Statut Paiement</p>
+                  <p className="text-[0.625rem] font-black uppercase text-outline">Statut Paiement</p>
                   <p className={`font-bold ${initialParcel.paymentStatus === 'PAID' ? 'text-green-600' : 'text-error'}`}>
                     {initialParcel.paymentStatus === 'PAID' ? 'RÉGLÉ' : 'À PAYER'}
                   </p>
@@ -158,7 +158,7 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
                     <span className="material-symbols-outlined text-4xl text-green-200">signature</span>
                   )}
                 </div>
-                <span className="text-[10px] font-bold uppercase text-green-800 opacity-60">Signature POD</span>
+                <span className="text-[0.625rem] font-bold uppercase text-green-800 opacity-60">Signature POD</span>
               </div>
             </div>
           )}

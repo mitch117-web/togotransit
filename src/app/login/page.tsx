@@ -98,7 +98,7 @@ export default function LoginPage() {
           </Link>
           <div className="text-center">
             <h1 className="text-2xl font-black text-white tracking-tight">TOGOTRANSIT</h1>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-secondary/90 opacity-90 mt-0.5">
+            <p className="text-[0.6875rem] font-bold uppercase tracking-widest text-secondary/90 opacity-90 mt-0.5">
               Espace Professionnel &amp; Administration
             </p>
           </div>
@@ -120,7 +120,7 @@ export default function LoginPage() {
               Email ou Téléphone (+228)
             </label>
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-[20px]">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-[1.25rem]">
                 account_circle
               </span>
               <input
@@ -140,12 +140,12 @@ export default function LoginPage() {
               <label className="text-xs font-black uppercase text-white/50">
                 Mot de passe
               </label>
-              <span className="text-[11px] text-secondary font-bold opacity-70 cursor-not-allowed">
+              <span className="text-[0.6875rem] text-secondary font-bold opacity-70 cursor-not-allowed">
                 Mot de passe oublié ?
               </span>
             </div>
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-[20px]">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-[1.25rem]">
                 lock
               </span>
               <input
@@ -166,9 +166,9 @@ export default function LoginPage() {
             className="w-full bg-gradient-to-r from-secondary to-secondary/80 text-on-secondary py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:brightness-110 hover:shadow-secondary/40 shadow-xl shadow-secondary/20 transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-1"
           >
             {loading ? (
-              <span className="animate-spin material-symbols-outlined text-[20px]">sync</span>
+              <span className="animate-spin material-symbols-outlined text-[1.25rem]">sync</span>
             ) : (
-              <span className="material-symbols-outlined text-[20px]">login</span>
+              <span className="material-symbols-outlined text-[1.25rem]">login</span>
             )}
             {loading ? 'Authentification...' : 'Se Connecter'}
           </button>
@@ -183,8 +183,8 @@ export default function LoginPage() {
         */}
         {isDev && (
           <details className="relative z-10 border-t border-white/10 pt-4">
-            <summary className="text-[10px] font-black uppercase text-white/40 hover:text-white/70 cursor-pointer tracking-widest select-none list-none flex items-center gap-1.5 transition-colors">
-              <span className="material-symbols-outlined text-[14px]">settings</span>
+            <summary className="text-[0.625rem] font-black uppercase text-white/40 hover:text-white/70 cursor-pointer tracking-widest select-none list-none flex items-center gap-1.5 transition-colors">
+              <span className="material-symbols-outlined text-[0.875rem]">settings</span>
               Accès développement (soutenance uniquement)
             </summary>
             <div className="mt-3 flex flex-col gap-1 p-3 bg-white/5 rounded-xl border border-white/10">
@@ -200,8 +200,8 @@ export default function LoginPage() {
                   onClick={() => fillDemo(acc.email, acc.pass)}
                   className="text-left px-2.5 py-2 rounded-lg hover:bg-white/10 transition-all group text-white/80"
                 >
-                  <div className="text-[11px] font-black">{acc.label}</div>
-                  <div className="text-[10px] opacity-60 font-medium">{acc.sub}</div>
+                  <div className="text-[0.6875rem] font-black">{acc.label}</div>
+                  <div className="text-[0.625rem] opacity-60 font-medium">{acc.sub}</div>
                 </button>
               ))}
             </div>
@@ -216,7 +216,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <p className="mt-5 text-[10px] text-white/30 text-center relative z-10">
+      <p className="mt-5 text-[0.625rem] text-white/30 text-center relative z-10">
         TogoTransit S.A. · Plateforme de transport multi-compagnies · Togo
       </p>
     </div>

@@ -105,7 +105,7 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
             {i}
           </button>
           {isTaken && (
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-on-surface text-surface text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg font-bold">
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-on-surface text-surface text-[0.625rem] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg font-bold">
               {booking.user.name}
             </div>
           )}
@@ -147,15 +147,15 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
             <div className="flex justify-center gap-6 mt-8 pt-6 border-t border-outline-variant/30">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-surface-container border-2 border-outline-variant rounded"></div>
-                <span className="text-[10px] font-bold uppercase text-on-surface-variant">Libre</span>
+                <span className="text-[0.625rem] font-bold uppercase text-on-surface-variant">Libre</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-surface-variant border-2 border-outline-variant rounded"></div>
-                <span className="text-[10px] font-bold uppercase text-on-surface-variant">Occupé</span>
+                <span className="text-[0.625rem] font-bold uppercase text-on-surface-variant">Occupé</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-secondary-container border-2 border-secondary rounded"></div>
-                <span className="text-[10px] font-bold uppercase text-on-surface-variant">Sélectionné</span>
+                <span className="text-[0.625rem] font-bold uppercase text-on-surface-variant">Sélectionné</span>
               </div>
             </div>
           </div>
@@ -180,10 +180,10 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
                       </div>
                       <div>
                         <p className="font-bold text-sm text-on-surface leading-tight">{booking.user.name}</p>
-                        <p className="text-[10px] text-on-surface-variant">{booking.user.phone}</p>
+                        <p className="text-[0.625rem] text-on-surface-variant">{booking.user.phone}</p>
                       </div>
                     </div>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-green-100 text-green-700 uppercase">
+                    <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-green-100 text-green-700 uppercase">
                       Confirmé
                     </span>
                   </div>
@@ -226,7 +226,7 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
               <button 
                 type="button"
                 onClick={() => setShowUserModal(true)}
-                className="text-primary text-[11px] font-bold mt-1 hover:underline text-left"
+                className="text-primary text-[0.6875rem] font-bold mt-1 hover:underline text-left"
               >
                 + Créer un nouveau client
               </button>

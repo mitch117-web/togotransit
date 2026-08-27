@@ -116,12 +116,12 @@ export default async function BookingsPage() {
                 <div key={trip.id} className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
                   <div className="p-4 bg-primary text-on-primary flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[20px]">schedule</span>
+                      <span className="material-symbols-outlined text-[1.25rem]">schedule</span>
                       <span className="font-label-md text-label-md">
                         {new Date(trip.departureTime).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })} - {new Date(trip.departureTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <span className="bg-white/20 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
+                    <span className="bg-white/20 px-2 py-0.5 rounded text-[0.625rem] font-bold uppercase">
                       {trip.vehicle?.type}
                     </span>
                   </div>
@@ -188,16 +188,16 @@ export default async function BookingsPage() {
                     </div>
                     <div className="flex-1">
                       <p className="font-bold text-sm text-on-surface leading-tight">{booking.user.name}</p>
-                      <p className="text-[10px] text-on-surface-variant">Siège #{booking.seatNumber} • {booking.trip.origin} → {booking.trip.destination}</p>
+                      <p className="text-[0.625rem] text-on-surface-variant">Siège #{booking.seatNumber} • {booking.trip.origin} → {booking.trip.destination}</p>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-1">
-                    <span className="text-[10px] font-medium text-on-surface-variant">
+                    <span className="text-[0.625rem] font-medium text-on-surface-variant">
                       {new Date(booking.createdAt).toLocaleDateString('fr-FR')}
                     </span>
                     <div className="flex items-center gap-2">
                       <PrintTicketButton booking={booking} />
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-green-100 text-green-700 uppercase">
+                      <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-green-100 text-green-700 uppercase">
                         Confirmé
                       </span>
                     </div>

@@ -88,14 +88,14 @@ export default function GeneralSettings() {
 
       {error && (
         <div className="p-3 bg-error-container text-on-error-container rounded-lg text-xs font-bold flex items-center gap-2">
-          <span className="material-symbols-outlined text-[16px]">error</span>
+          <span className="material-symbols-outlined text-[1rem]">error</span>
           {error}
         </div>
       )}
       
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <label className="font-label-sm text-on-surface-variant font-bold uppercase text-[10px]">Nom de l'entreprise</label>
+          <label className="font-label-sm text-on-surface-variant font-bold uppercase text-[0.625rem]">Nom de l'entreprise</label>
           <input 
             type="text" 
             value={settings.companyName} 
@@ -105,7 +105,7 @@ export default function GeneralSettings() {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="font-label-sm text-on-surface-variant font-bold uppercase text-[10px]">Devise par défaut</label>
+          <label className="font-label-sm text-on-surface-variant font-bold uppercase text-[0.625rem]">Devise par défaut</label>
           <select 
             value={settings.currency}
             onChange={(e) => setSettings({...settings, currency: e.target.value})}
@@ -120,7 +120,7 @@ export default function GeneralSettings() {
         <div className="flex items-center justify-between py-2 border-t border-outline-variant mt-2">
           <div>
             <p className="font-label-md text-label-md text-on-surface font-bold">Notifications SMS</p>
-            <p className="text-[11px] text-on-surface-variant">Alerter les clients à l'arrivée</p>
+            <p className="text-[0.6875rem] text-on-surface-variant">Alerter les clients à l'arrivée</p>
           </div>
           <div 
             onClick={() => setSettings({...settings, smsEnabled: !settings.smsEnabled})}
@@ -133,7 +133,7 @@ export default function GeneralSettings() {
         <div className="flex items-center justify-between py-2">
           <div>
             <p className="font-label-md text-label-md text-on-surface font-bold">Mode Maintenance</p>
-            <p className="text-[11px] text-on-surface-variant">Désactiver l'accès public</p>
+            <p className="text-[0.6875rem] text-on-surface-variant">Désactiver l'accès public</p>
           </div>
           <div 
             onClick={() => setSettings({...settings, maintenance: !settings.maintenance})}

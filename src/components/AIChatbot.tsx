@@ -187,7 +187,7 @@ export default function AIChatbot() {
                     }}>
                     <p className="text-sm leading-relaxed">{msg.content}</p>
                     <p 
-                      className="text-[10px] mt-1.5 opacity-60"
+                      className="text-[0.625rem] mt-1.5 opacity-60"
                       style={{ color: msg.role === 'user' ? colors.onPrimary : colors.onSurfaceVariant }}>
                       {msg.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                     </p>

@@ -42,7 +42,7 @@ export default function DashboardCharts({
         <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-sm flex flex-col gap-4">
           <div className="flex justify-between items-center">
             <h3 className="font-headline-sm text-headline-sm text-primary">Volume de Colis</h3>
-            <span className="text-[10px] font-bold uppercase text-on-surface-variant bg-surface-container px-2 py-1 rounded">7 derniers jours</span>
+            <span className="text-[0.625rem] font-bold uppercase text-on-surface-variant bg-surface-container px-2 py-1 rounded">7 derniers jours</span>
           </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -75,7 +75,7 @@ export default function DashboardCharts({
         <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant shadow-sm flex flex-col gap-4">
           <div className="flex justify-between items-center">
             <h3 className="font-headline-sm text-headline-sm text-primary">Revenus Mensuels</h3>
-            <span className="text-[10px] font-bold uppercase text-on-surface-variant bg-surface-container px-2 py-1 rounded">6 derniers mois</span>
+            <span className="text-[0.625rem] font-bold uppercase text-on-surface-variant bg-surface-container px-2 py-1 rounded">6 derniers mois</span>
           </div>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">

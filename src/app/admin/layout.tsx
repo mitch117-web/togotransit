@@ -21,14 +21,14 @@ export default function AdminLayout({
           </div>
           <div>
             <h1 className="font-black text-lg text-primary leading-tight">TogoTransit</h1>
-            <p className="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider opacity-70">Portail Pro & Admin</p>
+            <p className="text-[0.625rem] text-on-surface-variant uppercase font-bold tracking-wider opacity-70">Portail Pro & Admin</p>
           </div>
         </div>
         
         <SidebarLinks />
 
         <Link href="/admin/parcels/new" className="w-full bg-primary text-on-primary text-xs font-black py-3 rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 mt-4 shadow-md group uppercase tracking-wider">
-          <span className="material-symbols-outlined text-[18px] group-hover:rotate-90 transition-transform">add</span>
+          <span className="material-symbols-outlined text-[1.125rem] group-hover:rotate-90 transition-transform">add</span>
           Nouvel Envoi Colis
         </Link>
         
@@ -52,7 +52,7 @@ export default function AdminLayout({
           {/* Desktop Search */}
           <div className="hidden md:flex flex-1 max-w-md">
             <form className="relative w-full" action="/admin/parcels" method="GET">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[1.125rem]">search</span>
               <input 
                 name="q"
                 className="w-full pl-9 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full text-xs font-bold focus:outline-none focus:border-primary transition-all" 

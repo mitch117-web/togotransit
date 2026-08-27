@@ -85,7 +85,7 @@ export default async function ParcelsPage({
             label="Exporter Excel"
           />
           <Link href="/admin/parcels/new" className="bg-primary text-on-primary rounded-lg py-2.5 px-5 font-label-md text-label-md hover:brightness-110 transition-all shadow-sm flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px]">add</span>
+            <span className="material-symbols-outlined text-[1.25rem]">add</span>
             Nouvel Envoi
           </Link>
         </div>
@@ -156,11 +156,11 @@ export default async function ParcelsPage({
                     <td className="p-4">
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[14px] text-primary">upload</span>
+                          <span className="material-symbols-outlined text-[0.875rem] text-primary">upload</span>
                           <span className="font-body-sm text-body-sm font-medium">{parcel.senderName}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[14px] text-secondary">download</span>
+                          <span className="material-symbols-outlined text-[0.875rem] text-secondary">download</span>
                           <span className="font-body-sm text-body-sm text-on-surface-variant">{parcel.receiverName}</span>
                         </div>
                       </div>
@@ -168,7 +168,7 @@ export default async function ParcelsPage({
                     <td className="p-4">
                       <div className="flex items-center gap-2 font-body-sm text-body-sm">
                         <span className="font-medium text-primary">{parcel.origin}</span>
-                        <span className="material-symbols-outlined text-[14px] text-outline">arrow_forward</span>
+                        <span className="material-symbols-outlined text-[0.875rem] text-outline">arrow_forward</span>
                         <span className="font-medium text-primary">{parcel.destination}</span>
                       </div>
                     </td>
@@ -177,7 +177,7 @@ export default async function ParcelsPage({
                         {parcel.driver ? (
                           <>
                             <span className="font-label-md text-label-md text-on-surface flex items-center gap-1">
-                              <span className="material-symbols-outlined text-[16px]">local_shipping</span>
+                              <span className="material-symbols-outlined text-[1rem]">local_shipping</span>
                               {parcel.driver.name}
                             </span>
                             <span className="font-label-sm text-label-sm text-on-surface-variant">
@@ -201,20 +201,20 @@ export default async function ParcelsPage({
                     </td>
                     <td className="p-4">
                       <div className="flex flex-col gap-2">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border w-fit ${getStatusStyle(parcel.status)}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border w-fit ${getStatusStyle(parcel.status)}`}>
                         {parcel.status.replace(/_/g, ' ')}
                       </span>
                       {parcel.status === 'IN_TRANSIT' && (
                         <Link 
                           href={`/admin/parcels/${parcel.id}/pod`}
-                          className="text-[10px] font-bold text-primary flex items-center gap-1 hover:underline"
+                          className="text-[0.625rem] font-bold text-primary flex items-center gap-1 hover:underline"
                         >
-                          <span className="material-symbols-outlined text-[14px]">task_alt</span>
+                          <span className="material-symbols-outlined text-[0.875rem]">task_alt</span>
                           VALIDER LIVRAISON
                         </Link>
                       )}
-                      <span className={`text-[11px] font-medium flex items-center gap-1 ${parcel.paymentStatus === 'PAID' ? 'text-green-600' : 'text-error'}`}>
-                          <span className="material-symbols-outlined text-[14px]">
+                      <span className={`text-[0.6875rem] font-medium flex items-center gap-1 ${parcel.paymentStatus === 'PAID' ? 'text-green-600' : 'text-error'}`}>
+                          <span className="material-symbols-outlined text-[0.875rem]">
                             {parcel.paymentStatus === 'PAID' ? 'check_circle' : 'pending'}
                           </span>
                           {parcel.paymentStatus === 'PAID' ? 'PAYÉ' : 'À PAYER'} ({parcel.paymentMethod})
@@ -228,21 +228,21 @@ export default async function ParcelsPage({
                           className="p-1 text-on-surface-variant hover:text-primary transition-colors"
                           title="Voir Détails"
                         >
-                          <span className="material-symbols-outlined text-[20px]">visibility</span>
+                          <span className="material-symbols-outlined text-[1.25rem]">visibility</span>
                         </Link>
                         <Link 
                           href={`/admin/parcels/${parcel.id}/edit`}
                           className="p-1 text-on-surface-variant hover:text-secondary transition-colors"
                           title="Modifier"
                         >
-                          <span className="material-symbols-outlined text-[20px]">edit</span>
+                          <span className="material-symbols-outlined text-[1.25rem]">edit</span>
                         </Link>
                         <Link 
                           href={`/admin/parcels/${parcel.id}/print`}
                           className="p-1 text-on-surface-variant hover:text-primary transition-colors"
                           title="Imprimer"
                         >
-                          <span className="material-symbols-outlined text-[20px]">print</span>
+                          <span className="material-symbols-outlined text-[1.25rem]">print</span>
                         </Link>
                       </div>
                     </td>

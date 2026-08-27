@@ -96,8 +96,8 @@ export default function PrintTicketButton({ booking }: PrintTicketButtonProps) {
         className="text-primary hover:bg-primary/10 p-1.5 rounded-lg transition-colors flex items-center gap-1 group"
         title="Imprimer le ticket"
       >
-        <span className="material-symbols-outlined text-[18px]">print</span>
-        <span className="text-[10px] font-bold uppercase hidden group-hover:inline">Ticket</span>
+        <span className="material-symbols-outlined text-[1.125rem]">print</span>
+        <span className="text-[0.625rem] font-bold uppercase hidden group-hover:inline">Ticket</span>
       </button>
     </>
   )

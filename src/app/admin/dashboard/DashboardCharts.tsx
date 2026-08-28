@@ -6,21 +6,21 @@ import {
   LineChart, Line, AreaChart, Area, PieChart, Pie, Cell 
 } from 'recharts'
 
-// Palette de graphiques adaptée à l'identité marine + or (dashboard en thème
-// sombre) : or (marque), émeraude, ciel, ambre, rose — des teintes qui restent
-// lisibles et distinctes sur fond marine quasi-noir.
-const COLORS = ['#fd761a', '#34d399', '#38bdf8', '#fbbf24', '#f472b6']
-const GRID_STROKE = 'rgba(245,247,255,0.08)'
-const AXIS_TICK = { fontSize: 10, fill: '#a3acc2' }
+// Palette de graphiques adaptée à l'identité "clean light" du dashboard :
+// tangerine (marque), émeraude, ciel, ambre, rose — des teintes vives et
+// distinctes qui restent lisibles sur fond blanc.
+const COLORS = ['#c2410c', '#059669', '#0284c7', '#d97706', '#db2777']
+const GRID_STROKE = 'rgba(30,41,59,0.08)'
+const AXIS_TICK = { fontSize: 10, fill: '#64748b' }
 const TOOLTIP_STYLE = {
   borderRadius: 12,
-  border: '1px solid rgba(255,255,255,0.12)',
-  boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
-  backgroundColor: '#131b2c',
-  color: '#f5f7ff',
+  border: '1px solid #e2e8f0',
+  boxShadow: '0 8px 24px rgba(15,23,42,0.12)',
+  backgroundColor: '#ffffff',
+  color: '#1e293b',
 }
-const TOOLTIP_ITEM_STYLE = { color: '#f5f7ff' }
-const TOOLTIP_LABEL_STYLE = { color: '#a3acc2' }
+const TOOLTIP_ITEM_STYLE = { color: '#1e293b' }
+const TOOLTIP_LABEL_STYLE = { color: '#475569' }
 
 export default function DashboardCharts({ 
   data, 
@@ -63,9 +63,9 @@ export default function DashboardCharts({
                   contentStyle={TOOLTIP_STYLE}
                   itemStyle={TOOLTIP_ITEM_STYLE}
                   labelStyle={TOOLTIP_LABEL_STYLE}
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                  cursor={{ fill: 'rgba(30,41,59,0.05)' }}
                 />
-                <Bar dataKey="colis" fill="#fd761a" radius={[4, 4, 0, 0]} barSize={30} />
+                <Bar dataKey="colis" fill="#c2410c" radius={[4, 4, 0, 0]} barSize={30} />
               </BarChart>
             </ResponsiveContainer>
           </div>

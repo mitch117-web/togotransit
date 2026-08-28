@@ -200,7 +200,7 @@ export default async function BookingsPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <PrintTicketButton booking={booking} />
-                      <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-emerald-500/10 text-emerald-400 uppercase">
+                      <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-emerald-500/10 text-emerald-700 uppercase">
                         Confirmé
                       </span>
                     </div>

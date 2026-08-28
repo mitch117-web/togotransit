@@ -200,7 +200,7 @@ export default async function AdminDashboard() {
           </h2>
           {!isSuperAdmin && stats.compagnie && (
             <p className="text-xs text-on-surface-variant opacity-70 mt-0.5">
-              {stats.compagnie.telephone ?? ''} · Statut : <span className={`font-bold ${stats.compagnie.statut === 'actif' ? 'text-green-600' : 'text-red-400'}`}>{stats.compagnie.statut}</span>
+              {stats.compagnie.telephone ?? ''} · Statut : <span className={`font-bold ${stats.compagnie.statut === 'actif' ? 'text-green-600' : 'text-error'}`}>{stats.compagnie.statut}</span>
             </p>
           )}
         </div>
@@ -228,7 +228,7 @@ export default async function AdminDashboard() {
                 {stats.revenue.toLocaleString('fr-FR')} FCFA
               </h3>
             </div>
-            <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs flex items-center gap-1 font-bold">
+            <span className="bg-emerald-500/10 text-emerald-700 px-3 py-1 rounded-full text-xs flex items-center gap-1 font-bold">
               <span className="material-symbols-outlined text-[0.875rem]">trending_up</span> +12.5%
             </span>
           </div>
@@ -325,8 +325,8 @@ export default async function AdminDashboard() {
                   <td className="p-4 text-sm font-black text-primary">{parcel.price.toLocaleString('fr-FR')} F</td>
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-[0.625rem] font-black uppercase border shadow-sm ${
-                      parcel.status === 'DELIVERED'  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
-                      parcel.status === 'IN_TRANSIT' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30'  :
+                      parcel.status === 'DELIVERED'  ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30' :
+                      parcel.status === 'IN_TRANSIT' ? 'bg-blue-500/10 text-blue-600 border-blue-500/30'  :
                                                        'bg-primary/10 text-primary border-primary/30'
                     }`}>
                       {parcel.status.replace('_', ' ')}

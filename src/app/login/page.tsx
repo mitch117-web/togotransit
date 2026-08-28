@@ -72,33 +72,33 @@ export default function LoginPage() {
   const isDev = process.env.NODE_ENV === 'development'
 
   return (
-    <div className="min-h-screen bg-[#070d1a] flex flex-col justify-center items-center p-4 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4 font-sans relative overflow-hidden">
       {/* Ambiance de fond premium */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-[32rem] h-[32rem] bg-primary/25 rounded-full blur-[120px]" />
-        <div className="absolute -bottom-40 -right-32 w-[28rem] h-[28rem] bg-secondary/20 rounded-full blur-[120px]" />
-        <div className="absolute inset-0 opacity-[0.03] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
+        <div className="absolute -top-40 -left-40 w-[32rem] h-[32rem] bg-primary/10 rounded-full blur-[120px]" />
+        <div className="absolute -bottom-40 -right-32 w-[28rem] h-[28rem] bg-secondary/10 rounded-full blur-[120px]" />
+        <div className="absolute inset-0 opacity-[0.4] [background-image:linear-gradient(#e2e8f0_1px,transparent_1px),linear-gradient(90deg,#e2e8f0_1px,transparent_1px)] [background-size:48px_48px]" />
       </div>
 
       <div
-        className={`w-full max-w-md bg-white/[0.06] backdrop-blur-2xl p-8 md:p-10 rounded-[2.5rem] border border-white/10 shadow-2xl flex flex-col gap-6 relative z-10 transition-all duration-700 ease-out ${
+        className={`w-full max-w-md bg-white/80 backdrop-blur-2xl p-8 md:p-10 rounded-[2.5rem] border border-outline-variant shadow-[0_20px_60px_-15px_rgba(30,41,59,0.15)] flex flex-col gap-6 relative z-10 transition-all duration-700 ease-out ${
           mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
         }`}
       >
-        {/* Liseré doré */}
-        <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-secondary to-transparent" />
+        {/* Liseré orange */}
+        <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
 
         {/* Logo + Titre */}
         <div className="flex flex-col items-center gap-3 relative z-10">
           <Link
             href="/"
-            className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-on-primary text-3xl font-black shadow-lg shadow-primary/30 hover:scale-105 transition-transform"
+            className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-on-primary text-3xl font-black shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-transform"
           >
             T
           </Link>
           <div className="text-center">
-            <h1 className="text-2xl font-black text-white tracking-tight">TOGOTRANSIT</h1>
-            <p className="text-[0.6875rem] font-bold uppercase tracking-widest text-primary/90 opacity-90 mt-0.5">
+            <h1 className="text-2xl font-black text-on-background tracking-tight">TOGOTRANSIT</h1>
+            <p className="text-[0.6875rem] font-bold uppercase tracking-widest text-on-primary-container opacity-90 mt-0.5">
               Espace Professionnel &amp; Administration
             </p>
           </div>
@@ -106,7 +106,7 @@ export default function LoginPage() {
 
         {/* Message d'erreur */}
         {error && (
-          <div className="p-3.5 bg-red-500/10 border border-red-500/30 text-red-300 rounded-xl text-xs font-bold flex items-center gap-2 relative z-10">
+          <div className="p-3.5 bg-error-container/50 border border-error-container text-on-error-container rounded-xl text-xs font-bold flex items-center gap-2 relative z-10">
             <span className="material-symbols-outlined text-sm">error</span>
             <span>{error}</span>
           </div>
@@ -116,11 +116,11 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="flex flex-col gap-4 relative z-10">
           {/* Email / Téléphone */}
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-black uppercase text-white/50 ml-1">
+            <label className="text-xs font-black uppercase text-on-surface-variant ml-1">
               Email ou Téléphone (+228)
             </label>
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-[1.25rem]">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[1.25rem]">
                 account_circle
               </span>
               <input
@@ -129,7 +129,7 @@ export default function LoginPage() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="exemple@compagnie.tg ou +228 90 00 00 01"
-                className="w-full pl-12 pr-4 py-3.5 bg-white/5 text-white placeholder:text-white/30 rounded-2xl border border-white/10 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all font-medium text-sm"
+                className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low text-on-surface placeholder:text-outline rounded-2xl border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
               />
             </div>
           </div>
@@ -137,15 +137,15 @@ export default function LoginPage() {
           {/* Mot de passe */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center ml-1">
-              <label className="text-xs font-black uppercase text-white/50">
+              <label className="text-xs font-black uppercase text-on-surface-variant">
                 Mot de passe
               </label>
-              <span className="text-[0.6875rem] text-primary font-bold opacity-70 cursor-not-allowed">
+              <span className="text-[0.6875rem] text-on-primary-container font-bold opacity-70 cursor-not-allowed">
                 Mot de passe oublié ?
               </span>
             </div>
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/40 text-[1.25rem]">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[1.25rem]">
                 lock
               </span>
               <input
@@ -154,7 +154,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••"
-                className="w-full pl-12 pr-4 py-3.5 bg-white/5 text-white placeholder:text-white/30 rounded-2xl border border-white/10 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all font-medium text-sm"
+                className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low text-on-surface placeholder:text-outline rounded-2xl border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
               />
             </div>
           </div>
@@ -163,7 +163,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-secondary to-secondary/80 text-on-secondary py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:brightness-110 hover:shadow-secondary/40 shadow-xl shadow-secondary/20 transition-all flex items-center justify-center gap-3 disabled:opacity-50 mt-1"
+            className="w-full bg-gradient-to-r from-primary to-primary/85 text-on-primary py-4 rounded-2xl font-black text-sm uppercase tracking-wider hover:brightness-110 hover:shadow-primary/30 shadow-xl shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50 mt-1"
           >
             {loading ? (
               <span className="animate-spin material-symbols-outlined text-[1.25rem]">sync</span>
@@ -174,7 +174,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* 
+        {/*
           ===================================================
           ACCÈS DÉMO — VISIBLE UNIQUEMENT EN DÉVELOPPEMENT
           En production (NODE_ENV=production) cette section
@@ -182,12 +182,12 @@ export default function LoginPage() {
           ===================================================
         */}
         {isDev && (
-          <details className="relative z-10 border-t border-white/10 pt-4">
-            <summary className="text-[0.625rem] font-black uppercase text-white/40 hover:text-white/70 cursor-pointer tracking-widest select-none list-none flex items-center gap-1.5 transition-colors">
+          <details className="relative z-10 border-t border-outline-variant pt-4">
+            <summary className="text-[0.625rem] font-black uppercase text-outline hover:text-on-surface-variant cursor-pointer tracking-widest select-none list-none flex items-center gap-1.5 transition-colors">
               <span className="material-symbols-outlined text-[0.875rem]">settings</span>
               Accès développement (soutenance uniquement)
             </summary>
-            <div className="mt-3 flex flex-col gap-1 p-3 bg-white/5 rounded-xl border border-white/10">
+            <div className="mt-3 flex flex-col gap-1 p-3 bg-surface-container-low rounded-xl border border-outline-variant">
               {[
                 { label: '👑 Super-Admin Plateforme', sub: 'Vue globale — toutes compagnies', email: 'superadmin@togotransit.tg', pass: 'Admin2026!' },
                 { label: '🏢 Nagodé Transport', sub: 'Gestionnaire — Lomé / Nord', email: 'admin@nagode.tg', pass: 'Nagode2026!' },
@@ -198,10 +198,10 @@ export default function LoginPage() {
                   key={acc.email}
                   type="button"
                   onClick={() => fillDemo(acc.email, acc.pass)}
-                  className="text-left px-2.5 py-2 rounded-lg hover:bg-white/10 transition-all group text-white/80"
+                  className="text-left px-2.5 py-2 rounded-lg hover:bg-surface-container-high transition-all group text-on-surface-variant active:scale-[0.98]"
                 >
                   <div className="text-[0.6875rem] font-black">{acc.label}</div>
-                  <div className="text-[0.625rem] opacity-60 font-medium">{acc.sub}</div>
+                  <div className="text-[0.625rem] opacity-70 font-medium">{acc.sub}</div>
                 </button>
               ))}
             </div>
@@ -209,14 +209,14 @@ export default function LoginPage() {
         )}
 
         {/* Liens bas de page */}
-        <div className="flex justify-center items-center text-xs text-white/40 relative z-10">
-          <Link href="/" className="hover:underline hover:text-white/70 transition-colors">
+        <div className="flex justify-center items-center text-xs text-outline relative z-10">
+          <Link href="/" className="hover:underline hover:text-on-surface-variant transition-colors">
             ← Retour à l&apos;accueil
           </Link>
         </div>
       </div>
 
-      <p className="mt-5 text-[0.625rem] text-white/30 text-center relative z-10">
+      <p className="mt-5 text-[0.625rem] text-outline text-center relative z-10">
         TogoTransit S.A. · Plateforme de transport multi-compagnies · Togo
       </p>
     </div>

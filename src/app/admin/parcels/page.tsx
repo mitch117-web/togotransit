@@ -43,10 +43,10 @@ export default async function ParcelsPage({
 
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'DELIVERED': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-      case 'IN_TRANSIT': return 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+      case 'DELIVERED': return 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30'
+      case 'IN_TRANSIT': return 'bg-blue-500/10 text-blue-600 border-blue-500/30'
       case 'IN_AGENCY': return 'bg-primary/10 text-primary border-primary/30'
-      case 'OUT_FOR_DELIVERY': return 'bg-purple-500/10 text-purple-400 border-purple-500/30'
+      case 'OUT_FOR_DELIVERY': return 'bg-purple-500/10 text-purple-600 border-purple-500/30'
       default: return 'bg-surface-container-high text-on-surface-variant border-outline-variant'
     }
   }

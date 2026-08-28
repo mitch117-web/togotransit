@@ -70,8 +70,8 @@ export default async function VehicleDetailsPage({
 
   const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'AVAILABLE': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-      case 'IN_SERVICE': return 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+      case 'AVAILABLE': return 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30'
+      case 'IN_SERVICE': return 'bg-blue-500/10 text-blue-600 border-blue-500/30'
       case 'MAINTENANCE': return 'bg-error-container/20 text-error border-error-container'
       default: return 'bg-surface-container-high text-on-surface-variant border-outline-variant'
     }
@@ -192,8 +192,8 @@ export default async function VehicleDetailsPage({
                       </td>
                       <td className="p-4">
                         <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border ${
-                          trip.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
-                          trip.status === 'ONGOING' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' :
+                          trip.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30' :
+                          trip.status === 'ONGOING' ? 'bg-blue-500/10 text-blue-600 border-blue-500/30' :
                           'bg-primary/10 text-primary border-primary/30'
                         }`}>
                           {trip.status}

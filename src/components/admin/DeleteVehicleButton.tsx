@@ -34,7 +34,7 @@ export default function DeleteVehicleButton({ vehicleId }: { vehicleId: string }
     <button 
       onClick={handleDelete}
       disabled={loading}
-      className="px-3 bg-surface-container-highest hover:bg-error/20 hover:text-error text-on-surface-variant border border-outline-variant rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
+      className="px-3 bg-surface-container-highest hover:bg-error/20 hover:text-error text-on-surface-variant border border-outline-variant rounded-xl transition-all active:scale-95 flex items-center justify-center disabled:opacity-50"
     >
       {loading ? (
         <span className="animate-spin material-symbols-outlined">sync</span>

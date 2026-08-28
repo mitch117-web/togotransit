@@ -183,7 +183,7 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
                         <p className="text-[0.625rem] text-on-surface-variant">{booking.user.phone}</p>
                       </div>
                     </div>
-                    <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-emerald-500/10 text-emerald-400 uppercase">
+                    <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-emerald-500/10 text-emerald-700 uppercase">
                       Confirmé
                     </span>
                   </div>

@@ -105,7 +105,7 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
                       <span className="material-symbols-outlined text-2xl md:text-3xl">{step.icon}</span>
                     </div>
                     <span className={`text-[0.625rem] md:text-xs font-black uppercase tracking-tighter text-center max-w-[3.75rem] md:max-w-none ${
-                      isActive ? 'text-emerald-400' : 'text-on-surface-variant/50'
+                      isActive ? 'text-emerald-700' : 'text-on-surface-variant/50'
                     }`}>
                       {step.label}
                     </span>
@@ -133,7 +133,7 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
                 <span className="material-symbols-outlined text-primary text-3xl opacity-40">payments</span>
                 <div>
                   <p className="text-[0.625rem] font-black uppercase text-outline">Statut Paiement</p>
-                  <p className={`font-bold ${initialParcel.paymentStatus === 'PAID' ? 'text-emerald-400' : 'text-error'}`}>
+                  <p className={`font-bold ${initialParcel.paymentStatus === 'PAID' ? 'text-emerald-700' : 'text-error'}`}>
                     {initialParcel.paymentStatus === 'PAID' ? 'RÉGLÉ' : 'À PAYER'}
                   </p>
                 </div>
@@ -143,11 +143,11 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
 
           {initialParcel.status === 'DELIVERED' && initialParcel.pod && (
             <div className="bg-emerald-500/10 border-2 border-emerald-500/30 p-6 rounded-[2rem] flex flex-col md:flex-row items-center gap-6 shadow-sm">
-              <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 shadow-md">
+              <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-700 shadow-md">
                 <span className="material-symbols-outlined text-4xl">verified_user</span>
               </div>
               <div className="flex-1 text-center md:text-left">
-                <h3 className="text-xl font-black text-emerald-400">Colis Livré avec succès</h3>
+                <h3 className="text-xl font-black text-emerald-700">Colis Livré avec succès</h3>
                 <p className="text-on-surface-variant text-sm">Ce colis a été remis en mains propres le {new Date(initialParcel.pod.deliveredAt).toLocaleDateString('fr-FR')} à {new Date(initialParcel.pod.deliveredAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.</p>
               </div>
               <div className="flex flex-col items-center gap-2">
@@ -155,10 +155,10 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
                   {initialParcel.pod.signatureUrl ? (
                     <img src={initialParcel.pod.signatureUrl} alt="Signature POD" className="max-h-full object-contain" />
                   ) : (
-                    <span className="material-symbols-outlined text-4xl text-emerald-200">signature</span>
+                    <span className="material-symbols-outlined text-4xl text-outline">signature</span>
                   )}
                 </div>
-                <span className="text-[0.625rem] font-bold uppercase text-emerald-400 opacity-80">Signature POD</span>
+                <span className="text-[0.625rem] font-bold uppercase text-emerald-700 opacity-80">Signature POD</span>
               </div>
             </div>
           )}

@@ -164,7 +164,7 @@ export default async function UserDetailsPage({
                       <td className="p-4 text-sm font-medium">{parcel.destination}</td>
                       <td className="p-4">
                         <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border ${
-                          parcel.status === 'DELIVERED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+                          parcel.status === 'DELIVERED' ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30' : 'bg-blue-500/10 text-blue-600 border-blue-500/30'
                         }`}>
                           {parcel.status}
                         </span>

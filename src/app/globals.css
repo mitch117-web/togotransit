@@ -1,47 +1,49 @@
 @import "tailwindcss";
 
 @theme {
-  /* Identité "marine + or" — même palette que l'app mobile et la page de
-     connexion web, pour une cohérence de marque sur toutes les surfaces. */
-  --color-primary: #fd761a;
-  --color-on-primary: #1a0800;
-  --color-primary-container: #3a2414;
-  --color-on-primary-container: #ffb673;
+  /* Identité "clean light" — fond blanc cassé, cartes blanches à ombres
+     douces, accent orange réservé aux éléments interactifs (boutons,
+     onglet actif, badges importants). Texte en anthracite pour un
+     contraste confortable sans jamais recourir au noir pur. */
+  --color-primary: #c2410c;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #ffedd5;
+  --color-on-primary-container: #9a3412;
 
   --color-secondary: #9d4300;
   --color-on-secondary: #ffffff;
-  --color-secondary-container: #fd761a;
-  --color-on-secondary-container: #5c2400;
+  --color-secondary-container: #ffe8d1;
+  --color-on-secondary-container: #7c2d12;
 
-  --color-background: #070d1a;
-  --color-on-background: #f5f7ff;
+  --color-background: #f8fafc;
+  --color-on-background: #1e293b;
 
-  --color-surface: #131b2c;
-  --color-on-surface: #f5f7ff;
-  --color-surface-variant: #1b2436;
-  --color-on-surface-variant: #a3acc2;
+  --color-surface: #ffffff;
+  --color-on-surface: #1e293b;
+  --color-surface-variant: #f1f5f9;
+  --color-on-surface-variant: #475569;
 
-  --color-outline: #838ea8;
-  --color-outline-variant: #2a3450;
+  --color-outline: #64748b;
+  --color-outline-variant: #e2e8f0;
 
-  --color-error: #ff6b6b;
-  --color-on-error: #410002;
-  --color-error-container: #542120;
-  --color-on-error-container: #ffb4ab;
+  --color-error: #dc2626;
+  --color-on-error: #ffffff;
+  --color-error-container: #fee2e2;
+  --color-on-error-container: #991b1b;
 
-  --color-surface-container-low: #111a2b;
-  --color-surface-container: #161f33;
-  --color-surface-container-high: #1d283e;
-  --color-surface-container-highest: #26314a;
-  --color-surface-container-lowest: #0d1420;
-  --color-surface-bright: #26314a;
+  --color-surface-container-low: #f8fafc;
+  --color-surface-container: #f1f5f9;
+  --color-surface-container-high: #e2e8f0;
+  --color-surface-container-highest: #cbd5e1;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-bright: #ffffff;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 }
 
 :root {
-  --background: #070d1a;
-  --foreground: #f5f7ff;
+  --background: #f8fafc;
+  --foreground: #1e293b;
 }
 
 body {

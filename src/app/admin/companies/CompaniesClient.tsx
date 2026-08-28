@@ -122,7 +122,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[0.6875rem] font-black uppercase text-outline">Total Compagnies</span>
           <span className="text-3xl font-black text-primary mt-1">{companies.length}</span>
-          <span className="text-[0.625rem] text-emerald-400 font-bold mt-1">✓ Actives sur le réseau</span>
+          <span className="text-[0.625rem] text-emerald-700 font-bold mt-1">✓ Actives sur le réseau</span>
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[0.6875rem] font-black uppercase text-outline">Agences Physiques</span>
@@ -140,10 +140,10 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
         </div>
         <div className="bg-surface-container-lowest p-5 rounded-2xl border border-outline-variant shadow-sm flex flex-col">
           <span className="text-[0.6875rem] font-black uppercase text-outline">Trajets Opérés</span>
-          <span className="text-3xl font-black text-emerald-400 mt-1">
+          <span className="text-3xl font-black text-emerald-700 mt-1">
             {companies.reduce((acc, c) => acc + c.stats.trips, 0)}
           </span>
-          <span className="text-[0.625rem] text-emerald-400 font-bold mt-1">Lignes régulières au Togo</span>
+          <span className="text-[0.625rem] text-emerald-700 font-bold mt-1">Lignes régulières au Togo</span>
         </div>
       </div>
 
@@ -198,8 +198,8 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                 </div>
                 <span className={`px-3 py-1 rounded-full text-[0.625rem] font-black uppercase ${
                   c.statut === 'actif'
-                    ? 'bg-emerald-500/15 text-emerald-400'
-                    : 'bg-red-500/15 text-red-400'
+                    ? 'bg-emerald-500/15 text-emerald-700'
+                    : 'bg-red-500/15 text-error'
                 }`}>
                   {c.statut}
                 </span>
@@ -256,7 +256,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
                 onClick={() => toggleCompanyStatus(c)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   c.statut === 'actif'
-                    ? 'border border-red-500/30 text-red-400 hover:bg-red-500/10'
+                    ? 'border border-red-500/30 text-error hover:bg-red-500/10'
                     : 'bg-emerald-700 text-white hover:bg-emerald-800'
                 }`}
               >

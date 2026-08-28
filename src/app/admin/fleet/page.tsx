@@ -117,7 +117,7 @@ export default async function FleetPage() {
       </div>
 
       {/* Vehicle Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] gap-6 items-stretch">
         {vehicles.map((vehicle) => (
           <div key={vehicle.id} className="h-full bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
             <div className="p-4 border-b border-outline-variant bg-surface-bright flex justify-between items-center gap-3">

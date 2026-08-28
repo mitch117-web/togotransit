@@ -74,42 +74,42 @@ export default async function FleetPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex flex-col justify-between hover:bg-surface-container-low transition-colors shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container mb-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+        <div className="h-full bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex flex-col justify-between hover:bg-surface-container-low transition-colors shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container mb-4 shrink-0">
             <span className="material-symbols-outlined">apps</span>
           </div>
-          <div>
+          <div className="mt-auto">
             <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Total Véhicules</p>
             <p className="font-headline-lg text-headline-lg text-primary mt-1">{stats.total}</p>
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex flex-col justify-between hover:bg-surface-container-low transition-colors shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-primary mb-4">
+        <div className="h-full bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex flex-col justify-between hover:bg-surface-container-low transition-colors shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center text-primary mb-4 shrink-0">
             <span className="material-symbols-outlined">route</span>
           </div>
-          <div>
+          <div className="mt-auto">
             <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">En Service</p>
             <p className="font-headline-lg text-headline-lg text-primary mt-1">{stats.inService}</p>
           </div>
         </div>
 
-        <div className="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex flex-col justify-between hover:bg-surface-container-low transition-colors shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface mb-4">
+        <div className="h-full bg-surface-container-lowest p-4 rounded-xl border border-outline-variant flex flex-col justify-between hover:bg-surface-container-low transition-colors shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface mb-4 shrink-0">
             <span className="material-symbols-outlined">check_circle</span>
           </div>
-          <div>
+          <div className="mt-auto">
             <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Disponibles</p>
             <p className="font-headline-lg text-headline-lg text-primary mt-1">{stats.available}</p>
           </div>
         </div>
 
-        <div className="bg-error-container/20 p-4 rounded-xl border border-outline-variant flex flex-col justify-between shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-error mb-4">
+        <div className="h-full bg-error-container/20 p-4 rounded-xl border border-outline-variant flex flex-col justify-between shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-error mb-4 shrink-0">
             <span className="material-symbols-outlined">build</span>
           </div>
-          <div>
+          <div className="mt-auto">
             <p className="font-label-sm text-label-sm text-error uppercase tracking-wide">En Maintenance</p>
             <p className="font-headline-lg text-headline-lg text-error mt-1">{stats.maintenance}</p>
           </div>
@@ -117,9 +117,9 @@ export default async function FleetPage() {
       </div>
 
       {/* Vehicle Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
         {vehicles.map((vehicle) => (
-          <div key={vehicle.id} className="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
+          <div key={vehicle.id} className="h-full bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow">
             <div className="p-4 border-b border-outline-variant bg-surface-bright flex justify-between items-center gap-3">
               <div className="flex items-center gap-2 shrink-0">
                 <div className={`w-3 h-3 rounded-full shrink-0 ${
@@ -136,9 +136,9 @@ export default async function FleetPage() {
                 {vehicle.type}
               </span>
             </div>
-            
-            <div className="p-4 flex flex-col gap-4">
-              <div className="flex justify-between items-center">
+
+            <div className="p-4 flex flex-col gap-4 flex-1">
+              <div className="flex justify-between items-center gap-2">
                 <span className="text-on-surface-variant font-body-sm text-body-sm flex items-center gap-1">
                   <span className="material-symbols-outlined text-[1.125rem]">group</span>
                   Capacité: {vehicle.capacity} places
@@ -158,8 +158,8 @@ export default async function FleetPage() {
                 </p>
               </div>
 
-              <div className="flex gap-2 mt-2">
-                <Link 
+              <div className="flex gap-2 mt-auto pt-3 border-t border-outline-variant/30">
+                <Link
                   href={`/admin/fleet/${vehicle.id}`}
                   className="flex-1 bg-surface-container-high hover:bg-surface-container-highest text-primary font-label-md text-label-md py-2 rounded-lg transition-colors text-center"
                 >

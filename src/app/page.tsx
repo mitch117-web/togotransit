@@ -30,12 +30,68 @@ function TogoCorridorWatermark() {
   )
 }
 
+function BusIllustration() {
+  return (
+    <svg viewBox="0 0 400 230" className="w-[85%]" aria-hidden="true">
+      {/* route */}
+      <rect x="10" y="188" width="380" height="6" rx="3" fill="#1E293B" opacity="0.12" />
+      <rect x="30" y="188" width="26" height="4" rx="2" fill="#1E293B" opacity="0.2" />
+      <rect x="90" y="188" width="26" height="4" rx="2" fill="#1E293B" opacity="0.2" />
+      <rect x="280" y="188" width="26" height="4" rx="2" fill="#1E293B" opacity="0.2" />
+      <rect x="340" y="188" width="26" height="4" rx="2" fill="#1E293B" opacity="0.2" />
+
+      {/* ombre portée */}
+      <ellipse cx="205" cy="196" rx="150" ry="9" fill="#1E293B" opacity="0.08" />
+
+      {/* carrosserie */}
+      <path
+        d="M45 175 V90 Q45 55 82 52 L300 46 Q330 45 344 70 L360 108 Q365 118 365 132 V175 Z"
+        fill="var(--color-primary, #E4572E)"
+      />
+      {/* toit accent */}
+      <path d="M82 52 L300 46 Q330 45 344 70 L352 84 L60 90 Q62 62 82 52 Z" fill="#ffffff" opacity="0.18" />
+
+      {/* bande basse */}
+      <rect x="45" y="150" width="320" height="16" fill="#1F3763" opacity="0.85" />
+
+      {/* pare-brise avant */}
+      <path d="M312 58 Q332 58 342 76 L352 96 L306 98 L306 60 Z" fill="#BFE0F0" opacity="0.9" />
+
+      {/* fenêtres passagers */}
+      {[95, 143, 191, 239].map((x, i) => (
+        <rect key={i} x={x} y="66" width="38" height="30" rx="6" fill="#BFE0F0" opacity="0.9" />
+      ))}
+
+      {/* portière */}
+      <rect x="58" y="100" width="28" height="66" rx="4" fill="#1F3763" opacity="0.35" />
+      <rect x="66" y="108" width="12" height="26" rx="2" fill="#BFE0F0" opacity="0.7" />
+
+      {/* phare + calandre */}
+      <circle cx="355" cy="110" r="7" fill="#FFE9A8" />
+      <rect x="345" y="128" width="18" height="10" rx="2" fill="#1E293B" opacity="0.35" />
+
+      {/* logo T sur le flanc */}
+      <circle cx="200" cy="128" r="13" fill="#ffffff" opacity="0.9" />
+      <text x="200" y="134" textAnchor="middle" fontSize="16" fontWeight="900" fill="var(--color-primary, #E4572E)">T</text>
+
+      {/* roues */}
+      {[110, 315].map((cx, i) => (
+        <g key={i}>
+          <circle cx={cx} cy="178" r="22" fill="#1E293B" />
+          <circle cx={cx} cy="178" r="12" fill="#CBD5E1" />
+          <circle cx={cx} cy="178" r="4" fill="#1E293B" />
+        </g>
+      ))}
+    </svg>
+  )
+}
+
 function HeroIllustration() {
   return (
     <div className="relative w-full aspect-square max-w-sm mx-auto">
       <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-br from-primary/15 to-secondary/10" />
       <div className="absolute inset-8 rounded-[2.5rem] border border-outline-variant bg-white/70 backdrop-blur-sm flex items-center justify-center">
-        <span className="material-symbols-outlined text-primary" style={{ fontSize: '7rem' }}>directions_bus</span>
+        <BusIllustration />
       </div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}

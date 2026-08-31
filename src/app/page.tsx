@@ -32,54 +32,62 @@ function TogoCorridorWatermark() {
 
 function BusIllustration() {
   return (
-    <svg viewBox="0 0 400 230" className="w-[85%]" aria-hidden="true">
+    <svg viewBox="0 0 440 230" className="w-[88%]" aria-hidden="true">
       {/* route */}
-      <rect x="10" y="188" width="380" height="6" rx="3" fill="#1E293B" opacity="0.12" />
-      <rect x="30" y="188" width="26" height="4" rx="2" fill="#1E293B" opacity="0.2" />
-      <rect x="90" y="188" width="26" height="4" rx="2" fill="#1E293B" opacity="0.2" />
-      <rect x="280" y="188" width="26" height="4" rx="2" fill="#1E293B" opacity="0.2" />
-      <rect x="340" y="188" width="26" height="4" rx="2" fill="#1E293B" opacity="0.2" />
-
-      {/* ombre portée */}
-      <ellipse cx="205" cy="196" rx="150" ry="9" fill="#1E293B" opacity="0.08" />
-
-      {/* carrosserie */}
-      <path
-        d="M45 175 V90 Q45 55 82 52 L300 46 Q330 45 344 70 L360 108 Q365 118 365 132 V175 Z"
-        fill="var(--color-primary, #E4572E)"
-      />
-      {/* toit accent */}
-      <path d="M82 52 L300 46 Q330 45 344 70 L352 84 L60 90 Q62 62 82 52 Z" fill="#ffffff" opacity="0.18" />
-
-      {/* bande basse */}
-      <rect x="45" y="150" width="320" height="16" fill="#1F3763" opacity="0.85" />
-
-      {/* pare-brise avant */}
-      <path d="M312 58 Q332 58 342 76 L352 96 L306 98 L306 60 Z" fill="#BFE0F0" opacity="0.9" />
-
-      {/* fenêtres passagers */}
-      {[95, 143, 191, 239].map((x, i) => (
-        <rect key={i} x={x} y="66" width="38" height="30" rx="6" fill="#BFE0F0" opacity="0.9" />
+      <rect x="10" y="192" width="420" height="6" rx="3" fill="#1E293B" opacity="0.12" />
+      {[30, 95, 300, 365].map((x, i) => (
+        <rect key={i} x={x} y="192" width="28" height="4" rx="2" fill="#1E293B" opacity="0.2" />
       ))}
 
-      {/* portière */}
-      <rect x="58" y="100" width="28" height="66" rx="4" fill="#1F3763" opacity="0.35" />
-      <rect x="66" y="108" width="12" height="26" rx="2" fill="#BFE0F0" opacity="0.7" />
+      {/* ombre portée */}
+      <ellipse cx="220" cy="200" rx="165" ry="9" fill="#1E293B" opacity="0.1" />
 
-      {/* phare + calandre */}
-      <circle cx="355" cy="110" r="7" fill="#FFE9A8" />
-      <rect x="345" y="128" width="18" height="10" rx="2" fill="#1E293B" opacity="0.35" />
+      {/* carrosserie blanche (livrée type autocar togolais) */}
+      <path
+        d="M40 168 V95 Q40 60 76 57 L340 50 Q368 49 384 72 L404 104 Q410 114 410 128 V168 Z"
+        fill="#F8FAFC"
+        stroke="#CBD5E1"
+        strokeWidth="1.5"
+      />
 
-      {/* logo T sur le flanc */}
-      <circle cx="200" cy="128" r="13" fill="#ffffff" opacity="0.9" />
-      <text x="200" y="134" textAnchor="middle" fontSize="16" fontWeight="900" fill="var(--color-primary, #E4572E)">T</text>
+      {/* bande turquoise inférieure (couleur SOTRAL/Chamotor) */}
+      <path
+        d="M40 140 H410 V168 H40 Z"
+        fill="#0E8C82"
+      />
+      {/* filet orange TogoTransit */}
+      <rect x="40" y="136" width="370" height="5" fill="var(--color-primary, #E4572E)" />
+
+      {/* pare-brise avant panoramique */}
+      <path d="M352 60 Q374 61 388 82 L402 104 L348 106 L348 62 Z" fill="#22333F" opacity="0.85" />
+      <path d="M356 66 Q372 67 382 84 L392 100 L354 101 L354 68 Z" fill="#8FC8DA" opacity="0.7" />
+
+      {/* rangée de fenêtres teintées */}
+      {[70, 120, 170, 220, 270].map((x, i) => (
+        <rect key={i} x={x} y="72" width="42" height="34" rx="7" fill="#22333F" opacity="0.85" />
+      ))}
+      {[70, 120, 170, 220, 270].map((x, i) => (
+        <rect key={`hl-${i}`} x={x + 4} y="76" width="34" height="10" rx="4" fill="#ffffff" opacity="0.12" />
+      ))}
+
+      {/* porte passagers */}
+      <rect x="322" y="112" width="24" height="56" rx="3" fill="#22333F" opacity="0.5" />
+      <rect x="328" y="118" width="12" height="24" rx="2" fill="#8FC8DA" opacity="0.6" />
+
+      {/* phare */}
+      <ellipse cx="400" cy="118" rx="7" ry="9" fill="#FFE9A8" />
+      <rect x="392" y="132" width="16" height="8" rx="2" fill="#22333F" opacity="0.4" />
+
+      {/* logo T à l'avant */}
+      <circle cx="222" cy="153" r="12" fill="#ffffff" />
+      <text x="222" y="158" textAnchor="middle" fontSize="14" fontWeight="900" fill="var(--color-primary, #E4572E)">T</text>
 
       {/* roues */}
-      {[110, 315].map((cx, i) => (
+      {[110, 350].map((cx, i) => (
         <g key={i}>
-          <circle cx={cx} cy="178" r="22" fill="#1E293B" />
-          <circle cx={cx} cy="178" r="12" fill="#CBD5E1" />
-          <circle cx={cx} cy="178" r="4" fill="#1E293B" />
+          <circle cx={cx} cy="180" r="23" fill="#1E293B" />
+          <circle cx={cx} cy="180" r="12.5" fill="#E2E8F0" />
+          <circle cx={cx} cy="180" r="4" fill="#1E293B" />
         </g>
       ))}
     </svg>

@@ -128,7 +128,7 @@ export default function LoginPage() {
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="exemple@compagnie.tg ou +228 90 00 00 01"
+                placeholder="Email ou +228 90 00 00 01"
                 className="w-full pl-12 pr-4 py-3.5 bg-surface-container-low text-on-surface placeholder:text-outline rounded-2xl border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all font-medium text-sm"
               />
             </div>

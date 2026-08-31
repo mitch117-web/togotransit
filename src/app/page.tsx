@@ -158,10 +158,6 @@ export default function LandingPage() {
           <p className="text-on-surface-variant max-w-xl">
             Déjà plusieurs compagnies togolaises font confiance à TogoTransit pour gérer leur flotte et leurs réservations en ligne.
           </p>
-          <Link href="/login" className="mt-2 font-black text-primary hover:underline flex items-center gap-1">
-            Devenir compagnie partenaire
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
-          </Link>
         </div>
       </section>
 

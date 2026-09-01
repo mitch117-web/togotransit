@@ -232,7 +232,7 @@ export default function LandingPage() {
             className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1.5"
           >
             <span className="material-symbols-outlined text-base">local_shipping</span>
-            Vous attendez un colis ? Suivez-le ici
+            Suivi de colis
           </Link>
           <p className="text-xs opacity-60">© 2026 TogoTransit S.A. - Service National de Logistique &amp; Transport. Tous droits réservés.</p>
         </div>

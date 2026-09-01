@@ -1,10 +1,16 @@
 import React from 'react'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 export default async function NewBookingPage() {
   const session = await getSessionContext()
+  // Créer une réservation au guichet est une action opérationnelle propre
+  // à une compagnie — réservée aux gestionnaires, pas au super-admin.
+  if (session?.role === 'super_admin') {
+    redirect('/admin/bookings')
+  }
   const trajets = await prisma.trajet.findMany({
     where: {
       statut: 'planifie' as any,

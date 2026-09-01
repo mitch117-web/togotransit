@@ -1,10 +1,17 @@
 import React from 'react'
 import prisma from '@/lib/prisma'
 import TripForm from './TripForm'
+import { redirect } from 'next/navigation'
 import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 
 export default async function NewTripPage() {
   const session = await getSessionContext()
+  // Planifier un trajet est une action opérationnelle propre à une
+  // compagnie — réservée aux gestionnaires, pas au super-admin qui
+  // supervise la plateforme sans en opérer les compagnies individuelles.
+  if (session?.role === 'super_admin') {
+    redirect('/admin/bookings')
+  }
   const vehicules = await prisma.vehicule.findMany({
     where: { statut: 'disponible' as any, ...compagnieFilterFor(session) }
   })
@@ -36,13 +43,6 @@ export default async function NewTripPage() {
   })
   const cities = Array.from(new Set([...fares.map((f: any) => f.origin), ...fares.map((f: any) => f.destination)]))
 
-  // Un super-admin n'a pas de compagnie implicite : il doit en choisir une
-  // explicitement (le champ est requis en base). Un gestionnaire, lui,
-  // crée toujours un trajet pour sa propre compagnie.
-  const compagnies = session?.role === 'super_admin'
-    ? (await prisma.compagnie.findMany({ where: { statut: 'actif' as any }, orderBy: { nom: 'asc' } })).map((c: any) => ({ id: c.id, nom: c.nom }))
-    : []
-
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto pb-12">
       <div>
@@ -52,7 +52,7 @@ export default async function NewTripPage() {
         </p>
       </div>
 
-      <TripForm vehicles={vehicles} drivers={drivers} cities={cities} compagnies={compagnies} />
+      <TripForm vehicles={vehicles} drivers={drivers} cities={cities} />
     </div>
   )
 }

@@ -35,6 +35,11 @@ export default async function SeatSelectionPage({
   if (session?.role === 'gestionnaire' && trajetRaw.compagnie_id !== session.compagnieId) {
     notFound()
   }
+  // Créer une réservation au guichet est une action opérationnelle propre
+  // à une compagnie — réservée aux gestionnaires, pas au super-admin.
+  if (session?.role === 'super_admin') {
+    notFound()
+  }
 
   const t: any = trajetRaw
   const trip: any = {

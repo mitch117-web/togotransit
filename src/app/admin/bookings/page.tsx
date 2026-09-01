@@ -93,6 +93,12 @@ async function getBookingsData() {
 
 export default async function BookingsPage() {
   const { trips, recentBookings, ticketsLast24h, ticketsGrowthPct } = await getBookingsData()
+  const session = await getSessionContext()
+  // Planifier un voyage / créer une réservation sont des actions
+  // opérationnelles propres à une compagnie — le super-admin supervise la
+  // plateforme mais ne gère pas les opérations quotidiennes d'une compagnie
+  // en particulier, c'est le rôle du gestionnaire.
+  const canOperate = session?.role !== 'super_admin'
 
   return (
     <div className="flex flex-col gap-stack-lg">
@@ -102,15 +108,16 @@ export default async function BookingsPage() {
           <h2 className="font-headline-lg text-headline-lg text-primary">Gestion des Réservations</h2>
           <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">Gérez les tickets de transport et les plans de sièges.</p>
         </div>
+        {canOperate && (
         <div className="flex gap-2">
-          <Link 
+          <Link
             href="/admin/bookings/trips/new"
             className="bg-primary text-on-primary hover:brightness-110 font-label-md text-label-md py-2.5 px-5 rounded-lg flex items-center gap-2 transition-all shadow-md whitespace-nowrap"
           >
             <span className="material-symbols-outlined">add_road</span>
             Planifier un Voyage
           </Link>
-          <Link 
+          <Link
             href="/admin/bookings/new"
             className="bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary font-label-md text-label-md py-2.5 px-5 rounded-lg flex items-center gap-2 transition-colors shadow-sm whitespace-nowrap"
           >
@@ -118,6 +125,7 @@ export default async function BookingsPage() {
             Nouvelle Réservation
           </Link>
         </div>
+        )}
       </div>
 
       {/* Main Grid */}

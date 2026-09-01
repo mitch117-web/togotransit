@@ -173,7 +173,7 @@ export async function POST(
   } catch (error: any) {
     console.error(`Webhook paiement Error:`, error)
     return NextResponse.json(
-      { success: false, error: 'Erreur traitement webhook', message: error?.message },
+      { success: false, error: 'Erreur traitement webhook' },
       { status: 500 }
     )
   }

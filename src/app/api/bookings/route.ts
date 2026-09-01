@@ -44,19 +44,47 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Ce trajet est complet' }, { status: 400 })
     }
 
+    // Un siège ne peut être attribué qu'une seule fois sur ce trajet — on
+    // vérifie parmi les passagers déjà enregistrés (le vrai numéro de siège
+    // vit sur Passager.numero_siege, pas sur Reservation).
+    if (seatNumber) {
+      const dejaPris = await prisma.passager.findFirst({
+        where: {
+          numero_siege: String(seatNumber),
+          reservation: { trajet_id: trajetId, statut: { not: 'annulee' } },
+        },
+      })
+      if (dejaPris) {
+        return NextResponse.json({ error: `Le siège #${seatNumber} est déjà réservé` }, { status: 409 })
+      }
+    }
+
+    const utilisateur = await prisma.utilisateur.findUnique({ where: { id: userIdNum } })
+    if (!utilisateur) {
+      return NextResponse.json({ error: 'Client non trouvé' }, { status: 404 })
+    }
+
     const newReservation = await prisma.reservation.create({
       data: {
         trajet_id: trajetId,
         utilisateur_id: userIdNum,
         statut,
         montant_total: trajet.prix ?? 0,
-        nombre_places: seatNumber || 1,
+        nombre_places: 1,
+        passagers: {
+          create: {
+            nom_complet: `${utilisateur.prenom ?? ''} ${utilisateur.nom ?? ''}`.trim(),
+            telephone: utilisateur.telephone,
+            numero_siege: seatNumber ? String(seatNumber) : null,
+          },
+        },
       } as any,
       include: {
         trajet: true,
         utilisateur: {
           select: { id: true, nom: true, prenom: true, telephone: true, email: true }
         },
+        passagers: true,
       }
     })
 

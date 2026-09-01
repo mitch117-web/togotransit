@@ -156,12 +156,21 @@ async function getStats(role: string | null, compagnieId: number | null) {
     value: cat._count.id,
   }))
 
+  // Croissance du chiffre d'affaires : mois en cours vs mois précédent
+  // (calculée à partir des vrais revenus, plus de badge codé en dur).
+  const currentMonthRevenue = monthlyRevenue[monthlyRevenue.length - 1]?.revenue ?? 0
+  const previousMonthRevenue = monthlyRevenue[monthlyRevenue.length - 2]?.revenue ?? 0
+  const revenueGrowthPct = previousMonthRevenue > 0
+    ? ((currentMonthRevenue - previousMonthRevenue) / previousMonthRevenue) * 100
+    : (currentMonthRevenue > 0 ? null : 0) // null = pas de mois précédent à comparer (ex: "nouveau")
+
   return {
     compagnie,
     totalParcels,
     inTransitParcels,
     totalTrips,
     revenue: revenueResult._sum.price || 0,
+    revenueGrowthPct,
     recentParcels,
     chartData,
     revenueByRoute: revenueByRoute.length > 0 ? revenueByRoute : [{ route: 'Aucun', montant: 0 }],
@@ -228,9 +237,16 @@ export default async function AdminDashboard() {
                 {stats.revenue.toLocaleString('fr-FR')} FCFA
               </h3>
             </div>
-            <span className="bg-emerald-500/10 text-emerald-700 px-3 py-1 rounded-full text-xs flex items-center gap-1 font-bold">
-              <span className="material-symbols-outlined text-[0.875rem]">trending_up</span> +12.5%
-            </span>
+            {stats.revenueGrowthPct !== null && (
+              <span className={`px-3 py-1 rounded-full text-xs flex items-center gap-1 font-bold ${
+                stats.revenueGrowthPct >= 0 ? 'bg-emerald-500/10 text-emerald-700' : 'bg-red-500/10 text-error'
+              }`}>
+                <span className="material-symbols-outlined text-[0.875rem]">
+                  {stats.revenueGrowthPct >= 0 ? 'trending_up' : 'trending_down'}
+                </span>
+                {stats.revenueGrowthPct >= 0 ? '+' : ''}{stats.revenueGrowthPct.toFixed(1)}%
+              </span>
+            )}
           </div>
           <div className="mt-auto relative z-10">
             <p className="text-[0.625rem] text-on-surface-variant font-bold uppercase opacity-50">Performance temps réel</p>

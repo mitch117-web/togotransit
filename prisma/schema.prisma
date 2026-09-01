@@ -324,6 +324,18 @@ model RateLimitEntry {
   @@map("rate_limit_entries")
 }
 
+// Codes OTP de réinitialisation de mot de passe — même raison que
+// RateLimitEntry ci-dessus : un Map en mémoire ne survit pas entre deux
+// invocations serverless distinctes (demande du code, puis vérification).
+model OtpCode {
+  key       String   @id
+  code      String
+  expiresAt DateTime
+
+  @@index([expiresAt])
+  @@map("otp_codes")
+}
+
 model POD {
   id           Int      @id @default(autoincrement())
   parcelId     Int      @unique

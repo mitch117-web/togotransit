@@ -67,9 +67,8 @@ export async function POST(request: Request) {
     return NextResponse.json(trip)
   } catch (error: any) {
     console.error('Trip Creation Error:', error)
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Erreur lors de la création du voyage',
-      details: error.message 
     }, { status: 500 })
   }
 }

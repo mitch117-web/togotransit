@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface CompanyData {
   id: number
@@ -23,12 +24,19 @@ interface CompanyData {
 }
 
 export default function CompaniesClient({ initialCompanies }: { initialCompanies: CompanyData[] }) {
+  const router = useRouter()
   const [companies, setCompanies] = useState<CompanyData[]>(initialCompanies)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('ALL')
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  // Resynchronise l'état local quand le serveur renvoie des données fraîches
+  // (après un router.refresh() suite à une création/mise à jour réelle).
+  React.useEffect(() => {
+    setCompanies(initialCompanies)
+  }, [initialCompanies])
 
   // Form state
   const [newNom, setNewNom] = useState('')
@@ -52,11 +60,19 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
     }
 
     try {
-      // Met à jour localement pour l'interaction immédiate
-      setCompanies(prev => prev.map(c => c.id === company.id ? { ...c, statut: newStatus } : c))
+      const response = await fetch(`/api/admin/plateforme/compagnies/${company.id}/statut`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ statut: newStatus }),
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data?.error || 'Échec de la mise à jour')
+      }
       alert(`Statut de ${company.nom} mis à jour : ${newStatus}`)
+      router.refresh()
     } catch (e: any) {
-      alert("Erreur lors de la mise à jour.")
+      alert(e?.message || "Erreur lors de la mise à jour.")
     }
   }
 
@@ -66,21 +82,23 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
     setLoading(true)
 
     try {
-      const newComp: CompanyData = {
-        id: Date.now(),
-        nom: newNom,
-        description: newDesc,
-        telephone: newPhone,
-        email: newEmail,
-        adresse_siege: newSiege,
-        statut: 'actif',
-        date_inscription: new Date().toISOString(),
-        agencesCount: 1,
-        agences: [{ id: 1, nom: `${newNom} Siège`, ville: 'Lomé', telephone: newPhone }],
-        stats: { vehicles: 2, trips: 4, users: 1, parcels: 0 },
+      const response = await fetch('/api/admin/plateforme/compagnies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nom: newNom,
+          telephone: newPhone || null,
+          email: newEmail || null,
+          adresse_siege: newSiege || null,
+          description: newDesc || null,
+          statut: 'actif',
+        }),
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data?.error || 'Échec de la création')
       }
 
-      setCompanies([newComp, ...companies])
       setShowAddModal(false)
       setNewNom('')
       setNewPhone('')
@@ -88,6 +106,9 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
       setNewSiege('')
       setNewDesc('')
       alert(`Compagnie "${newNom}" enregistrée avec succès !`)
+      router.refresh()
+    } catch (e: any) {
+      alert(e?.message || "Erreur lors de la création de la compagnie.")
     } finally {
       setLoading(false)
     }

@@ -18,8 +18,10 @@ export default async function SeatSelectionPage({
       ville_depart: true,
       ville_arrivee: true,
       reservations: {
+        where: { statut: { not: 'annulee' } },
         include: {
-          utilisateur: true
+          utilisateur: true,
+          passagers: true,
         }
       }
     }
@@ -48,16 +50,18 @@ export default async function SeatSelectionPage({
       capacity: t.vehicule.nombre_places,
       type: t.vehicule.type ?? '',
     } : null,
-    bookings: (t.reservations ?? []).map((r: any, i: number) => ({
-      id: r.id,
-      seatNumber: i + 1,
-      user: r.utilisateur ? {
-        id: r.utilisateur.id,
-        name: `${r.utilisateur.prenom ?? ''} ${r.utilisateur.nom ?? ''}`.trim(),
-        phone: r.utilisateur.telephone,
-        role: 'CLIENT',
-      } : null,
-    })),
+    bookings: (t.reservations ?? [])
+      .filter((r: any) => r.passagers?.[0]?.numero_siege)
+      .map((r: any) => ({
+        id: r.id,
+        seatNumber: parseInt(r.passagers[0].numero_siege, 10),
+        user: r.utilisateur ? {
+          id: r.utilisateur.id,
+          name: `${r.utilisateur.prenom ?? ''} ${r.utilisateur.nom ?? ''}`.trim(),
+          phone: r.utilisateur.telephone,
+          role: 'CLIENT',
+        } : null,
+      })),
   }
 
   const utilisateurs = await prisma.utilisateur.findMany({

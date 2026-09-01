@@ -10,6 +10,7 @@ export default async function BookingHistoryPage() {
     where: { trajet: compagnieFilterFor(session) },
     include: {
       utilisateur: true,
+      passagers: true,
       trajet: { include: { ville_depart: true, ville_arrivee: true } }
     },
     orderBy: {
@@ -19,7 +20,7 @@ export default async function BookingHistoryPage() {
 
   const bookings: any[] = reservations.map((r: any) => ({
     id: r.id,
-    seatNumber: r.nombre_places ?? 1,
+    seatNumber: r.passagers?.[0]?.numero_siege ?? r.nombre_places ?? 1,
     price: r.montant_total ?? 0,
     status: r.statut === 'confirmee' ? 'CONFIRMED' : r.statut === 'en_attente' ? 'PENDING' : r.statut,
     createdAt: r.date_reservation,

@@ -24,11 +24,9 @@ export async function POST(request: Request) {
     const { email, telephone, code, nouveau_mot_de_passe } = parsed.data
     const key = `${email || telephone}`
 
-    const mod = await import('../forgot-password/route')
-    const CODES = mod.CODES
-    const entry = CODES.get(key)
+    const entry = await prisma.otpCode.findUnique({ where: { key } })
 
-    if (!entry || entry.code !== code || Date.now() > entry.expires) {
+    if (!entry || entry.code !== code || entry.expiresAt < new Date()) {
       return NextResponse.json(
         { error: 'Code invalide ou expiré' },
         { status: 400 }
@@ -58,7 +56,7 @@ export async function POST(request: Request) {
       data: { mot_de_passe: motDePasseHash },
     })
 
-    CODES.delete(key)
+    await prisma.otpCode.delete({ where: { key } })
 
     return NextResponse.json({
       success: true,

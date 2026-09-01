@@ -43,6 +43,7 @@ async function getBookingsData() {
     take: 5,
     include: {
       utilisateur: true,
+      passagers: true,
       trajet: { include: { ville_depart: true, ville_arrivee: true, vehicule: true } }
     },
     orderBy: {
@@ -52,7 +53,7 @@ async function getBookingsData() {
 
   const recentBookings: any[] = recentReservations.map((r: any) => ({
     id: r.id,
-    seatNumber: r.nombre_places ?? 1,
+    seatNumber: r.passagers?.[0]?.numero_siege ?? r.nombre_places ?? 1,
     price: r.montant_total ?? 0,
     status: r.statut === 'confirmee' ? 'CONFIRMED' : r.statut === 'en_attente' ? 'PENDING' : r.statut,
     createdAt: r.date_reservation,
@@ -71,11 +72,27 @@ async function getBookingsData() {
     } : null,
   }))
 
-  return { trips, recentBookings }
+  const now = new Date()
+  const last24h = new Date(now.getTime() - 24 * 3600 * 1000)
+  const prev24h = new Date(now.getTime() - 48 * 3600 * 1000)
+
+  const [ticketsLast24h, ticketsPrev24h] = await Promise.all([
+    prisma.reservation.count({
+      where: { trajet: compagnieFilterFor(session), date_reservation: { gte: last24h } },
+    }),
+    prisma.reservation.count({
+      where: { trajet: compagnieFilterFor(session), date_reservation: { gte: prev24h, lt: last24h } },
+    }),
+  ])
+  const ticketsGrowthPct = ticketsPrev24h > 0
+    ? ((ticketsLast24h - ticketsPrev24h) / ticketsPrev24h) * 100
+    : (ticketsLast24h > 0 ? null : 0)
+
+  return { trips, recentBookings, ticketsLast24h, ticketsGrowthPct }
 }
 
 export default async function BookingsPage() {
-  const { trips, recentBookings } = await getBookingsData()
+  const { trips, recentBookings, ticketsLast24h, ticketsGrowthPct } = await getBookingsData()
 
   return (
     <div className="flex flex-col gap-stack-lg">
@@ -225,8 +242,12 @@ export default async function BookingsPage() {
           <div className="bg-primary-container p-4 rounded-xl text-on-primary-container shadow-sm mt-4">
             <p className="font-label-sm text-label-sm uppercase opacity-80">Tickets vendus (24h)</p>
             <div className="flex items-end gap-2 mt-1">
-              <h4 className="font-headline-lg text-headline-lg font-bold">12</h4>
-              <span className="text-green-300 font-label-sm text-label-sm mb-1">+20%</span>
+              <h4 className="font-headline-lg text-headline-lg font-bold">{ticketsLast24h}</h4>
+              {ticketsGrowthPct !== null && (
+                <span className={`font-label-sm text-label-sm mb-1 ${ticketsGrowthPct >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                  {ticketsGrowthPct >= 0 ? '+' : ''}{ticketsGrowthPct.toFixed(0)}%
+                </span>
+              )}
             </div>
           </div>
         </div>

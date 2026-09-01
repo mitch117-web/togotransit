@@ -7,7 +7,7 @@ const forgotSchema = z.object({
   telephone: z.string().optional(),
 })
 
-const CODES = new Map<string, { code: string; expires: number }>()
+const CODE_TTL_MS = 15 * 60 * 1000
 
 export async function POST(request: Request) {
   try {
@@ -37,9 +37,18 @@ export async function POST(request: Request) {
       },
     })
 
-    const code = String(Math.floor(100000 + Math.random() * 900000))
     const key = `${email || telephone}`
-    CODES.set(key, { code, expires: Date.now() + 15 * 60 * 1000 })
+    const code = String(Math.floor(100000 + Math.random() * 900000))
+
+    // Stocké en base (pas en mémoire) : une fonction serverless différente
+    // traitera très probablement la vérification du code juste après.
+    if (user) {
+      await prisma.otpCode.upsert({
+        where: { key },
+        update: { code, expiresAt: new Date(Date.now() + CODE_TTL_MS) },
+        create: { key, code, expiresAt: new Date(Date.now() + CODE_TTL_MS) },
+      })
+    }
 
     console.warn(`[OTP] Code pour ${key}: ${code}`)
 
@@ -56,5 +65,3 @@ export async function POST(request: Request) {
     )
   }
 }
-
-export { CODES }

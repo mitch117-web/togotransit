@@ -36,6 +36,11 @@ export async function GET(request: Request) {
         where.date_depart = { gte: debut, lte: fin }
       } catch {
       }
+    } else {
+      // Sans date explicite, "à venir" doit vraiment vouloir dire à venir :
+      // un trajet "planifie" dont la date est déjà passée (jamais clôturé)
+      // ne doit pas remonter avant les vrais prochains départs.
+      where.date_depart = { gte: new Date() }
     }
 
     if (prix_min !== undefined && !isNaN(prix_min)) {

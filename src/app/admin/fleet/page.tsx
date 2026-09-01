@@ -30,13 +30,13 @@ async function getFleetData() {
     capacity: v.nombre_places,
     status: (v.statut === 'disponible' ? 'AVAILABLE' :
              v.statut === 'en_maintenance' ? 'MAINTENANCE' :
-             v.statut === 'hors_service' ? 'IN_SERVICE' : v.statut),
+             v.statut === 'hors_service' ? 'OUT_OF_SERVICE' : v.statut),
     trips: v.trajets ?? [],
   }))
 
   const stats = {
     total: vehicles.length,
-    inService: vehicles.filter(v => v.status === 'IN_SERVICE').length,
+    outOfService: vehicles.filter(v => v.status === 'OUT_OF_SERVICE').length,
     available: vehicles.filter(v => v.status === 'AVAILABLE').length,
     maintenance: vehicles.filter(v => v.status === 'MAINTENANCE').length,
   }

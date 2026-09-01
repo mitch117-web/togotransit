@@ -144,7 +144,7 @@ export default function EditVehicleClient({ vehicle }: { vehicle: Vehicle }) {
           >
             <option value="AVAILABLE">Disponible / Prêt</option>
             <option value="MAINTENANCE">En maintenance</option>
-            <option value="IN_SERVICE">En service</option>
+            <option value="OUT_OF_SERVICE">Hors service</option>
           </select>
         </div>
 

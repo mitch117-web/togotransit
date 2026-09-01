@@ -42,11 +42,6 @@ export default async function TrackingPage({
 
       <footer className="mt-auto py-12 text-center text-on-surface-variant/40 text-xs border-t border-outline-variant/10">
         <p>© 2026 TogoTransit S.A. - Tous droits réservés.</p>
-        <div className="flex justify-center gap-4 mt-2 font-bold uppercase tracking-tighter">
-          <span>Aide</span>
-          <span>Contact</span>
-          <span>Agences</span>
-        </div>
       </footer>
     </div>
   )

@@ -46,7 +46,7 @@ export default async function VehicleDetailsPage({
     plateNumber: v.immatriculation,
     type: v.type ?? '',
     capacity: v.nombre_places,
-    status: v.statut === 'disponible' ? 'AVAILABLE' : v.statut === 'en_maintenance' ? 'MAINTENANCE' : 'IN_SERVICE',
+    status: v.statut === 'disponible' ? 'AVAILABLE' : v.statut === 'en_maintenance' ? 'MAINTENANCE' : 'OUT_OF_SERVICE',
     compagnie_id: v.compagnie_id,
     cree_le: undefined,
     createdAt: undefined,
@@ -71,9 +71,18 @@ export default async function VehicleDetailsPage({
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'AVAILABLE': return 'bg-emerald-500/10 text-emerald-700 border-emerald-500/30'
-      case 'IN_SERVICE': return 'bg-blue-500/10 text-blue-600 border-blue-500/30'
       case 'MAINTENANCE': return 'bg-error-container/20 text-error border-error-container'
+      case 'OUT_OF_SERVICE': return 'bg-surface-container-high text-on-surface-variant border-outline-variant'
       default: return 'bg-surface-container-high text-on-surface-variant border-outline-variant'
+    }
+  }
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'AVAILABLE': return 'Disponible'
+      case 'MAINTENANCE': return 'En maintenance'
+      case 'OUT_OF_SERVICE': return 'Hors service'
+      default: return status
     }
   }
 
@@ -110,7 +119,7 @@ export default async function VehicleDetailsPage({
             <div className="flex justify-between items-center">
               <h3 className="font-headline-sm text-headline-sm text-on-surface font-bold">Spécifications</h3>
               <span className={`px-4 py-1.5 rounded-full text-xs font-black uppercase border ${getStatusStyle(vehicle.status)}`}>
-                {vehicle.status.replace(/_/g, ' ')}
+                {getStatusLabel(vehicle.status)}
               </span>
             </div>
             

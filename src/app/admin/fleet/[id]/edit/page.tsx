@@ -26,7 +26,7 @@ export default async function EditVehiclePage({ params }: { params: Promise<{ id
     plateNumber: v.immatriculation,
     type: v.type ?? '',
     capacity: v.nombre_places,
-    status: v.statut === 'disponible' ? 'AVAILABLE' : v.statut === 'en_maintenance' ? 'MAINTENANCE' : 'IN_SERVICE',
+    status: v.statut === 'disponible' ? 'AVAILABLE' : v.statut === 'en_maintenance' ? 'MAINTENANCE' : 'OUT_OF_SERVICE',
     compagnie_id: v.compagnie_id,
   }
 

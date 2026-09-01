@@ -55,7 +55,7 @@ async function getBookingsData() {
     id: r.id,
     seatNumber: r.passagers?.[0]?.numero_siege ?? r.nombre_places ?? 1,
     price: r.montant_total ?? 0,
-    status: r.statut === 'confirmee' ? 'CONFIRMED' : r.statut === 'en_attente' ? 'PENDING' : r.statut,
+    status: r.statut === 'confirmee' ? 'CONFIRMED' : r.statut === 'en_attente' ? 'PENDING' : r.statut === 'annulee' ? 'CANCELLED' : r.statut,
     createdAt: r.date_reservation,
     user: r.utilisateur ? {
       id: r.utilisateur.id,
@@ -217,8 +217,12 @@ export default async function BookingsPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <PrintTicketButton booking={booking} />
-                      <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-emerald-500/10 text-emerald-700 uppercase">
-                        Confirmé
+                      <span className={`px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase ${
+                        booking.status === 'CONFIRMED' ? 'bg-emerald-500/10 text-emerald-700' :
+                        booking.status === 'CANCELLED' ? 'bg-red-500/10 text-error' :
+                        'bg-primary/10 text-primary'
+                      }`}>
+                        {booking.status === 'CONFIRMED' ? 'Confirmé' : booking.status === 'CANCELLED' ? 'Annulé' : 'En attente'}
                       </span>
                     </div>
                   </div>

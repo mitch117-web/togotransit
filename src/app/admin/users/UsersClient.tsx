@@ -24,8 +24,16 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
     switch (role) {
       case 'ADMIN': return 'bg-primary-container text-on-primary-container border-primary/20'
       case 'AGENT': return 'bg-secondary-container text-on-secondary-container border-secondary/20'
-      case 'DRIVER': return 'bg-surface-container-highest text-on-surface border-outline-variant'
       default: return 'bg-surface-container text-on-surface-variant border-outline-variant'
+    }
+  }
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'ADMIN': return 'Super-Admin'
+      case 'AGENT': return 'Gestionnaire'
+      case 'CLIENT': return 'Voyageur'
+      default: return role
     }
   }
 
@@ -36,9 +44,8 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
   const filters = [
     { label: 'Tous', value: 'ALL' },
     { label: 'Admins', value: 'ADMIN' },
-    { label: 'Agents', value: 'AGENT' },
-    { label: 'Livreurs', value: 'DRIVER' },
-    { label: 'Clients', value: 'CLIENT' },
+    { label: 'Gestionnaires', value: 'AGENT' },
+    { label: 'Voyageurs', value: 'CLIENT' },
   ]
 
   return (
@@ -127,7 +134,7 @@ export default function UsersClient({ initialUsers }: { initialUsers: any[] }) {
                   </td>
                   <td className="p-4">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[0.6875rem] font-bold uppercase border ${getRoleBadgeColor(user.role)}`}>
-                      {user.role}
+                      {getRoleLabel(user.role)}
                     </span>
                   </td>
                   <td className="p-4 font-body-sm text-body-sm text-on-surface">+228 {user.phone}</td>

@@ -4,8 +4,8 @@ import { extractAuthFromRequest, requireAnyRole, assertCompagnieOwnership } from
 
 const statusMap: Record<string, any> = {
   AVAILABLE: 'disponible',
-  IN_SERVICE: 'disponible',
   MAINTENANCE: 'en_maintenance',
+  OUT_OF_SERVICE: 'hors_service',
   disponible: 'disponible',
   en_maintenance: 'en_maintenance',
   hors_service: 'hors_service',

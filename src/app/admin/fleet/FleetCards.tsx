@@ -9,12 +9,12 @@ type Vehicle = {
   plateNumber: string
   type: string
   capacity: number
-  status: 'AVAILABLE' | 'IN_SERVICE' | 'MAINTENANCE' | string
+  status: 'AVAILABLE' | 'OUT_OF_SERVICE' | 'MAINTENANCE' | string
 }
 
 type Stats = {
   total: number
-  inService: number
+  outOfService: number
   available: number
   maintenance: number
 }
@@ -52,14 +52,14 @@ export function KpiGrid({ stats }: { stats: Stats }) {
       labelColor: 'text-on-surface-variant',
     },
     {
-      label: 'En Service',
-      value: stats.inService,
-      icon: 'route',
-      iconBg: 'bg-surface-variant',
-      iconColor: 'text-primary',
+      label: 'Hors Service',
+      value: stats.outOfService,
+      icon: 'block',
+      iconBg: 'bg-surface-container-highest',
+      iconColor: 'text-on-surface-variant',
       cardBg: 'bg-surface-container-lowest',
       border: 'border-outline-variant',
-      numberColor: 'text-primary',
+      numberColor: 'text-on-surface-variant',
       labelColor: 'text-on-surface-variant',
     },
     {
@@ -135,8 +135,8 @@ export function VehicleGrid({ vehicles }: { vehicles: Vehicle[] }) {
             <div className="flex items-center gap-2 shrink-0">
               <div className={`w-3 h-3 rounded-full shrink-0 ${
                 vehicle.status === 'AVAILABLE' ? 'bg-green-500' :
-                vehicle.status === 'IN_SERVICE' ? 'bg-blue-500' :
-                'bg-error'
+                vehicle.status === 'MAINTENANCE' ? 'bg-error' :
+                'bg-gray-400'
               }`}></div>
               <Link href={`/admin/fleet/${vehicle.id}`} className="font-bold text-primary hover:underline whitespace-nowrap">{vehicle.plateNumber}</Link>
             </div>
@@ -164,8 +164,8 @@ export function VehicleGrid({ vehicles }: { vehicles: Vehicle[] }) {
               <p className="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Statut actuel</p>
               <p className="font-body-md text-body-md text-primary font-medium">
                 {vehicle.status === 'AVAILABLE' ? 'Prêt pour départ' :
-                 vehicle.status === 'IN_SERVICE' ? 'En cours de trajet' :
-                 "À l'atelier de maintenance"}
+                 vehicle.status === 'MAINTENANCE' ? "À l'atelier de maintenance" :
+                 'Hors service'}
               </p>
             </div>
 

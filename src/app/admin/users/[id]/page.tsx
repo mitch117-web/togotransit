@@ -22,7 +22,10 @@ export default async function UserDetailsPage({
       },
       reservations: {
         include: {
-          trajet: true
+          trajet: {
+            include: { ville_depart: true, ville_arrivee: true }
+          },
+          passagers: true,
         },
         orderBy: { date_reservation: 'desc' } as any,
         take: 10
@@ -45,14 +48,31 @@ export default async function UserDetailsPage({
   user.phone = user.phone || user.telephone
   user.createdAt = user.createdAt || user.date_creation
   user.parcels = user.parcels || user.colis_envoyes || []
-  user.bookings = user.bookings || user.reservations || []
+  user.bookings = (user.reservations ?? []).map((r: any) => ({
+    id: r.id,
+    trip: {
+      origin: r.trajet?.ville_depart?.nom ?? '',
+      destination: r.trajet?.ville_arrivee?.nom ?? '',
+      departureTime: r.trajet?.date_depart,
+    },
+    seatNumber: r.passagers?.[0]?.numero_siege ?? '—',
+    price: r.montant_total ?? 0,
+  }))
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'ADMIN': return 'bg-primary-container text-on-primary-container border-primary/20'
-      case 'AGENT': return 'bg-secondary-container text-on-secondary-container border-secondary/20'
-      case 'DRIVER': return 'bg-surface-container-highest text-on-surface border-outline-variant'
+      case 'super_admin': return 'bg-primary-container text-on-primary-container border-primary/20'
+      case 'gestionnaire': return 'bg-secondary-container text-on-secondary-container border-secondary/20'
       default: return 'bg-surface-container text-on-surface-variant border-outline-variant'
+    }
+  }
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'super_admin': return 'Super-Admin'
+      case 'gestionnaire': return 'Gestionnaire'
+      case 'voyageur': return 'Voyageur'
+      default: return role
     }
   }
 
@@ -76,7 +96,7 @@ export default async function UserDetailsPage({
               <h2 className="font-headline-lg text-headline-lg text-primary">{user.name}</h2>
               <div className="flex items-center gap-2 mt-1">
                 <span className={`px-2.5 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border ${getRoleBadgeColor(user.role)}`}>
-                  {user.role}
+                  {getRoleLabel(user.role)}
                 </span>
                 <span className="text-xs text-on-surface-variant font-medium">Inscrit le {new Date(user.createdAt).toLocaleDateString('fr-FR')}</span>
               </div>

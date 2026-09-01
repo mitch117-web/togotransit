@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import GenerateInvoiceButton from '@/components/admin/GenerateInvoiceButton'
+import MarkParcelPaidButton from '@/components/admin/MarkParcelPaidButton'
 import { getSessionContext } from '@/lib/session'
 
 export default async function ParcelDetailsPage({
@@ -190,7 +191,7 @@ export default async function ParcelDetailsPage({
               <p className="text-sm opacity-70 mt-1">Méthode: {parcel.paymentMethod}</p>
             </div>
             {parcel.paymentStatus !== 'PAID' && (
-              <button className="w-full bg-primary text-on-primary font-bold py-2 rounded-lg mt-2">Enregistrer Paiement</button>
+              <MarkParcelPaidButton parcelId={parcel.id} />
             )}
           </div>
 

@@ -74,9 +74,9 @@ export default function PrintTicketButton({ booking }: PrintTicketButtonProps) {
     doc.setFontSize(7)
     doc.setFont('helvetica', 'italic')
     doc.text('Merci de voyager avec TogoTransit', 40, 142, { align: 'center' })
-    doc.text(`ID: ${booking.id.substring(0, 8)}`, 40, 146, { align: 'center' })
+    doc.text(`ID: ${booking.id}`, 40, 146, { align: 'center' })
 
-    doc.save(`Ticket_${booking.id.substring(0, 8)}.pdf`)
+    doc.save(`Ticket_${booking.id}.pdf`)
   }
 
   return (

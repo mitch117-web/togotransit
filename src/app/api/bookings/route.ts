@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
+import { generateNumeroBillet, generateQRPayload } from '@/lib/paygate'
 
 const statutMap: Record<string, any> = {
   CONFIRMED: 'confirmee',
@@ -93,6 +94,34 @@ export async function POST(request: Request) {
       where: { id: trajetId },
       data: { places_disponibles: trajet.places_disponibles - 1 } as any
     })
+
+    // Une réservation créée au guichet est payée sur place (espèces) : il
+    // n'y a pas de webhook opérateur qui viendra confirmer le paiement et
+    // générer le billet plus tard, contrairement au flux de réservation
+    // mobile — on doit donc le faire immédiatement ici, sinon le voyageur
+    // reste bloqué sur "Billet en cours de génération" indéfiniment.
+    if (statut === 'confirmee') {
+      await prisma.paiement.create({
+        data: {
+          reservation_id: newReservation.id,
+          methode: 'autre',
+          reference_transaction: `GUICHET-${newReservation.id}-${Date.now()}`,
+          montant: newReservation.montant_total,
+          statut: 'reussi',
+          date_paiement: new Date(),
+        } as any,
+      })
+
+      const numero_billet = generateNumeroBillet()
+      await prisma.billet.create({
+        data: {
+          reservation_id: newReservation.id,
+          numero_billet,
+          statut: 'valide',
+          code_qr: generateQRPayload(newReservation.id, numero_billet),
+        },
+      })
+    }
 
     // CREATE NOTIFICATION
     try {

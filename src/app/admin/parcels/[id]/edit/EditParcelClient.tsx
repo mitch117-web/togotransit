@@ -284,8 +284,10 @@ export default function EditParcelClient({ parcel, drivers }: { parcel: Parcel, 
 
           <div className="flex flex-col gap-1">
             <label className="font-label-sm text-on-surface-variant">Chauffeur assigné</label>
-            <select 
-              {...register('driverId')}
+            <select
+              {...register('driverId', {
+                setValueAs: (v) => (v === '' || v == null ? undefined : parseInt(v, 10)),
+              })}
               disabled={isSubmitting}
               className="px-4 py-2 bg-surface rounded-lg border border-outline-variant focus:border-primary outline-none disabled:opacity-50"
             >

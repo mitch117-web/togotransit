@@ -24,10 +24,12 @@ export default async function NewTripPage() {
     status: 'AVAILABLE',
   }))
 
-  // "Chauffeur" n'est pas un rôle à part dans ce système : n'importe quel
-  // voyageur peut être assigné comme conducteur d'un trajet (driver_id).
+  // "Chauffeur" n'est pas un rôle à part dans ce système : c'est un
+  // voyageur rattaché à la compagnie (Utilisateur.compagnie_id) — on ne
+  // propose que les chauffeurs de sa propre compagnie (le gestionnaire n'a
+  // de toute façon accès qu'à ses propres trajets/véhicules).
   const chauffeurs = await prisma.utilisateur.findMany({
-    where: { role: 'voyageur' as any }
+    where: { role: 'voyageur' as any, compagnie_id: session?.compagnieId ?? -1 }
   })
 
   const drivers: any[] = chauffeurs.map((u: any) => ({

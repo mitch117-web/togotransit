@@ -27,10 +27,13 @@ export default async function EditParcelPage({ params }: { params: Promise<{ id:
     notFound()
   }
 
-  // "Chauffeur" n'est pas un rôle à part dans ce système : n'importe quel
-  // voyageur peut être assigné comme livreur d'un colis.
+  // "Chauffeur" n'est pas un rôle à part dans ce système : c'est un
+  // voyageur rattaché à la compagnie (Utilisateur.compagnie_id) — on ne
+  // propose donc que les chauffeurs de la même compagnie que le colis,
+  // jamais ceux d'une autre compagnie ni les simples clients (compagnie_id
+  // null).
   const drivers = await prisma.utilisateur.findMany({
-    where: { role: 'voyageur' as any }
+    where: { role: 'voyageur' as any, compagnie_id: parcel.compagnie_id }
   }) as any
 
   return <EditParcelClient parcel={parcel} drivers={drivers} />

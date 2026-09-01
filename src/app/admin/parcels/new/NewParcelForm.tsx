@@ -1,17 +1,33 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { parcelSchema, type ParcelFormValues } from '@/lib/schemas'
 
-export default function NewParcelForm() {
+interface Client {
+  id: number
+  name: string
+  phone: string
+  email?: string | null
+}
+
+export default function NewParcelForm({ clients = [] }: { clients?: Client[] }) {
   const router = useRouter()
-  
-  const { 
-    register, 
-    handleSubmit, 
+  const [clientSearch, setClientSearch] = useState('')
+  const [linkedClient, setLinkedClient] = useState<Client | null>(null)
+
+  const filteredClients = clientSearch
+    ? clients.filter(c =>
+        c.name.toLowerCase().includes(clientSearch.toLowerCase()) ||
+        c.phone.includes(clientSearch)
+      ).slice(0, 8)
+    : []
+
+  const {
+    register,
+    handleSubmit,
     formState: { errors, isSubmitting },
     watch,
     setValue
@@ -85,24 +101,83 @@ export default function NewParcelForm() {
             <span className="material-symbols-outlined text-primary">person</span>
             <h3 className="font-headline-md text-headline-md text-on-surface">Expéditeur</h3>
           </div>
+
+          {linkedClient ? (
+            <div className="flex items-center justify-between gap-2 bg-primary/10 border border-primary/30 rounded-lg px-4 py-2">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-lg">verified_user</span>
+                <div>
+                  <p className="font-body-sm text-body-sm text-on-surface font-medium">{linkedClient.name}</p>
+                  <p className="text-xs text-on-surface-variant">Compte lié — le colis apparaîtra dans "Mes Colis"</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setLinkedClient(null)
+                  setValue('senderId', undefined)
+                }}
+                disabled={isSubmitting}
+                className="text-xs text-error underline disabled:opacity-50"
+              >
+                Délier
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1 relative">
+              <label className="font-label-sm text-on-surface-variant">Rechercher un client inscrit (optionnel)</label>
+              <input
+                type="text"
+                value={clientSearch}
+                onChange={(e) => setClientSearch(e.target.value)}
+                placeholder="Nom ou téléphone du client..."
+                disabled={isSubmitting}
+                className="px-4 py-2 bg-surface rounded-lg border border-outline-variant focus:border-primary outline-none disabled:opacity-50"
+              />
+              {filteredClients.length > 0 && (
+                <ul className="absolute top-full left-0 right-0 z-10 mt-1 bg-surface border border-outline-variant rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  {filteredClients.map((c) => (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLinkedClient(c)
+                          setValue('senderId', c.id)
+                          setValue('senderName', c.name)
+                          setValue('senderPhone', c.phone ?? '')
+                          setClientSearch('')
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-surface-container text-sm"
+                      >
+                        <span className="font-medium">{c.name}</span>
+                        <span className="text-on-surface-variant ml-2">{c.phone}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="text-xs text-on-surface-variant">Aucun compte trouvé ? Remplissez simplement les champs ci-dessous.</p>
+            </div>
+          )}
+
           <div className="flex flex-col gap-1">
             <label className="font-label-sm text-on-surface-variant">Nom complet</label>
-            <input 
+            <input
               {...register('senderName')}
-              type="text" 
+              type="text"
               placeholder="Nom de l'expéditeur"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !!linkedClient}
               className={`px-4 py-2 bg-surface rounded-lg border focus:border-primary outline-none disabled:opacity-50 ${errors.senderName ? 'border-error' : 'border-outline-variant'}`}
             />
             {errors.senderName && <span className="text-error text-xs">{errors.senderName.message}</span>}
           </div>
           <div className="flex flex-col gap-1">
             <label className="font-label-sm text-on-surface-variant">Téléphone</label>
-            <input 
+            <input
               {...register('senderPhone')}
-              type="tel" 
+              type="tel"
               placeholder="90 00 00 00"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !!linkedClient}
               className={`px-4 py-2 bg-surface rounded-lg border focus:border-primary outline-none disabled:opacity-50 ${errors.senderPhone ? 'border-error' : 'border-outline-variant'}`}
             />
             {errors.senderPhone && <span className="text-error text-xs">{errors.senderPhone.message}</span>}

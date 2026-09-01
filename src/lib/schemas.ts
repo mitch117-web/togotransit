@@ -101,6 +101,7 @@ export const loginSchema = z.object({
 export type LoginData = z.infer<typeof loginSchema>
 
 export const parcelSchema = z.object({
+  senderId: z.number().int().positive().optional(),
   senderName: z.string().min(2, 'Nom requis'),
   senderPhone: z.string().min(8, 'Téléphone requis'),
   receiverName: z.string().min(2, 'Nom requis'),

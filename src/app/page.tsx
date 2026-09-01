@@ -226,7 +226,14 @@ export default function LandingPage() {
       </section>
 
       <footer className="py-12 mt-4 bg-surface-container text-on-surface-variant text-center border-t border-outline-variant relative z-10">
-        <div className="max-w-6xl mx-auto flex flex-col gap-4 px-4">
+        <div className="max-w-6xl mx-auto flex flex-col items-center gap-4 px-4">
+          <Link
+            href="/tracking"
+            className="text-sm font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1.5"
+          >
+            <span className="material-symbols-outlined text-base">local_shipping</span>
+            Vous attendez un colis ? Suivez-le ici
+          </Link>
           <p className="text-xs opacity-60">© 2026 TogoTransit S.A. - Service National de Logistique &amp; Transport. Tous droits réservés.</p>
         </div>
       </footer>

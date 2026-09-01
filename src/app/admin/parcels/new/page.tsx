@@ -26,5 +26,17 @@ export default async function NewParcelPage() {
     email: u.email,
   }))
 
-  return <NewParcelForm clients={clients} />
+  // "Chauffeur" n'est pas un rôle à part : c'est un voyageur rattaché à la
+  // compagnie (Utilisateur.compagnie_id) — on ne propose que ceux de sa
+  // propre compagnie, comme sur la page d'édition du colis.
+  const chauffeurs = await prisma.utilisateur.findMany({
+    where: { role: 'voyageur' as any, compagnie_id: session?.compagnieId ?? -1 }
+  })
+  const drivers = chauffeurs.map((u: any) => ({
+    id: u.id,
+    name: `${u.prenom ?? ''} ${u.nom ?? ''}`.trim(),
+    phone: u.telephone,
+  }))
+
+  return <NewParcelForm clients={clients} drivers={drivers} />
 }

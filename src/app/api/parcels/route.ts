@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       data: {
         trackingId,
         senderId: auth.role === 'voyageur' ? auth.userId : (data.senderId ?? null),
+        driverId: data.driverId ?? null,
         compagnie_id: auth.role === 'gestionnaire' ? auth.compagnieId : (data.compagnie_id ?? null),
         senderName: data.senderName,
         senderPhone: data.senderPhone,

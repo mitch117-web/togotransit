@@ -13,7 +13,13 @@ interface Client {
   email?: string | null
 }
 
-export default function NewParcelForm({ clients = [] }: { clients?: Client[] }) {
+interface Driver {
+  id: number
+  name: string
+  phone: string
+}
+
+export default function NewParcelForm({ clients = [], drivers = [] }: { clients?: Client[], drivers?: Driver[] }) {
   const router = useRouter()
   const [clientSearch, setClientSearch] = useState('')
   const [linkedClient, setLinkedClient] = useState<Client | null>(null)
@@ -287,6 +293,22 @@ export default function NewParcelForm({ clients = [] }: { clients?: Client[] }) 
               <option value="Sokodé">Sokodé</option>
               <option value="Kara">Kara</option>
               <option value="Dapaong">Dapaong</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="font-label-sm text-on-surface-variant">Chauffeur assigné (optionnel)</label>
+            <select
+              {...register('driverId', {
+                setValueAs: (v) => (v === '' || v == null ? undefined : parseInt(v, 10)),
+              })}
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-surface rounded-lg border border-outline-variant focus:border-primary outline-none disabled:opacity-50"
+            >
+              <option value="">Aucun chauffeur</option>
+              {drivers.map(driver => (
+                <option key={driver.id} value={driver.id}>{driver.name} ({driver.phone})</option>
+              ))}
             </select>
           </div>
 

@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { tripSchema, TripFormValues } from '@/lib/schemas'
 
-export default function TripForm({ vehicles, drivers, cities }: { vehicles: any[], drivers: any[], cities: string[] }) {
+export default function TripForm({ vehicles, drivers, cities, compagnies = [] }: { vehicles: any[], drivers: any[], cities: string[], compagnies?: { id: number, nom: string }[] }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -19,6 +19,10 @@ export default function TripForm({ vehicles, drivers, cities }: { vehicles: any[
   })
 
   const onSubmit = async (data: TripFormValues) => {
+    if (compagnies.length > 0 && !data.compagnie_id) {
+      alert('Veuillez sélectionner une compagnie.')
+      return
+    }
     setLoading(true)
     try {
       const response = await fetch('/api/trips', {
@@ -82,6 +86,20 @@ export default function TripForm({ vehicles, drivers, cities }: { vehicles: any[
             <span className="material-symbols-outlined">bus_alert</span>
             Logistique
           </h3>
+
+          {compagnies.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-bold text-on-surface-variant">Compagnie</label>
+              <select
+                {...register('compagnie_id')}
+                className="bg-surface-container-low p-3 rounded-xl border border-outline-variant outline-none focus:border-primary transition-all font-medium"
+              >
+                <option value="">Sélectionner une compagnie</option>
+                {compagnies.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
+              </select>
+              {errors.compagnie_id && <span className="text-[0.625rem] text-error font-bold">{errors.compagnie_id.message}</span>}
+            </div>
+          )}
 
           <div className="flex flex-col gap-1">
             <label className="text-xs font-bold text-on-surface-variant">Véhicule assigné</label>

@@ -127,6 +127,7 @@ export const tripSchema = z.object({
   price: z.number().min(0, 'Prix invalide'),
   vehicleId: z.string().min(1, 'Véhicule requis'),
   driverId: z.string().optional(),
+  compagnie_id: z.string().optional(),
   status: z.enum(['PLANNED', 'ONGOING', 'COMPLETED', 'CANCELLED'])
 })
 

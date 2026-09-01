@@ -27,7 +27,13 @@ export async function POST(request: Request) {
     const statut = statutMap[data.status] ?? 'planifie'
     const vehiculeId = typeof data.vehicleId === 'string' ? parseInt(data.vehicleId, 10) : data.vehicleId
     // Un gestionnaire ne peut créer un trajet que pour sa propre compagnie.
-    const compagnie_id = auth!.role === 'gestionnaire' ? auth!.compagnieId : (data.compagnie_id ?? null)
+    const compagnie_id = auth!.role === 'gestionnaire'
+      ? auth!.compagnieId
+      : (typeof data.compagnie_id === 'string' ? parseInt(data.compagnie_id, 10) : data.compagnie_id) || null
+
+    if (!compagnie_id) {
+      return NextResponse.json({ error: 'Compagnie requise' }, { status: 400 })
+    }
 
     if (vehiculeId) {
       const vehicule = await prisma.vehicule.findUnique({ where: { id: vehiculeId } })
@@ -36,14 +42,35 @@ export async function POST(request: Request) {
       }
     }
 
+    // Le formulaire envoie des noms de ville (origin/destination), pas des
+    // ville_depart_id/ville_arrivee_id — on les résout ici.
+    const villeDepartId = data.ville_depart_id
+      ? (typeof data.ville_depart_id === 'string' ? parseInt(data.ville_depart_id, 10) : data.ville_depart_id)
+      : (await prisma.ville.findFirst({ where: { nom: data.origin } }))?.id
+    const villeArriveeId = data.ville_arrivee_id
+      ? (typeof data.ville_arrivee_id === 'string' ? parseInt(data.ville_arrivee_id, 10) : data.ville_arrivee_id)
+      : (await prisma.ville.findFirst({ where: { nom: data.destination } }))?.id
+
+    if (!villeDepartId || !villeArriveeId) {
+      return NextResponse.json(
+        { error: `Ville introuvable : ${!villeDepartId ? data.origin : data.destination}` },
+        { status: 400 }
+      )
+    }
+
+    const driverId = data.driverId
+      ? (typeof data.driverId === 'string' ? parseInt(data.driverId, 10) : data.driverId)
+      : null
+
     const trajet = await prisma.trajet.create({
       data: {
-        ville_depart_id: data.ville_depart_id ?? (parseInt(data.ville_depart_id, 10) || null),
-        ville_arrivee_id: data.ville_arrivee_id ?? (parseInt(data.ville_arrivee_id, 10) || null),
+        ville_depart_id: villeDepartId,
+        ville_arrivee_id: villeArriveeId,
         date_depart: new Date(data.departureTime),
         heure_depart: new Date(data.departureTime),
         prix: parseFloat(data.price ?? data.prix ?? 0),
         vehicule_id: vehiculeId ?? null,
+        driver_id: driverId,
         statut,
         compagnie_id,
         places_disponibles: parseInt(data.capacity ?? data.nombre_places ?? data.places_disponibles ?? 30),

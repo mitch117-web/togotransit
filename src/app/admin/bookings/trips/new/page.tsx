@@ -17,8 +17,10 @@ export default async function NewTripPage() {
     status: 'AVAILABLE',
   }))
 
+  // "Chauffeur" n'est pas un rôle à part dans ce système : n'importe quel
+  // voyageur peut être assigné comme conducteur d'un trajet (driver_id).
   const chauffeurs = await prisma.utilisateur.findMany({
-    where: { role: 'gestionnaire' as any, ...compagnieFilterFor(session) }
+    where: { role: 'voyageur' as any }
   })
 
   const drivers: any[] = chauffeurs.map((u: any) => ({
@@ -34,6 +36,13 @@ export default async function NewTripPage() {
   })
   const cities = Array.from(new Set([...fares.map((f: any) => f.origin), ...fares.map((f: any) => f.destination)]))
 
+  // Un super-admin n'a pas de compagnie implicite : il doit en choisir une
+  // explicitement (le champ est requis en base). Un gestionnaire, lui,
+  // crée toujours un trajet pour sa propre compagnie.
+  const compagnies = session?.role === 'super_admin'
+    ? (await prisma.compagnie.findMany({ where: { statut: 'actif' as any }, orderBy: { nom: 'asc' } })).map((c: any) => ({ id: c.id, nom: c.nom }))
+    : []
+
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto pb-12">
       <div>
@@ -43,7 +52,7 @@ export default async function NewTripPage() {
         </p>
       </div>
 
-      <TripForm vehicles={vehicles} drivers={drivers} cities={cities} />
+      <TripForm vehicles={vehicles} drivers={drivers} cities={cities} compagnies={compagnies} />
     </div>
   )
 }

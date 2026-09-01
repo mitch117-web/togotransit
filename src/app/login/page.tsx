@@ -140,9 +140,9 @@ export default function LoginPage() {
               <label className="text-xs font-black uppercase text-on-surface-variant">
                 Mot de passe
               </label>
-              <span className="text-[0.6875rem] text-on-primary-container font-bold opacity-70 cursor-not-allowed">
+              <Link href="/forgot-password" className="text-[0.6875rem] text-primary font-bold hover:underline">
                 Mot de passe oublié ?
-              </span>
+              </Link>
             </div>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-[1.25rem]">

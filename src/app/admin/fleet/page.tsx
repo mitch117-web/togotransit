@@ -46,6 +46,11 @@ async function getFleetData() {
 
 export default async function FleetPage() {
   const { vehicles, stats } = await getFleetData()
+  const session = await getSessionContext()
+  // Gérer la flotte (ajouter/modifier/supprimer un véhicule) est une action
+  // opérationnelle propre à une compagnie — réservée aux gestionnaires. Le
+  // super-admin garde une vue de supervision en lecture seule.
+  const canOperate = session?.role !== 'super_admin'
 
   return (
     <div className="flex flex-col gap-stack-lg">
@@ -56,7 +61,7 @@ export default async function FleetPage() {
           <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">Supervisez l'état et l'affectation de vos véhicules.</p>
         </div>
         <div className="flex items-center gap-3">
-          <ExportButton 
+          <ExportButton
             data={vehicles.map(v => ({
               Immatriculation: v.plateNumber,
               Type: v.type,
@@ -66,10 +71,12 @@ export default async function FleetPage() {
             filename="export_flotte_togotransit"
             label="Exporter Excel"
           />
-          <Link href="/admin/fleet/new" className="bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary font-label-md text-label-md py-2.5 px-5 rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-sm whitespace-nowrap">
-            <span className="material-symbols-outlined">add</span>
-            Ajouter un véhicule
-          </Link>
+          {canOperate && (
+            <Link href="/admin/fleet/new" className="bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary font-label-md text-label-md py-2.5 px-5 rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-sm whitespace-nowrap">
+              <span className="material-symbols-outlined">add</span>
+              Ajouter un véhicule
+            </Link>
+          )}
         </div>
       </div>
 
@@ -77,7 +84,7 @@ export default async function FleetPage() {
       <KpiGrid stats={stats} />
 
       {/* Vehicle Grid */}
-      <VehicleGrid vehicles={vehicles} />
+      <VehicleGrid vehicles={vehicles} canOperate={canOperate} />
     </div>
   )
 }

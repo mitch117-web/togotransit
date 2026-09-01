@@ -14,7 +14,7 @@ interface Fare {
   zone: string
 }
 
-export default function FaresManagement({ initialFares }: { initialFares: Fare[] }) {
+export default function FaresManagement({ initialFares, readOnly = false }: { initialFares: Fare[], readOnly?: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -124,13 +124,15 @@ export default function FaresManagement({ initialFares }: { initialFares: Fare[]
         <h3 className="font-headline-md text-headline-md text-primary">Grille Tarifaire (Colis)</h3>
         <div className="flex items-center gap-4">
           {error && <span className="text-[0.625rem] font-bold text-error uppercase">{error}</span>}
-          <button 
-            onClick={openAddModal}
-            className="text-primary font-label-sm text-label-sm hover:underline flex items-center gap-1"
-          >
-            <span className="material-symbols-outlined text-[1.125rem]">add</span>
-            Ajouter un tarif
-          </button>
+          {!readOnly && (
+            <button
+              onClick={openAddModal}
+              className="text-primary font-label-sm text-label-sm hover:underline flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[1.125rem]">add</span>
+              Ajouter un tarif
+            </button>
+          )}
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -141,7 +143,7 @@ export default function FaresManagement({ initialFares }: { initialFares: Fare[]
               <th className="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Base (F)</th>
               <th className="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Prix / kg (F)</th>
               <th className="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Zone</th>
-              <th className="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase text-right">Actions</th>
+              {!readOnly && <th className="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase text-right">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant">
@@ -161,22 +163,24 @@ export default function FaresManagement({ initialFares }: { initialFares: Fare[]
                     {fare.zone}
                   </span>
                 </td>
-                <td className="p-4 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button 
-                      onClick={() => openEditModal(fare)}
-                      className="text-on-surface-variant hover:text-primary p-1"
-                    >
-                      <span className="material-symbols-outlined text-[1.25rem]">edit</span>
-                    </button>
-                    <button 
-                      onClick={() => handleDelete(fare.id)}
-                      className="text-on-surface-variant hover:text-error p-1"
-                    >
-                      <span className="material-symbols-outlined text-[1.25rem]">delete</span>
-                    </button>
-                  </div>
-                </td>
+                {!readOnly && (
+                  <td className="p-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => openEditModal(fare)}
+                        className="text-on-surface-variant hover:text-primary p-1"
+                      >
+                        <span className="material-symbols-outlined text-[1.25rem]">edit</span>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(fare.id)}
+                        className="text-on-surface-variant hover:text-error p-1"
+                      >
+                        <span className="material-symbols-outlined text-[1.25rem]">delete</span>
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

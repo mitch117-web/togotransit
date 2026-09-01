@@ -115,7 +115,7 @@ export function KpiGrid({ stats }: { stats: Stats }) {
   )
 }
 
-export function VehicleGrid({ vehicles }: { vehicles: Vehicle[] }) {
+export function VehicleGrid({ vehicles, canOperate = true }: { vehicles: Vehicle[], canOperate?: boolean }) {
   return (
     <motion.div
       variants={containerVariants}
@@ -176,13 +176,17 @@ export function VehicleGrid({ vehicles }: { vehicles: Vehicle[] }) {
               >
                 Détails
               </Link>
-              <Link
-                href={`/admin/fleet/${vehicle.id}/edit`}
-                className="px-3 bg-surface-container-highest hover:bg-primary/20 text-primary border border-outline-variant rounded-xl transition-all active:scale-95 flex items-center justify-center"
-              >
-                <span className="material-symbols-outlined">edit</span>
-              </Link>
-              <DeleteVehicleButton vehicleId={String(vehicle.id)} />
+              {canOperate && (
+                <>
+                  <Link
+                    href={`/admin/fleet/${vehicle.id}/edit`}
+                    className="px-3 bg-surface-container-highest hover:bg-primary/20 text-primary border border-outline-variant rounded-xl transition-all active:scale-95 flex items-center justify-center"
+                  >
+                    <span className="material-symbols-outlined">edit</span>
+                  </Link>
+                  <DeleteVehicleButton vehicleId={String(vehicle.id)} />
+                </>
+              )}
             </div>
           </div>
         </motion.div>

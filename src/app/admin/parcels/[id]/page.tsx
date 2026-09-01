@@ -69,13 +69,15 @@ export default async function ParcelDetailsPage({
             <span className="material-symbols-outlined text-[1.25rem]">print</span>
             Imprimer Bordereau
           </Link>
-          <Link 
-            href={`/admin/parcels/${parcel.id}/edit`}
-            className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg hover:brightness-110 transition-all shadow-md flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined text-[1.25rem]">edit</span>
-            Modifier
-          </Link>
+          {session?.role !== 'super_admin' && (
+            <Link
+              href={`/admin/parcels/${parcel.id}/edit`}
+              className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg hover:brightness-110 transition-all shadow-md flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[1.25rem]">edit</span>
+              Modifier
+            </Link>
+          )}
         </div>
       </div>
 
@@ -190,7 +192,7 @@ export default async function ParcelDetailsPage({
               <p className="text-2xl font-black">{parcel.paymentStatus === 'PAID' ? 'RÉGLÉ' : 'À PAYER'}</p>
               <p className="text-sm opacity-70 mt-1">Méthode: {parcel.paymentMethod}</p>
             </div>
-            {parcel.paymentStatus !== 'PAID' && (
+            {parcel.paymentStatus !== 'PAID' && session?.role !== 'super_admin' && (
               <MarkParcelPaidButton parcelId={parcel.id} />
             )}
           </div>

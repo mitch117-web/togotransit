@@ -5,12 +5,18 @@ import LogoutButton from '@/components/admin/LogoutButton'
 import MobileNav from '@/components/admin/MobileNav'
 import LanguageSelector from '@/components/LanguageSelector'
 import AdminUserBadge from '@/components/admin/AdminUserBadge'
+import { getSessionContext } from '@/lib/session'
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await getSessionContext()
+  // Enregistrer un envoi de colis est une action opérationnelle propre à
+  // une compagnie — réservée aux gestionnaires, pas au super-admin.
+  const canOperate = session?.role !== 'super_admin'
+
   return (
     <div className="bg-background text-on-background min-h-screen flex flex-col md:flex-row font-sans">
       {/* SideNavBar (Desktop) */}
@@ -27,10 +33,12 @@ export default function AdminLayout({
 
         <SidebarLinks />
 
-        <Link href="/admin/parcels/new" className="w-full bg-primary text-on-primary text-xs font-black py-3 rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 mt-6 shrink-0 shadow-md group uppercase tracking-wider">
-          <span className="material-symbols-outlined text-[1.125rem] group-hover:rotate-90 transition-transform">add</span>
-          Nouvel Envoi Colis
-        </Link>
+        {canOperate && (
+          <Link href="/admin/parcels/new" className="w-full bg-primary text-on-primary text-xs font-black py-3 rounded-xl hover:brightness-110 transition-all flex items-center justify-center gap-2 mt-6 shrink-0 shadow-md group uppercase tracking-wider">
+            <span className="material-symbols-outlined text-[1.125rem] group-hover:rotate-90 transition-transform">add</span>
+            Nouvel Envoi Colis
+          </Link>
+        )}
 
         <div className="mt-4 pt-4 pb-2 border-t border-outline-variant/60 shrink-0">
           <AdminUserBadge />
@@ -77,7 +85,7 @@ export default function AdminLayout({
         </main>
       </div>
 
-      <MobileNav />
+      <MobileNav canOperate={canOperate} />
     </div>
   )
 }

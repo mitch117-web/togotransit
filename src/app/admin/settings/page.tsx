@@ -33,7 +33,7 @@ export default async function SettingsPage() {
         
         {/* Left Column: Fares Management */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <FaresManagement initialFares={fares} />
+          <FaresManagement initialFares={fares} readOnly={session?.role === 'super_admin'} />
         </div>
 
         {/* Right Column: Global App Settings (plateforme uniquement) */}

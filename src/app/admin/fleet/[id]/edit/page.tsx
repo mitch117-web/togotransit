@@ -19,6 +19,11 @@ export default async function EditVehiclePage({ params }: { params: Promise<{ id
   if (session?.role === 'gestionnaire' && vehicleRaw.compagnie_id !== session.compagnieId) {
     notFound()
   }
+  // Modifier un véhicule est une action opérationnelle propre à une
+  // compagnie — réservée aux gestionnaires, pas au super-admin.
+  if (session?.role === 'super_admin') {
+    notFound()
+  }
 
   const v: any = vehicleRaw
   const vehicle: any = {

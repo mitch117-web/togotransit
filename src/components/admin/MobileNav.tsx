@@ -15,28 +15,32 @@ const mobileLinks: { href: string, labelKey: TranslationKey, icon: string }[] = 
   { href: '/admin/settings', labelKey: 'settings', icon: 'settings' },
 ]
 
-export default function MobileNav() {
+export default function MobileNav({ canOperate = true }: { canOperate?: boolean }) {
   const pathname = usePathname()
   const { t } = useTranslation()
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant px-4 py-2 flex justify-between items-center z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pb-safe">
-      <MobileNavLink 
-        href="/admin/dashboard" 
-        label={t('dashboard')} 
-        icon="dashboard" 
-        isActive={pathname === '/admin/dashboard'} 
+      <MobileNavLink
+        href="/admin/dashboard"
+        label={t('dashboard')}
+        icon="dashboard"
+        isActive={pathname === '/admin/dashboard'}
       />
-      <MobileNavLink 
-        href="/admin/parcels" 
-        label={t('parcels')} 
-        icon="local_shipping" 
-        isActive={pathname.startsWith('/admin/parcels')} 
+      <MobileNavLink
+        href="/admin/parcels"
+        label={t('parcels')}
+        icon="local_shipping"
+        isActive={pathname.startsWith('/admin/parcels')}
       />
-      
-      <Link href="/admin/parcels/new" className="bg-primary text-on-primary w-12 h-12 rounded-full flex items-center justify-center -mt-10 shadow-lg border-4 border-background hover:scale-110 transition-transform">
-        <span className="material-symbols-outlined">add</span>
-      </Link>
+
+      {canOperate ? (
+        <Link href="/admin/parcels/new" className="bg-primary text-on-primary w-12 h-12 rounded-full flex items-center justify-center -mt-10 shadow-lg border-4 border-background hover:scale-110 transition-transform">
+          <span className="material-symbols-outlined">add</span>
+        </Link>
+      ) : (
+        <div className="w-12 h-12" />
+      )}
 
       <MobileNavLink 
         href="/admin/bookings" 

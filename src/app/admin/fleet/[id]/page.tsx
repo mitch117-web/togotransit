@@ -99,16 +99,18 @@ export default async function VehicleDetailsPage({
             <p className="font-body-sm text-body-sm text-on-surface-variant uppercase tracking-widest font-bold">{vehicle.plateNumber}</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Link 
-            href={`/admin/fleet/${vehicle.id}/edit`}
-            className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg hover:brightness-110 transition-all shadow-md flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined text-[1.25rem]">edit</span>
-            Modifier
-          </Link>
-          <DeleteVehicleButton vehicleId={vehicle.id} />
-        </div>
+        {session?.role !== 'super_admin' && (
+          <div className="flex gap-2">
+            <Link
+              href={`/admin/fleet/${vehicle.id}/edit`}
+              className="bg-primary text-on-primary font-bold py-2 px-6 rounded-lg hover:brightness-110 transition-all shadow-md flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[1.25rem]">edit</span>
+              Modifier
+            </Link>
+            <DeleteVehicleButton vehicleId={vehicle.id} />
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

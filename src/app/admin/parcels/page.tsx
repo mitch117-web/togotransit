@@ -38,8 +38,13 @@ export default async function ParcelsPage({
   const params = await searchParams
   const query = params.q || ''
   const currentStatus = params.status || 'ALL'
-  
+
   const parcels = await getParcels(query, currentStatus)
+  const session = await getSessionContext()
+  // Enregistrer un envoi, modifier un colis ou valider une livraison sont
+  // des actions opérationnelles propres à une compagnie — réservées aux
+  // gestionnaires. Le super-admin garde une vue de supervision (voir/imprimer).
+  const canOperate = session?.role !== 'super_admin'
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -84,10 +89,12 @@ export default async function ParcelsPage({
             filename="export_colis_togotransit"
             label="Exporter Excel"
           />
-          <Link href="/admin/parcels/new" className="bg-primary text-on-primary rounded-lg py-2.5 px-5 font-label-md text-label-md hover:brightness-110 transition-all shadow-sm flex items-center gap-2">
-            <span className="material-symbols-outlined text-[1.25rem]">add</span>
-            Nouvel Envoi
-          </Link>
+          {canOperate && (
+            <Link href="/admin/parcels/new" className="bg-primary text-on-primary rounded-lg py-2.5 px-5 font-label-md text-label-md hover:brightness-110 transition-all shadow-sm flex items-center gap-2">
+              <span className="material-symbols-outlined text-[1.25rem]">add</span>
+              Nouvel Envoi
+            </Link>
+          )}
         </div>
       </div>
 
@@ -204,8 +211,8 @@ export default async function ParcelsPage({
                       <span className={`px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase border w-fit ${getStatusStyle(parcel.status)}`}>
                         {parcel.status.replace(/_/g, ' ')}
                       </span>
-                      {parcel.status === 'IN_TRANSIT' && (
-                        <Link 
+                      {canOperate && parcel.status === 'IN_TRANSIT' && (
+                        <Link
                           href={`/admin/parcels/${parcel.id}/pod`}
                           className="text-[0.625rem] font-bold text-primary flex items-center gap-1 hover:underline"
                         >
@@ -230,13 +237,15 @@ export default async function ParcelsPage({
                         >
                           <span className="material-symbols-outlined text-[1.25rem]">visibility</span>
                         </Link>
-                        <Link 
-                          href={`/admin/parcels/${parcel.id}/edit`}
-                          className="p-1 text-on-surface-variant hover:text-primary transition-colors"
-                          title="Modifier"
-                        >
-                          <span className="material-symbols-outlined text-[1.25rem]">edit</span>
-                        </Link>
+                        {canOperate && (
+                          <Link
+                            href={`/admin/parcels/${parcel.id}/edit`}
+                            className="p-1 text-on-surface-variant hover:text-primary transition-colors"
+                            title="Modifier"
+                          >
+                            <span className="material-symbols-outlined text-[1.25rem]">edit</span>
+                          </Link>
+                        )}
                         <Link 
                           href={`/admin/parcels/${parcel.id}/print`}
                           className="p-1 text-on-surface-variant hover:text-primary transition-colors"

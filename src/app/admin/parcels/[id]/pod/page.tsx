@@ -23,6 +23,11 @@ export default async function PODPage({
   if (session?.role === 'gestionnaire' && parcel.compagnie_id !== session.compagnieId) {
     notFound()
   }
+  // Valider une livraison est une action opérationnelle propre à une
+  // compagnie — réservée aux gestionnaires, pas au super-admin.
+  if (session?.role === 'super_admin') {
+    notFound()
+  }
 
   return <PODClient parcel={parcel as any} />
 }

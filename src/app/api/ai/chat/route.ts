@@ -12,6 +12,24 @@ type ChatContext = {
   fares: { origin: string; destination: string; baseFare: number; pricePerKg: number }[]
 }
 
+/** Repère un numéro de suivi (ex: "TRK-1042") écrit directement dans le message,
+ * pour ne pas dépendre uniquement du champ `trackingId` — que le client mobile
+ * n'envoie jamais — et permettre "suis mon colis TRK-1042" en une seule phrase. */
+function extraireTrackingId(message: string): string | null {
+  const match = message.toUpperCase().match(/TRK-?\s?(\d{2,})/)
+  return match ? `TRK-${match[1]}` : null
+}
+
+/** Cherche dans le texte le nom d'une ville togolaise connue (trajets/tarifs). */
+function villesMentionnees(message: string, villes: string[]): string[] {
+  const m = message.toLowerCase()
+  const trouvees = new Set<string>()
+  for (const v of villes) {
+    if (v && m.includes(v.toLowerCase())) trouvees.add(v)
+  }
+  return Array.from(trouvees)
+}
+
 const STATUT_COLIS_LABEL: Record<string, string> = {
   PENDING: 'en attente de dépôt',
   IN_AGENCY: 'enregistré en agence, en attente de départ',
@@ -30,47 +48,64 @@ const STATUT_COLIS_LABEL: Record<string, string> = {
 function reponseParMotsCles(message: string, ctx: ChatContext): string {
   const m = message.toLowerCase()
 
-  // Suivi de colis
+  // Suivi de colis — priorité absolue si un colis a été identifié (via
+  // trackingId explicite OU numéro détecté dans le texte du message).
   if (ctx.parcel) {
     const label = STATUT_COLIS_LABEL[ctx.parcel.status] || ctx.parcel.status
     return `📦 Votre colis ${ctx.parcel.trackingId} (${ctx.parcel.origin} → ${ctx.parcel.destination}) est actuellement ${label}. Destinataire : ${ctx.parcel.receiverName}.`
   }
-  if (/\b(suivre|suivi|tracking|localiser)\b/.test(m) || /\bcolis\b.*\b(o[uù]|statut|arriv[ée])\b/.test(m)) {
+  if (/\bTRK-?\s?\d/i.test(message)) {
+    return "Je ne trouve aucun colis correspondant à ce numéro de suivi. Vérifiez qu'il est bien orthographié (format TRK-XXXX) ou consultez l'onglet « Colis » de l'application."
+  }
+  if (/\b(suivre|suivi|tracking|localiser|o[uù].*colis|colis.*o[uù])\b/.test(m)) {
     return "Pour suivre votre colis, indiquez son numéro de suivi (ex : TRK-1000) ou consultez l'onglet « Colis » de l'application, qui affiche l'historique et la position en direct."
   }
 
   // Envoyer un colis
-  if (/envoyer|exp[ée]dier/.test(m) && /colis/.test(m)) {
+  if (/envoyer|exp[ée]dier|d[ée]poser/.test(m) && /colis/.test(m)) {
     return "Pour envoyer un colis : ouvrez l'onglet « Colis » → « Nouvel envoi » → renseignez l'expéditeur, le destinataire et une photo du colis → validez. Déposez ensuite le colis à l'agence indiquée, le tarif définitif est confirmé après pesée."
   }
 
-  // Tarifs
-  if (/tarif|prix|combien|co[uû]te/.test(m)) {
-    if (ctx.fares.length > 0) {
-      const lignes = ctx.fares
-        .slice(0, 5)
-        .map((f) => `• ${f.origin} → ${f.destination} : à partir de ${f.baseFare} F (+${f.pricePerKg} F/kg)`)
-        .join('\n')
-      return `Voici quelques tarifs de livraison de colis :\n${lignes}\n\nLe prix exact dépend du poids et de la catégorie du colis.`
-    }
-    return "Les tarifs de livraison dépendent de la destination et du poids du colis — le prix exact est confirmé à la pesée en agence. Pour les billets de voyage, comparez les prix directement dans l'application selon votre trajet."
-  }
-
-  // Trajets / horaires de bus
-  if (/trajet|horaire|d[ée]part|itin[ée]raire|\bbus\b|voyage/.test(m)) {
-    if (ctx.trips.length > 0) {
-      const lignes = ctx.trips
+  // Trajets / horaires de bus — vérifié avant les tarifs génériques pour que
+  // "combien coûte un trajet Lomé Kara" tombe sur les vrais trajets plutôt
+  // que sur les tarifs colis.
+  const villesTrajets = villesMentionnees(m, ctx.trips.flatMap((t) => [t.origin, t.dest]))
+  const parleDeVoyage = /trajet|horaire|d[ée]part|itin[ée]raire|\bbus\b|voyage|billet|ticket|r[ée]server|r[ée]servation/.test(m)
+  if (parleDeVoyage || villesTrajets.length > 0) {
+    const correspondants = villesTrajets.length >= 2
+      ? ctx.trips.filter((t) => villesTrajets.includes(t.origin) && villesTrajets.includes(t.dest))
+      : villesTrajets.length === 1
+        ? ctx.trips.filter((t) => villesTrajets.includes(t.origin) || villesTrajets.includes(t.dest))
+        : ctx.trips
+    if (correspondants.length > 0) {
+      const lignes = correspondants
         .slice(0, 5)
         .map((t) => `• ${t.origin} → ${t.dest} — départ ${t.departure} — ${t.prix} F (${t.vehicule})`)
         .join('\n')
-      return `Voici des trajets disponibles :\n${lignes}\n\nRecherchez et comparez toutes les compagnies depuis l'accueil de l'application.`
+      return `Voici ${villesTrajets.length > 0 ? 'les trajets correspondants' : 'des trajets disponibles'} :\n${lignes}\n\nRecherchez et comparez toutes les compagnies depuis l'accueil de l'application.`
     }
-    return "Recherchez votre trajet depuis l'accueil de l'application : indiquez la ville de départ, la ville d'arrivée et la date, puis comparez les compagnies disponibles."
+    if (/r[ée]server|r[ée]servation/.test(m)) {
+      return "Pour réserver : recherchez votre trajet depuis l'accueil → choisissez une compagnie → « Réserver » → renseignez les passagers → payez par Flooz ou T-Money. Votre billet avec QR code apparaît ensuite dans l'onglet « Tickets »."
+    }
+    return villesTrajets.length > 0
+      ? `Je ne trouve pas de trajet planifié pour ${villesTrajets.join(' / ')} en ce moment. Vérifiez les dates dans l'application, l'offre change régulièrement.`
+      : "Recherchez votre trajet depuis l'accueil de l'application : indiquez la ville de départ, la ville d'arrivée et la date, puis comparez les compagnies disponibles."
   }
 
-  // Réservation / billet
-  if (/r[ée]server|r[ée]servation|billet|ticket/.test(m)) {
-    return "Pour réserver : recherchez votre trajet depuis l'accueil → choisissez une compagnie → « Réserver » → renseignez les passagers → payez par Flooz ou T-Money. Votre billet avec QR code apparaît ensuite dans l'onglet « Tickets »."
+  // Tarifs (colis)
+  if (/tarif|prix|combien|co[uû]te/.test(m)) {
+    const villesFares = villesMentionnees(m, ctx.fares.flatMap((f) => [f.origin, f.destination]))
+    const correspondants = villesFares.length > 0
+      ? ctx.fares.filter((f) => villesFares.includes(f.origin) || villesFares.includes(f.destination))
+      : ctx.fares
+    if (correspondants.length > 0) {
+      const lignes = correspondants
+        .slice(0, 5)
+        .map((f) => `• ${f.origin} → ${f.destination} : à partir de ${f.baseFare} F (+${f.pricePerKg} F/kg)`)
+        .join('\n')
+      return `Voici ${villesFares.length > 0 ? 'le tarif correspondant' : 'quelques tarifs de livraison de colis'} :\n${lignes}\n\nLe prix exact dépend du poids et de la catégorie du colis.`
+    }
+    return "Les tarifs de livraison dépendent de la destination et du poids du colis — le prix exact est confirmé à la pesée en agence. Pour les billets de voyage, comparez les prix directement dans l'application selon votre trajet."
   }
 
   // Paiement
@@ -79,7 +114,7 @@ function reponseParMotsCles(message: string, ctx: ChatContext): string {
   }
 
   // Horaires d'ouverture / contact
-  if (/heure.*ouvert|ouvert.*heure|horaire.*agence/.test(m)) {
+  if (/heure.*ouvert|ouvert.*heure|horaire.*agence|quand.*ouvert/.test(m)) {
     return `🕒 ${HEURES_OUVERTURE}`
   }
   if (/contact|t[ée]l[ée]phone|joindre|appeler|email/.test(m)) {
@@ -87,16 +122,23 @@ function reponseParMotsCles(message: string, ctx: ChatContext): string {
   }
 
   // Salutations
-  if (/^(bonjour|salut|bonsoir|hello|coucou)\b/.test(m)) {
+  if (/^(bonjour|salut|bonsoir|hello|coucou|bonne? (journ[ée]e|soir[ée]e))\b/.test(m)) {
     return "Bonjour ! Je suis l'assistant TogoTransit 👋 Je peux vous aider à suivre un colis, comparer les trajets, connaître nos tarifs ou vous expliquer comment réserver. Que souhaitez-vous savoir ?"
   }
 
-  // Remerciements
+  // Remerciements / au revoir
   if (/merci/.test(m)) {
     return "Avec plaisir ! N'hésitez pas si vous avez d'autres questions. 😊"
   }
+  if (/^(au revoir|bye|a\+|à\+|ciao)\b/.test(m)) {
+    return "À bientôt sur TogoTransit ! 👋"
+  }
 
-  return "Je peux vous renseigner sur le suivi de colis, les tarifs, les trajets disponibles, la réservation de billets ou le paiement. Pouvez-vous préciser votre question, ou choisir une suggestion ci-dessous ?"
+  // Aucune règle ne correspond : on évite de répéter le même message générique
+  // en boucle — on répète la question posée pour montrer qu'elle a été lue,
+  // et on oriente vers des sujets concrets plutôt qu'une liste figée.
+  const extrait = message.trim().length > 60 ? `${message.trim().slice(0, 57)}...` : message.trim()
+  return `Je n'ai pas toutes les informations pour répondre précisément à « ${extrait} ». Je peux vous aider sur : le suivi d'un colis (donnez son numéro TRK-...), les trajets et horaires entre deux villes, les tarifs, la réservation ou le paiement. Que souhaitez-vous savoir parmi ça ?`
 }
 
 export async function POST(request: Request) {
@@ -104,7 +146,10 @@ export async function POST(request: Request) {
     // Widget public (visible sur tout le site) : on limite l'abus plutôt que
     // d'exiger une connexion, pour ne pas casser le support pour les visiteurs.
     const ip = getClientIp(request)
-    const { limited, retryAfterSec } = await isRateLimited(`chat:${ip}`)
+    // Limite relevée par rapport au défaut (5/min) : une vraie conversation
+    // échange plusieurs messages par minute, contrairement à une tentative
+    // de connexion — le défaut faisait déclencher le blocage trop vite.
+    const { limited, retryAfterSec } = await isRateLimited(`chat:${ip}`, 20)
     if (limited) {
       return NextResponse.json(
         { message: `Trop de messages envoyés. Réessayez dans ${retryAfterSec} secondes.` },
@@ -112,15 +157,24 @@ export async function POST(request: Request) {
       )
     }
 
-    const { message, trackingId } = await request.json()
+    const { message, trackingId, history } = await request.json()
     if (!message || typeof message !== 'string') {
       return NextResponse.json({ error: 'Message requis' }, { status: 400 })
     }
+    // L'appli mobile n'a pas toujours de trackingId de contexte (le widget de
+    // chat est global, pas lié à un colis précis) — on le retrouve dans le
+    // texte lui-même si l'utilisateur l'a tapé, plutôt que de l'exiger en champ séparé.
+    const trackingIdEffectif = trackingId || extraireTrackingId(message)
+    const historique: { role: 'user' | 'assistant'; content: string }[] = Array.isArray(history)
+      ? history
+          .filter((h: any) => h && typeof h.content === 'string' && (h.role === 'user' || h.role === 'assistant'))
+          .slice(-6)
+      : []
 
     const ctx: ChatContext = { parcel: null, trips: [], fares: [] }
 
-    if (trackingId) {
-      const parcel = await prisma.parcel.findFirst({ where: { trackingId } })
+    if (trackingIdEffectif) {
+      const parcel = await prisma.parcel.findFirst({ where: { trackingId: trackingIdEffectif } })
       if (parcel) {
         ctx.parcel = {
           trackingId: parcel.trackingId,
@@ -191,6 +245,9 @@ export async function POST(request: Request) {
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
+          // Historique récent inclus pour permettre les questions de suivi
+          // ("et pour demain ?") sans que l'utilisateur répète tout le contexte.
+          ...historique,
           { role: 'user', content: message },
         ],
         temperature: 0.5,

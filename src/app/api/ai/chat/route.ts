@@ -57,8 +57,18 @@ function reponseParMotsCles(message: string, ctx: ChatContext): string {
   if (/\bTRK-?\s?\d/i.test(message)) {
     return "Je ne trouve aucun colis correspondant à ce numéro de suivi. Vérifiez qu'il est bien orthographié (format TRK-XXXX) ou consultez l'onglet « Colis » de l'application."
   }
-  if (/\b(suivre|suivi|tracking|localiser|o[uù].*colis|colis.*o[uù])\b/.test(m)) {
+  // "suivis?" (et non "suivi" seul) pour couvrir aussi le pluriel — un \b
+  // après "suivi" ne matche jamais "suivis", ce qui faisait tomber ces
+  // questions très courantes dans le message générique de secours.
+  if (/\b(suivre|suivis?|tracking|localiser|o[uù].*colis|colis.*o[uù])\b/.test(m)) {
     return "Pour suivre votre colis, indiquez son numéro de suivi (ex : TRK-1000) ou consultez l'onglet « Colis » de l'application, qui affiche l'historique et la position en direct."
+  }
+
+  // Question ouverte sur les capacités de l'assistant ("en quoi peux-tu
+  // m'aider ?") — traitée à part pour ne pas tomber dans le message de
+  // secours générique, qui sonnait mécanique sur une question aussi courante.
+  if (/en quoi (peu[xt]|pouv)|que peu[xt].*(faire|aider)|(tu|vous) (sers?|servez) a quoi|(tu|vous) fais?.*quoi|besoin d.aide|aide[- ]?moi|c.est quoi.*assistant/.test(m)) {
+    return "Je peux vous aider à suivre un colis (donnez son numéro, ex TRK-1000), comparer les trajets et horaires entre deux villes, connaître nos tarifs, réserver un billet ou payer. Que souhaitez-vous faire ?"
   }
 
   // Envoyer un colis
@@ -134,11 +144,10 @@ function reponseParMotsCles(message: string, ctx: ChatContext): string {
     return "À bientôt sur TogoTransit ! 👋"
   }
 
-  // Aucune règle ne correspond : on évite de répéter le même message générique
-  // en boucle — on répète la question posée pour montrer qu'elle a été lue,
-  // et on oriente vers des sujets concrets plutôt qu'une liste figée.
-  const extrait = message.trim().length > 60 ? `${message.trim().slice(0, 57)}...` : message.trim()
-  return `Je n'ai pas toutes les informations pour répondre précisément à « ${extrait} ». Je peux vous aider sur : le suivi d'un colis (donnez son numéro TRK-...), les trajets et horaires entre deux villes, les tarifs, la réservation ou le paiement. Que souhaitez-vous savoir parmi ça ?`
+  // Aucune règle ne correspond : un message court et direct plutôt qu'un
+  // écho de la question de l'utilisateur (sonnait mécanique en se répétant
+  // sur plusieurs messages d'affilée).
+  return "Je peux vous renseigner sur le suivi d'un colis (donnez son numéro, ex TRK-1000), les trajets et tarifs entre deux villes, la réservation de billets ou le paiement. Précisez votre question, ou choisissez une suggestion ci-dessous."
 }
 
 export async function POST(request: Request) {

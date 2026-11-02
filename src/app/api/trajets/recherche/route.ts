@@ -76,7 +76,7 @@ export async function GET(request: Request) {
         vehicule: true,
         ville_depart: true,
         ville_arrivee: true,
-        driver: true,
+        driver: { select: { id: true, nom: true, prenom: true } },
         avis: true,
         reservations: {
           where: { statut: { not: 'annulee' } },
@@ -135,10 +135,11 @@ export async function GET(request: Request) {
         amenities: null,
       } : null
 
+      // Recherche publique : le nom du chauffeur est affiché, jamais son téléphone (donné par le détail du
+      // trajet au seul voyageur dont la réservation est confirmée).
       const chauffeur = t.driver ? {
         id: t.driver.id,
         nom: `${t.driver.prenom ?? ''} ${t.driver.nom ?? ''}`.trim(),
-        telephone: t.driver.telephone,
       } : null
 
       const nb_passagers = (t.reservations || []).reduce(
@@ -209,7 +210,7 @@ export async function GET(request: Request) {
   } catch (err: any) {
     console.error('GET /api/trajets/recherche error:', err)
     return NextResponse.json(
-      { success: false, error: err?.message || 'Erreur interne', code: 'SERVER_ERROR' },
+      { success: false, error: 'Erreur interne', code: 'SERVER_ERROR' },
       { status: 500 }
     )
   }

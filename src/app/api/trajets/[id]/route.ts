@@ -14,6 +14,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const auth = await extractAuthFromRequest(request)
     const { id } = await params
     const trajetId = parseInt(id, 10)
+    if (isNaN(trajetId)) {
+      return NextResponse.json({ error: 'Identifiant de trajet invalide' }, { status: 400 })
+    }
 
     const scope = buildCompagnieScope(auth)
     const where: Record<string, unknown> = { id: trajetId }
@@ -29,12 +32,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         ville_depart: true,
         ville_arrivee: true,
         driver: { select: { id: true, nom: true, prenom: true, telephone: true } },
-        reservations: {
-          include: {
-            passagers: true,
-            utilisateur: { select: { id: true, nom: true, prenom: true, telephone: true } },
-          },
-        },
         avis: {
           include: { utilisateur: { select: { nom: true, prenom: true } } },
           take: 10,
@@ -52,20 +49,56 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Trajet non disponible' }, { status: 403 })
     }
 
-    return NextResponse.json(trajet)
-  } catch (error: any) {
+    // Réservations et passagers (noms, téléphones) : réservés à l'exploitation du trajet, c'est-à-dire au
+    // gestionnaire de la compagnie propriétaire et, en lecture, au super-administrateur. Les voyageurs et
+    // les visiteurs n'en reçoivent qu'un total agrégé (`places_reservees`).
+    const exploitant =
+      auth?.role === 'super_admin' ||
+      (auth?.role === 'gestionnaire' && !!auth.compagnieId && auth.compagnieId === trajet.compagnie_id)
+
+    // Le téléphone du chauffeur n'est communiqué qu'à l'exploitation et au voyageur dont la réservation est
+    // confirmée sur ce trajet (il en a besoin le jour du départ), jamais au public.
+    let voirTelephoneChauffeur = exploitant
+    if (!voirTelephoneChauffeur && auth?.role === 'voyageur') {
+      const reservationsConfirmees = await prisma.reservation.count({
+        where: { trajet_id: trajetId, utilisateur_id: auth.userId, statut: 'confirmee' },
+      })
+      voirTelephoneChauffeur = reservationsConfirmees > 0
+    }
+
+    const [reservations, reservees] = await Promise.all([
+      exploitant
+        ? prisma.reservation.findMany({
+            where: { trajet_id: trajetId },
+            include: {
+              passagers: true,
+              utilisateur: { select: { id: true, nom: true, prenom: true, telephone: true } },
+            },
+          })
+        : Promise.resolve(null),
+      prisma.reservation.aggregate({
+        where: { trajet_id: trajetId, statut: { not: 'annulee' } },
+        _sum: { nombre_places: true },
+      }),
+    ])
+
+    const { driver, ...donnees } = trajet
+    return NextResponse.json({
+      ...donnees,
+      driver: driver && !voirTelephoneChauffeur ? { id: driver.id, nom: driver.nom, prenom: driver.prenom } : driver,
+      ...(reservations ? { reservations } : {}),
+      places_reservees: reservees._sum.nombre_places ?? 0,
+    })
+  } catch (error) {
     console.error('Trajet Detail Error:', error)
-    return NextResponse.json(
-      { error: 'Erreur lors de la récupération du trajet', details: error.message },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Erreur lors de la récupération du trajet' }, { status: 500 })
   }
 }
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const auth = await extractAuthFromRequest(request)
-    const roleError = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    const roleError = requireAnyRole(auth, ['gestionnaire'])
     if (roleError) return roleError
 
     const { id } = await params
@@ -171,7 +204,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const auth = await extractAuthFromRequest(request)
-    const roleError = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    const roleError = requireAnyRole(auth, ['gestionnaire'])
     if (roleError) return roleError
 
     const { id } = await params

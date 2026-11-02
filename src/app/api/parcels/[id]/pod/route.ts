@@ -31,10 +31,14 @@ export async function GET(
     const idNum = parseInt(id, 10)
     const auth = await extractAuthFromRequest(request as any)
 
-    // Un identifiant de tracking (non numérique) reste consultable publiquement,
-    // comme la page web /tracking.
+    // Un identifiant de tracking (non numérique) reste consultable publiquement, comme la page web
+    // /tracking, mais seule la date de remise est révélée : la signature, la photo et les coordonnées
+    // de la remise sont des données personnelles réservées aux comptes autorisés.
     if (isNaN(idNum) && !auth) {
-      const pod = await prisma.pOD.findFirst({ where: { parcel: { trackingId: id } } })
+      const pod = await prisma.pOD.findFirst({
+        where: { parcel: { trackingId: id } },
+        select: { deliveredAt: true },
+      })
       if (!pod) return NextResponse.json({ error: 'POD not found' }, { status: 404 })
       return NextResponse.json(pod)
     }
@@ -65,7 +69,7 @@ export async function POST(
 ) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire'])
     if (blocked) return blocked
 
     const { id } = 'then' in params ? await params : params

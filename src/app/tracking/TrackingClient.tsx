@@ -150,16 +150,6 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
                 <h3 className="text-xl font-black text-emerald-700">Colis Livré avec succès</h3>
                 <p className="text-on-surface-variant text-sm">Ce colis a été remis en mains propres le {new Date(initialParcel.pod.deliveredAt).toLocaleDateString('fr-FR')} à {new Date(initialParcel.pod.deliveredAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.</p>
               </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-32 h-20 bg-white/90 border border-emerald-500/30 rounded-lg flex items-center justify-center overflow-hidden">
-                  {initialParcel.pod.signatureUrl ? (
-                    <img src={initialParcel.pod.signatureUrl} alt="Signature POD" className="max-h-full object-contain" />
-                  ) : (
-                    <span className="material-symbols-outlined text-4xl text-outline">signature</span>
-                  )}
-                </div>
-                <span className="text-[0.625rem] font-bold uppercase text-emerald-700 opacity-80">Signature POD</span>
-              </div>
             </div>
           )}
         </section>

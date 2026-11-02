@@ -2,12 +2,14 @@ import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
 import prisma from '@/lib/prisma'
 import { isRateLimited, getClientIp } from '@/lib/rate-limit'
+import { hasDeparted, departureInstant } from '@/lib/trajet-time'
 
 const HEURES_OUVERTURE = 'Nos agences sont ouvertes du lundi au samedi de 6h à 19h (fermé le dimanche, sauf agence de Lomé-Gare ouverte jusqu\'à 13h).'
 const CONTACT = 'Vous pouvez nous joindre au +228 22 21 00 00 ou par email à contact@togotransit.tg.'
 
 type ChatContext = {
-  parcel: { trackingId: string; status: string; senderName: string; receiverName: string; origin: string; destination: string; weight: number; price: number } | null
+  // Aucune donnée personnelle (noms, téléphones, prix) : l'assistant est public et les numéros de suivi sont séquentiels.
+  parcel: { trackingId: string; status: string; origin: string; destination: string; weight: number } | null
   trips: { origin: string; dest: string; departure: string; prix: number; vehicule: string }[]
   fares: { origin: string; destination: string; baseFare: number; pricePerKg: number }[]
 }
@@ -52,7 +54,7 @@ function reponseParMotsCles(message: string, ctx: ChatContext): string {
   // trackingId explicite OU numéro détecté dans le texte du message).
   if (ctx.parcel) {
     const label = STATUT_COLIS_LABEL[ctx.parcel.status] || ctx.parcel.status
-    return `📦 Votre colis ${ctx.parcel.trackingId} (${ctx.parcel.origin} → ${ctx.parcel.destination}) est actuellement ${label}. Destinataire : ${ctx.parcel.receiverName}.`
+    return `📦 Votre colis ${ctx.parcel.trackingId} (${ctx.parcel.origin} → ${ctx.parcel.destination}) est actuellement ${label}.`
   }
   if (/\bTRK-?\s?\d/i.test(message)) {
     return "Je ne trouve aucun colis correspondant à ce numéro de suivi. Vérifiez qu'il est bien orthographié (format TRK-XXXX) ou consultez l'onglet « Colis » de l'application."
@@ -173,7 +175,7 @@ export async function POST(request: Request) {
     // L'appli mobile n'a pas toujours de trackingId de contexte (le widget de
     // chat est global, pas lié à un colis précis) — on le retrouve dans le
     // texte lui-même si l'utilisateur l'a tapé, plutôt que de l'exiger en champ séparé.
-    const trackingIdEffectif = trackingId || extraireTrackingId(message)
+    const trackingIdEffectif = (typeof trackingId === 'string' && trackingId.trim()) || extraireTrackingId(message)
     const historique: { role: 'user' | 'assistant'; content: string }[] = Array.isArray(history)
       ? history
           .filter((h: any) => h && typeof h.content === 'string' && (h.role === 'user' || h.role === 'assistant'))
@@ -183,30 +185,33 @@ export async function POST(request: Request) {
     const ctx: ChatContext = { parcel: null, trips: [], fares: [] }
 
     if (trackingIdEffectif) {
-      const parcel = await prisma.parcel.findFirst({ where: { trackingId: trackingIdEffectif } })
+      // Assistant public et numéros de suivi séquentiels : on ne lit que les données de la page publique de
+      // suivi (ni noms, ni téléphones, ni prix), de sorte qu'elles ne peuvent apparaître dans aucune réponse.
+      const parcel = await prisma.parcel.findFirst({
+        where: { trackingId: trackingIdEffectif },
+        select: { trackingId: true, status: true, origin: true, destination: true, weight: true },
+      })
       if (parcel) {
-        ctx.parcel = {
-          trackingId: parcel.trackingId,
-          status: parcel.status,
-          senderName: parcel.senderName,
-          receiverName: parcel.receiverName,
-          origin: parcel.origin,
-          destination: parcel.destination,
-          weight: parcel.weight,
-          price: parcel.price,
-        }
+        ctx.parcel = parcel
       }
     }
 
-    const trips = await prisma.trajet.findMany({
-      where: { statut: 'planifie' as any },
+    // Seuls les départs à venir sont proposés : un trajet « planifié » dont l'heure est passée ne doit
+    // jamais être cité à l'utilisateur comme une option de voyage.
+    const debutJour = new Date()
+    debutJour.setUTCHours(0, 0, 0, 0)
+    const trips = (await prisma.trajet.findMany({
+      where: { statut: 'planifie' as any, date_depart: { gte: debutJour } },
       include: { vehicule: true, ville_depart: true, ville_arrivee: true },
-      take: 10,
-    })
+      orderBy: [{ date_depart: 'asc' }, { heure_depart: 'asc' }],
+      take: 20,
+    }))
+      .filter((trip: any) => !hasDeparted(trip))
+      .slice(0, 10)
     ctx.trips = trips.map((trip: any) => ({
       origin: trip.ville_depart?.nom || '?',
       dest: trip.ville_arrivee?.nom || '?',
-      departure: trip.date_depart ? new Date(trip.date_depart).toLocaleString('fr-FR') : 'inconnu',
+      departure: trip.date_depart ? departureInstant(trip).toLocaleString('fr-FR') : 'inconnu',
       prix: trip.prix ?? 0,
       vehicule: trip.vehicule?.type || trip.vehicule?.immatriculation || '?',
     }))
@@ -228,7 +233,7 @@ export async function POST(request: Request) {
     try {
       let contextTexte = ''
       if (ctx.parcel) {
-        contextTexte += `\nInformations sur le colis (${ctx.parcel.trackingId}):\n- Statut: ${ctx.parcel.status}\n- Expéditeur: ${ctx.parcel.senderName}\n- Destinataire: ${ctx.parcel.receiverName}\n- Origine: ${ctx.parcel.origin}\n- Destination: ${ctx.parcel.destination}\n- Poids: ${ctx.parcel.weight}kg\n- Prix: ${ctx.parcel.price} F\n`
+        contextTexte += `\nInformations sur le colis (${ctx.parcel.trackingId}):\n- Statut: ${ctx.parcel.status}\n- Origine: ${ctx.parcel.origin}\n- Destination: ${ctx.parcel.destination}\n- Poids: ${ctx.parcel.weight}kg\n- Les noms, téléphones et le prix du colis ne sont pas communiqués par cet assistant : renvoie vers l'agence ou l'onglet « Colis » de l'application.\n`
       }
       if (ctx.trips.length > 0) {
         contextTexte += `\nTrajets disponibles :\n${ctx.trips.map((t) => `- ${t.origin} → ${t.dest} | Départ: ${t.departure} | Prix: ${t.prix} F | Véhicule: ${t.vehicule}`).join('\n')}\n`

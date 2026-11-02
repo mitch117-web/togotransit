@@ -16,6 +16,36 @@ async function findParcelByIdOrTracking(id: string) {
   })
 }
 
+/**
+ * Projection publique d'un colis, renvoyée à quiconque connaît le numéro de suivi (sans compte).
+ * Les numéros étant séquentiels (TRK-1000, TRK-1001…), elle ne contient aucune donnée personnelle :
+ * ni noms ni téléphones, ni prix, ni positions GPS, ni signature ou photo de remise.
+ */
+function toPublicParcel(parcel: any) {
+  let etapes: any[] = []
+  try {
+    etapes = JSON.parse(parcel.statusHistory || '[]')
+  } catch {}
+  return {
+    trackingId: parcel.trackingId,
+    status: parcel.status,
+    origin: parcel.origin,
+    destination: parcel.destination,
+    weight: parcel.weight,
+    deliveryType: parcel.deliveryType,
+    paymentStatus: parcel.paymentStatus,
+    createdAt: parcel.createdAt,
+    updatedAt: parcel.updatedAt,
+    // seules les étapes de statut (sans lieu ni coordonnées) ; les relevés GPS sont écartés
+    statusHistory: JSON.stringify(
+      etapes
+        .filter((e) => !e.metadata && !String(e.location ?? '').startsWith('GPS Update'))
+        .map((e) => ({ status: e.status, timestamp: e.timestamp }))
+    ),
+    pod: parcel.pod ? { deliveredAt: parcel.pod.deliveredAt } : null,
+  }
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> | { id: string } }
@@ -30,7 +60,7 @@ export async function GET(
     if (isNaN(idNum) && !auth) {
       const parcel = await findParcelByIdOrTracking(id)
       if (!parcel) return NextResponse.json({ error: 'Parcel not found' }, { status: 404 })
-      return NextResponse.json(parcel)
+      return NextResponse.json(toPublicParcel(parcel))
     }
 
     const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
@@ -65,7 +95,7 @@ export async function PATCH(
 ) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    const blocked = requireAnyRole(auth, ['gestionnaire'])
     if (blocked) return blocked
 
     const { id } = 'then' in params ? await params : params
@@ -148,7 +178,7 @@ export async function DELETE(
 ) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    const blocked = requireAnyRole(auth, ['gestionnaire'])
     if (blocked) return blocked
 
     const { id } = 'then' in params ? await params : params

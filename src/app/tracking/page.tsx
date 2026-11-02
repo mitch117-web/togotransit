@@ -12,11 +12,20 @@ export default async function TrackingPage({
 
   let parcel = null
   if (trackingId) {
+    // Page publique : les numéros de suivi étant séquentiels, on ne charge (et donc on n'envoie au
+    // navigateur) que ce que la page affiche — jamais noms, téléphones, prix, positions GPS ni signature.
     parcel = await prisma.parcel.findUnique({
       where: { trackingId },
-      include: {
-        pod: true
-      }
+      select: {
+        trackingId: true,
+        status: true,
+        origin: true,
+        destination: true,
+        weight: true,
+        paymentStatus: true,
+        createdAt: true,
+        pod: { select: { deliveredAt: true } },
+      },
     })
   }
 

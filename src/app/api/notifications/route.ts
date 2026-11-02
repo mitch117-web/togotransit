@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
+
+const notificationSchema = z.object({
+  userId: z.coerce.number().int().positive(),
+  title: z.string().trim().min(1).max(120),
+  message: z.string().trim().min(1).max(1000),
+  type: z.string().trim().max(30).optional(),
+  tripId: z.coerce.number().int().positive().nullish(),
+})
 
 export async function GET(request: Request) {
   try {
@@ -27,20 +36,58 @@ export async function POST(request: Request) {
     const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
     if (blocked) return blocked
 
-    const { userId, title, message, type, tripId } = await request.json()
+    const parsed = notificationSchema.safeParse(await request.json().catch(() => null))
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Données invalides', details: parsed.error.format() }, { status: 400 })
+    }
+    const { userId, title, message, type, tripId } = parsed.data
 
-    if (!userId || !title || !message) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+    const destinataire = await prisma.utilisateur.findUnique({
+      where: { id: userId },
+      select: { compagnie_id: true },
+    })
+    if (!destinataire) {
+      return NextResponse.json({ error: 'Destinataire introuvable' }, { status: 404 })
+    }
+
+    // Cloisonnement par compagnie : un gestionnaire ne notifie que le personnel de sa compagnie et les
+    // voyageurs ayant réservé sur l'un de ses trajets. Le super-administrateur peut diffuser un message de
+    // plateforme à n'importe quel compte.
+    if (auth!.role === 'gestionnaire') {
+      const compagnieId = auth!.compagnieId
+      if (!compagnieId) {
+        return NextResponse.json({ error: 'Gestionnaire sans compagnie attribuée' }, { status: 403 })
+      }
+      const clientDeLaCompagnie =
+        destinataire.compagnie_id === compagnieId ||
+        (await prisma.reservation.count({
+          where: { utilisateur_id: userId, trajet: { compagnie_id: compagnieId } },
+        })) > 0
+      if (!clientDeLaCompagnie) {
+        return NextResponse.json(
+          { error: 'Accès refusé. Ce destinataire n\'est pas rattaché à votre compagnie.' },
+          { status: 403 }
+        )
+      }
+      if (tripId) {
+        const trajet = await prisma.trajet.findUnique({ where: { id: tripId }, select: { compagnie_id: true } })
+        if (!trajet || trajet.compagnie_id !== compagnieId) {
+          return NextResponse.json(
+            { error: 'Accès refusé. Ce trajet appartient à une autre compagnie.' },
+            { status: 403 }
+          )
+        }
+      }
     }
 
     const notification = await prisma.notification.create({
       data: {
-        userId: Number(userId),
+        userId,
         title,
         message,
         type: type || 'INFO',
-        tripId: tripId || null
-      }
+        tripId: tripId ?? null,
+      },
     })
 
     return NextResponse.json(notification)

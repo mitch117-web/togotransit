@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 import { generateNumeroBillet, generateQRPayload } from '@/lib/paygate'
+import { hasDeparted } from '@/lib/trajet-time'
 
 const statutMap: Record<string, any> = {
   CONFIRMED: 'confirmee',
@@ -19,7 +20,7 @@ export async function POST(request: Request) {
   try {
     const auth = await extractAuthFromRequest(request as any)
     // Réservation créée pour un client par un agent au guichet (walk-in).
-    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    const blocked = requireAnyRole(auth, ['gestionnaire'])
     if (blocked) return blocked
 
     const data = await request.json()
@@ -45,6 +46,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Ce trajet est complet' }, { status: 400 })
     }
 
+    // Aucune vente sur un trajet dont le départ est déjà passé.
+    if (hasDeparted(trajet)) {
+      return NextResponse.json({ error: 'Ce trajet est déjà parti' }, { status: 409 })
+    }
+
     // Un siège ne peut être attribué qu'une seule fois sur ce trajet — on
     // vérifie parmi les passagers déjà enregistrés (le vrai numéro de siège
     // vit sur Passager.numero_siege, pas sur Reservation).
@@ -65,62 +71,97 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Client non trouvé' }, { status: 404 })
     }
 
-    const newReservation = await prisma.reservation.create({
-      data: {
-        trajet_id: trajetId,
-        utilisateur_id: userIdNum,
-        statut,
-        montant_total: trajet.prix ?? 0,
-        nombre_places: 1,
-        passagers: {
-          create: {
-            nom_complet: `${utilisateur.prenom ?? ''} ${utilisateur.nom ?? ''}`.trim(),
-            telephone: utilisateur.telephone,
-            numero_siege: seatNumber ? String(seatNumber) : null,
-          },
-        },
-      } as any,
-      include: {
-        trajet: true,
-        utilisateur: {
-          select: { id: true, nom: true, prenom: true, telephone: true, email: true }
-        },
-        passagers: true,
+    // Places, siège, réservation, paiement et billet sont enregistrés dans une même transaction. La
+    // décrémentation conditionnelle verrouille la ligne du trajet : deux ventes simultanées de la dernière
+    // place ne peuvent plus réussir toutes les deux, et le siège est revérifié sous ce verrou.
+    let newReservation: any
+    try {
+      newReservation = await prisma.$transaction(async (tx: any) => {
+        const maj = await tx.trajet.updateMany({
+          where: { id: trajetId, statut: 'planifie', places_disponibles: { gte: 1 } },
+          data: { places_disponibles: { decrement: 1 } },
+        })
+        if (maj.count === 0) {
+          throw Object.assign(new Error('Trajet complet'), {
+            statusCode: 409,
+            errorMsg: "Ce trajet est complet ou n'est plus disponible",
+          })
+        }
+
+        if (seatNumber) {
+          const dejaPris = await tx.passager.findFirst({
+            where: {
+              numero_siege: String(seatNumber),
+              reservation: { trajet_id: trajetId, statut: { not: 'annulee' } },
+            },
+          })
+          if (dejaPris) {
+            throw Object.assign(new Error('Siège déjà réservé'), {
+              statusCode: 409,
+              errorMsg: `Le siège #${seatNumber} est déjà réservé`,
+            })
+          }
+        }
+
+        const reservation = await tx.reservation.create({
+          data: {
+            trajet_id: trajetId,
+            utilisateur_id: userIdNum,
+            statut,
+            montant_total: trajet.prix ?? 0,
+            nombre_places: 1,
+            passagers: {
+              create: {
+                nom_complet: `${utilisateur.prenom ?? ''} ${utilisateur.nom ?? ''}`.trim(),
+                telephone: utilisateur.telephone,
+                numero_siege: seatNumber ? String(seatNumber) : null,
+              },
+            },
+          } as any,
+          include: {
+            trajet: true,
+            utilisateur: {
+              select: { id: true, nom: true, prenom: true, telephone: true, email: true }
+            },
+            passagers: true,
+          }
+        })
+
+        // Une réservation créée au guichet est payée sur place (espèces) : il
+        // n'y a pas de webhook opérateur qui viendra confirmer le paiement et
+        // générer le billet plus tard, contrairement au flux de réservation
+        // mobile — on doit donc le faire immédiatement ici, sinon le voyageur
+        // reste bloqué sur "Billet en cours de génération" indéfiniment.
+        if (statut === 'confirmee') {
+          await tx.paiement.create({
+            data: {
+              reservation_id: reservation.id,
+              methode: 'autre',
+              reference_transaction: `GUICHET-${reservation.id}-${Date.now()}`,
+              montant: reservation.montant_total,
+              statut: 'reussi',
+              date_paiement: new Date(),
+            } as any,
+          })
+
+          const numero_billet = generateNumeroBillet()
+          await tx.billet.create({
+            data: {
+              reservation_id: reservation.id,
+              numero_billet,
+              statut: 'valide',
+              code_qr: generateQRPayload(reservation.id, numero_billet),
+            },
+          })
+        }
+
+        return reservation
+      })
+    } catch (e: any) {
+      if (e?.statusCode && e?.errorMsg) {
+        return NextResponse.json({ error: e.errorMsg }, { status: e.statusCode })
       }
-    })
-
-    // Décrémenter places_disponibles sur le trajet
-    await prisma.trajet.update({
-      where: { id: trajetId },
-      data: { places_disponibles: trajet.places_disponibles - 1 } as any
-    })
-
-    // Une réservation créée au guichet est payée sur place (espèces) : il
-    // n'y a pas de webhook opérateur qui viendra confirmer le paiement et
-    // générer le billet plus tard, contrairement au flux de réservation
-    // mobile — on doit donc le faire immédiatement ici, sinon le voyageur
-    // reste bloqué sur "Billet en cours de génération" indéfiniment.
-    if (statut === 'confirmee') {
-      await prisma.paiement.create({
-        data: {
-          reservation_id: newReservation.id,
-          methode: 'autre',
-          reference_transaction: `GUICHET-${newReservation.id}-${Date.now()}`,
-          montant: newReservation.montant_total,
-          statut: 'reussi',
-          date_paiement: new Date(),
-        } as any,
-      })
-
-      const numero_billet = generateNumeroBillet()
-      await prisma.billet.create({
-        data: {
-          reservation_id: newReservation.id,
-          numero_billet,
-          statut: 'valide',
-          code_qr: generateQRPayload(newReservation.id, numero_billet),
-        },
-      })
+      throw e
     }
 
     // CREATE NOTIFICATION

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 import { generateNumeroBillet, generateQRPayload } from '@/lib/paygate'
+import { hasDeparted } from '@/lib/trajet-time'
 import { z } from 'zod'
 
 const passagerSchema = z.object({
@@ -52,12 +53,30 @@ export async function POST(request: Request) {
           throw Object.assign(new Error(raison), { statusCode: 409, errorMsg: raison })
         }
 
+        // Aucune réservation sur un trajet dont le départ est déjà passé.
+        if (hasDeparted(trajet)) {
+          const raison = 'Ce trajet est déjà parti'
+          throw Object.assign(new Error(raison), { statusCode: 409, errorMsg: raison })
+        }
+
         const places_dispos = trajet.places_disponibles ?? trajet.vehicule?.nombre_places ?? 0
 
         if (places_dispos < nombre_places) {
           const msg = places_dispos === 0
             ? 'Ce trajet est complet. Plus de places disponibles.'
             : `Places insuffisantes. Il reste ${places_dispos} place${places_dispos > 1 ? 's' : ''}.`
+          throw Object.assign(new Error(msg), { statusCode: 409, errorMsg: msg })
+        }
+
+        // Décrémentation atomique : la mise à jour n'aboutit que si les places suffisent encore au moment où
+        // la ligne du trajet est verrouillée. Sans cela, deux requêtes simultanées lisent la même valeur et
+        // vendent toutes deux la dernière place (survente).
+        const maj = await tx.trajet.updateMany({
+          where: { id: trajet_id, statut: 'planifie', places_disponibles: { gte: nombre_places } },
+          data: { places_disponibles: { decrement: nombre_places } },
+        })
+        if (maj.count === 0) {
+          const msg = "Ce trajet vient d'être complet ou n'a plus assez de places. Réessayez."
           throw Object.assign(new Error(msg), { statusCode: 409, errorMsg: msg })
         }
 
@@ -89,11 +108,6 @@ export async function POST(request: Request) {
               },
             },
           },
-        })
-
-        await tx.trajet.update({
-          where: { id: trajet_id },
-          data: { places_disponibles: { decrement: nombre_places } },
         })
 
         try {

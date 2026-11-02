@@ -14,7 +14,7 @@ const statusMap: Record<string, any> = {
 export async function POST(request: Request) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    const blocked = requireAnyRole(auth, ['gestionnaire'])
     if (blocked) return blocked
     if (auth!.role === 'gestionnaire' && !auth!.compagnieId) {
       return NextResponse.json({ error: 'Gestionnaire sans compagnie' }, { status: 403 })

@@ -9,6 +9,13 @@ export async function POST(request: Request) {
     if (!auth) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     }
+    // Le super-administrateur supervise la plateforme sans écrire sur les opérations d'une compagnie.
+    if (auth.role === 'super_admin') {
+      return NextResponse.json(
+        { error: 'Accès refusé. Le super-administrateur supervise la plateforme : cette opération est réservée aux gestionnaires de compagnie.' },
+        { status: 403 }
+      )
+    }
 
     const data = await request.json()
 

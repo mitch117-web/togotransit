@@ -8,7 +8,7 @@ export async function PATCH(
 ) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    const blocked = requireAnyRole(auth, ['gestionnaire'])
     if (blocked) return blocked
 
     const { id } = 'then' in params ? await params : params
@@ -48,7 +48,7 @@ export async function DELETE(
 ) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    const blocked = requireAnyRole(auth, ['gestionnaire'])
     if (blocked) return blocked
 
     const { id } = 'then' in params ? await params : params

@@ -9,7 +9,7 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const auth = await extractAuthFromRequest(request)
-    const roleError = requireAnyRole(auth, ['gestionnaire', 'super_admin'])
+    const roleError = requireAnyRole(auth, ['gestionnaire'])
     if (roleError) return roleError
 
     const data = await request.json()

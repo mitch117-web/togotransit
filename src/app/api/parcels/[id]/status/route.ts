@@ -13,7 +13,7 @@ export async function POST(
 ) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire'])
     if (blocked) return blocked
 
     const { id } = 'then' in params ? await params : params

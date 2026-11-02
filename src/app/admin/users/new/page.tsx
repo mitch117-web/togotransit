@@ -21,7 +21,6 @@ export default function NewUserPage() {
       email: '',
       telephone: '',
       role: 'voyageur',
-      mot_de_passe: 'password123',
       compagnie_id: null,
     }
   })
@@ -127,14 +126,18 @@ export default function NewUserPage() {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="font-label-sm text-on-surface-variant uppercase tracking-wider">Mot de passe temporaire</label>
-          <input 
-            {...register('mot_de_passe')}
-            type="password" 
+          <label className="font-label-sm text-on-surface-variant uppercase tracking-wider">Mot de passe temporaire (optionnel)</label>
+          <input
+            {...register('mot_de_passe', { setValueAs: (v: string) => (v === '' ? undefined : v) })}
+            type="password"
+            autoComplete="new-password"
             disabled={isSubmitting}
             className={`px-4 py-3 bg-surface rounded-lg border focus:border-primary outline-none disabled:opacity-50 ${errors.mot_de_passe ? 'border-error' : 'border-outline-variant'}`}
           />
           {errors.mot_de_passe && <span className="text-error text-xs">{errors.mot_de_passe.message}</span>}
+          <span className="text-on-surface-variant text-xs">
+            Laissez vide : l&apos;utilisateur définira son mot de passe via « Mot de passe oublié » avec son numéro de téléphone.
+          </span>
         </div>
 
         <button 

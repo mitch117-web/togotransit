@@ -22,19 +22,31 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
     e.preventDefault()
     setLoading(true)
     try {
+      // Aucun mot de passe n'est envoyé : le serveur en génère un aléatoire et le
+      // client active son compte lui-même via « Mot de passe oublié ».
       const response = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newUser, role: 'CLIENT', password: 'password123' })
+        body: JSON.stringify({ ...newUser, role: 'CLIENT' })
       })
       if (response.ok) {
         const created = await response.json()
-        setLocalUsers([created, ...localUsers])
+        // L'API renvoie l'utilisateur brut (nom/prenom/telephone) alors que la liste
+        // attend { id, name, phone } : sans cette conversion le filtre de recherche plante.
+        const createdItem = {
+          id: created.id,
+          name: `${created.prenom ?? ''} ${created.nom ?? ''}`.trim(),
+          phone: created.telephone,
+          email: created.email,
+          role: 'CLIENT',
+        }
+        setLocalUsers([createdItem, ...localUsers.filter(u => u.id !== createdItem.id)])
         setSelectedUser(created.id)
         setShowUserModal(false)
         setNewUser({ name: '', phone: '' })
       } else {
-        alert("Erreur lors de la création du client")
+        const error = await response.json().catch(() => null)
+        alert(error?.error || "Erreur lors de la création du client")
       }
     } catch (error) {
       alert("Erreur de connexion")
@@ -295,7 +307,10 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
                   />
                 </div>
               </div>
-              <button 
+              <p className="text-[0.6875rem] text-on-surface-variant">
+                Aucun mot de passe n&apos;est défini : le client activera son compte via « Mot de passe oublié » avec ce numéro.
+              </p>
+              <button
                 type="submit" 
                 disabled={loading}
                 className="w-full bg-primary text-on-primary py-4 rounded-xl font-bold mt-2 shadow-lg hover:brightness-110 transition-all flex items-center justify-center gap-2"

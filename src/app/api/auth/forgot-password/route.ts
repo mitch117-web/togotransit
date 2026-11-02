@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { z } from 'zod'
+import { randomInt } from 'node:crypto'
 import { sendEmail } from '@/lib/email'
 
 const forgotSchema = z.object({
@@ -39,7 +40,8 @@ export async function POST(request: Request) {
     })
 
     const key = `${email || telephone}`
-    const code = String(Math.floor(100000 + Math.random() * 900000))
+    // Générateur cryptographique : un code prévisible permettrait de réinitialiser le compte d'autrui.
+    const code = String(randomInt(100000, 1000000))
 
     // Stocké en base (pas en mémoire) : une fonction serverless différente
     // traitera très probablement la vérification du code juste après.

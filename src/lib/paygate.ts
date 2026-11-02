@@ -159,12 +159,26 @@ export function verifierSignatureWebhook(
   payload: unknown,
   signature: string
 ): VerifierWebhookResult {
-  const computedSig = require('crypto')
-    .createHmac('sha256', process.env.PAYGATE_WEBHOOK_SECRET!)
+  const secret = process.env.PAYGATE_WEBHOOK_SECRET
+  if (!secret) {
+    // Échec fermé : sans secret configuré, aucune signature ne peut être vérifiée.
+    return {
+      valid: false,
+      transaction: null,
+      message: 'Webhook PayGate non configuré sur cet environnement',
+    }
+  }
+
+  const crypto = require('crypto')
+  const computedSig = crypto
+    .createHmac('sha256', secret)
     .update(JSON.stringify(payload))
     .digest('hex')
 
-  const isValid = computedSig === signature
+  // Comparaison à temps constant (évite de révéler la signature attendue par le temps de réponse).
+  const attendu = Buffer.from(computedSig)
+  const recu = Buffer.from(String(signature ?? ''))
+  const isValid = attendu.length === recu.length && crypto.timingSafeEqual(attendu, recu)
 
   if (!isValid) {
     return {

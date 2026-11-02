@@ -5,8 +5,15 @@ import Link from 'next/link'
 
 export default function LogoutButton() {
   const handleLogout = () => {
-    // Supprimer le cookie d'authentification
-    document.cookie = "auth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+    // Supprimer les cookies de session posés à la connexion (jeton, rôle, compagnie) et le profil local ;
+    // sans cela le jeton reste valide et le garde /admin laisse repasser l'utilisateur.
+    for (const name of ['auth_token', 'auth_role', 'compagnie_id', 'auth']) {
+      document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;`
+    }
+    try {
+      localStorage.removeItem('tgt_token')
+      localStorage.removeItem('tgt_user')
+    } catch {}
   }
 
   return (

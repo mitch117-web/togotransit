@@ -57,7 +57,7 @@ async function getBookingsData() {
   const recentBookings: any[] = recentReservations.map((r: any) => ({
     ...ticketFields(r),
     id: r.id,
-    seatNumber: r.passagers?.[0]?.numero_siege ?? r.nombre_places ?? 1,
+    seatNumber: r.passagers?.[0]?.numero_siege ?? null,
     price: r.montant_total ?? 0,
     status: r.statut === 'confirmee' ? 'CONFIRMED' : r.statut === 'en_attente' ? 'PENDING' : r.statut === 'annulee' ? 'CANCELLED' : r.statut,
     createdAt: r.date_reservation,
@@ -220,7 +220,7 @@ export default async function BookingsPage() {
                     </div>
                     <div className="flex-1">
                       <p className="font-bold text-sm text-on-surface leading-tight">{booking.user.name}</p>
-                      <p className="text-[0.625rem] text-on-surface-variant">Siège #{booking.seatNumber} • {booking.trip.origin} → {booking.trip.destination}</p>
+                      <p className="text-[0.625rem] text-on-surface-variant">{booking.seatNumber ? `Siège #${booking.seatNumber}` : 'Placement libre'} • {booking.trip.origin} → {booking.trip.destination}</p>
                     </div>
                   </div>
                   <div className="flex justify-between items-center mt-1">

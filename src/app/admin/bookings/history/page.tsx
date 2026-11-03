@@ -30,7 +30,7 @@ export default async function BookingHistoryPage() {
   const bookings: any[] = reservations.map((r: any) => ({
     ...ticketFields(r),
     id: r.id,
-    seatNumber: r.passagers?.[0]?.numero_siege ?? r.nombre_places ?? 1,
+    seatNumber: r.passagers?.[0]?.numero_siege ?? null,
     price: r.montant_total ?? 0,
     status: r.statut === 'confirmee' ? 'CONFIRMED' : r.statut === 'en_attente' ? 'PENDING' : r.statut === 'annulee' ? 'CANCELLED' : r.statut,
     createdAt: r.date_reservation,
@@ -99,7 +99,7 @@ export default async function BookingHistoryPage() {
                   <td className="p-4 text-xs font-medium text-on-surface-variant">
                     {new Date(booking.createdAt).toLocaleString('fr-FR')}
                   </td>
-                  <td className="p-4 font-black text-sm">#{booking.seatNumber}</td>
+                  <td className="p-4 font-black text-sm">{booking.seatNumber ? `#${booking.seatNumber}` : 'Libre'}</td>
                   <td className="p-4 font-bold text-sm">{booking.price.toLocaleString('fr-FR')} F</td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">

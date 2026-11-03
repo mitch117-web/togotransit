@@ -2,6 +2,15 @@ import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import SeatSelectionClient from '@/app/admin/bookings/[id]/seats/SeatSelectionClient'
 import { getSessionContext } from '@/lib/session'
+import { departureInstant } from '@/lib/trajet-time'
+
+// Ce que le plan de sièges lit dans une réservation du trajet.
+type ReservationPlan = {
+  id: number
+  nombre_places?: number | null
+  passagers?: { nom_complet?: string | null; numero_siege?: string | null }[]
+  utilisateur?: { prenom?: string | null; nom?: string | null } | null
+}
 
 export default async function SeatSelectionPage({
   params,
@@ -17,6 +26,7 @@ export default async function SeatSelectionPage({
       vehicule: true,
       ville_depart: true,
       ville_arrivee: true,
+      compagnie: true,
       reservations: {
         where: { statut: { not: 'annulee' } },
         include: {
@@ -42,11 +52,14 @@ export default async function SeatSelectionPage({
   }
 
   const t: any = trajetRaw
+  const reservationsActives: ReservationPlan[] = t.reservations ?? []
   const trip: any = {
     id: t.id,
     origin: t.ville_depart?.nom ?? '',
     destination: t.ville_arrivee?.nom ?? '',
     departureTime: t.date_depart,
+    departureAt: departureInstant(t).toISOString(),
+    company: t.compagnie?.nom ?? 'TogoTransit',
     price: t.prix ?? 0,
     status: 'PLANNED',
     vehicle: t.vehicule ? {
@@ -67,6 +80,20 @@ export default async function SeatSelectionPage({
           role: 'CLIENT',
         } : null,
       })),
+    // Réservations sans siège numéroté (faites depuis l'application) : elles occupent des places sans figurer sur le plan.
+    unseated: reservationsActives
+      .filter((r) => !r.passagers?.[0]?.numero_siege)
+      .map((r) => {
+        const compte = r.utilisateur ? `${r.utilisateur.prenom ?? ''} ${r.utilisateur.nom ?? ''}`.trim() : ''
+        const noms = (r.passagers ?? []).map((p) => p.nom_complet).filter(Boolean).join(', ')
+        return {
+          id: r.id,
+          places: r.nombre_places ?? 1,
+          name: noms || compte || 'Client',
+          par: noms && compte && noms !== compte ? compte : null, // le compte qui a réservé, quand ce n'est pas le passager
+        }
+      }),
+    soldPlaces: reservationsActives.reduce((n, r) => n + (r.nombre_places ?? 1), 0),
   }
 
   const utilisateurs = await prisma.utilisateur.findMany({

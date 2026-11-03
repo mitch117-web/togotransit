@@ -2,6 +2,10 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { imprimerBillets, type BookingImprimable } from '@/lib/ticket-print'
+
+// Réservation sans siège numéroté (faite depuis l'application), telle que la page la prépare.
+type SansSiege = { id: number; places: number; name: string; par: string | null }
 
 export default function SeatSelectionClient({ trip, users }: { trip: any, users: any[] }) {
   const router = useRouter()
@@ -12,6 +16,9 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
   const [showUserModal, setShowUserModal] = useState(false)
   const [newUser, setNewUser] = useState({ name: '', phone: '' })
   const [localUsers, setLocalUsers] = useState(users)
+  // Dernière vente enregistrée : l'agent imprime le billet tout de suite, sans quitter la page.
+  const [confirmation, setConfirmation] = useState<{ booking: BookingImprimable & { id: number }; seat: number | null; nom: string } | null>(null)
+  const [impression, setImpression] = useState(false)
 
   const filteredUsersList = localUsers.filter(u => 
     u.name.toLowerCase().includes(userSearch.toLowerCase()) || 
@@ -78,7 +85,28 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
       })
 
       if (response.ok) {
-        alert(`Réservation confirmée pour le siège #${selectedSeat} !`)
+        const r = await response.json()
+        const nom = `${r.utilisateur?.prenom ?? ''} ${r.utilisateur?.nom ?? ''}`.trim()
+        setConfirmation({
+          seat: selectedSeat,
+          nom,
+          booking: {
+            id: r.id,
+            status: 'CONFIRMED',
+            price: r.montant_total,
+            company: trip.company,
+            departureAt: trip.departureAt,
+            trip: { origin: trip.origin, destination: trip.destination },
+            user: { name: nom, phone: r.utilisateur?.telephone },
+            passengers: (r.passagers ?? []).map((p: { nom_complet: string; numero_siege?: string | null; telephone?: string | null }) => ({
+              name: p.nom_complet,
+              seat: p.numero_siege ?? null,
+              phone: p.telephone ?? null,
+            })),
+            tickets: (r.billets ?? []).map((b: { numero_billet: string; statut: string }) => ({ numero: b.numero_billet, statut: b.statut })),
+            paymentLabel: 'Payé au guichet',
+          },
+        })
         router.refresh()
         setSelectedSeat(null)
         setSelectedUser('')
@@ -90,6 +118,18 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
       alert(error.message || "Erreur lors de la réservation")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const imprimer = async () => {
+    if (!confirmation || impression) return
+    setImpression(true)
+    try {
+      await imprimerBillets(confirmation.booking)
+    } catch {
+      alert("Impossible de préparer le billet : réessayez depuis la liste des réservations.")
+    } finally {
+      setImpression(false)
     }
   }
 
@@ -175,11 +215,38 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
 
         {/* Passengers List & Booking Form */}
         <div className="lg:col-span-2 flex flex-col gap-6">
+          {confirmation && (
+            <div role="status" className="bg-secondary-container text-on-secondary-container p-5 rounded-xl border border-secondary flex flex-col gap-3 shadow-md">
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-[1.75rem]">check_circle</span>
+                <div className="flex-1">
+                  <p className="font-black text-base leading-tight">
+                    Réservation #{confirmation.booking.id} confirmée{confirmation.seat ? ` : siège #${confirmation.seat}` : ''}
+                  </p>
+                  <p className="text-sm">
+                    {confirmation.nom} · {trip.origin} → {trip.destination}
+                  </p>
+                </div>
+                <button onClick={() => setConfirmation(null)} aria-label="Fermer" className="p-1 rounded-full hover:bg-black/10">
+                  <span className="material-symbols-outlined text-[1.25rem]">close</span>
+                </button>
+              </div>
+              <button
+                onClick={imprimer}
+                disabled={impression}
+                className="self-start bg-primary text-on-primary px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 disabled:opacity-60"
+              >
+                <span className="material-symbols-outlined text-[1.125rem]">{impression ? 'hourglass_top' : 'print'}</span>
+                {impression ? 'Préparation du billet…' : 'Imprimer le billet'}
+              </button>
+            </div>
+          )}
+
           {/* List of current passengers */}
           <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-md flex flex-col gap-4">
             <h3 className="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
               <span className="material-symbols-outlined">group</span>
-              Liste des Passagers ({trip.bookings.length})
+              Liste des Passagers ({trip.soldPlaces ?? trip.bookings.length})
             </h3>
             
             <div className="max-h-[300px] overflow-y-auto pr-2 flex flex-col gap-2 custom-scrollbar">
@@ -206,6 +273,21 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
                 </div>
               )}
             </div>
+
+            {trip.unseated?.length > 0 && (
+              <div className="pt-3 border-t border-outline-variant/40 flex flex-col gap-1.5">
+                <p className="text-[0.625rem] font-black uppercase tracking-widest text-on-surface-variant">
+                  Sans siège numéroté (réservés depuis l&apos;application) :{' '}
+                  {(trip.unseated as SansSiege[]).reduce((n, u) => n + u.places, 0)} place(s)
+                </p>
+                {(trip.unseated as SansSiege[]).map((u) => (
+                  <p key={u.id} className="text-sm text-on-surface">
+                    {u.name} · {u.places} place{u.places > 1 ? 's' : ''}
+                    {u.par ? <span className="text-on-surface-variant"> (réservé par {u.par})</span> : null}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-md flex flex-col gap-6">

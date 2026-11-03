@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 import { generateNumeroBillet, generateQRPayload, publicBaseUrl } from '@/lib/billet'
-import { hasDeparted } from '@/lib/trajet-time'
+import { hasDeparted, formatDepartLong } from '@/lib/trajet-time'
 
 const statutMap: Record<string, any> = {
   CONFIRMED: 'confirmee',
@@ -132,6 +132,7 @@ export async function POST(request: Request) {
         // générer le billet plus tard, contrairement au flux de réservation
         // mobile — on doit donc le faire immédiatement ici, sinon le voyageur
         // reste bloqué sur "Billet en cours de génération" indéfiniment.
+        let billets: unknown[] = []
         if (statut === 'confirmee') {
           await tx.paiement.create({
             data: {
@@ -145,7 +146,7 @@ export async function POST(request: Request) {
           })
 
           const numero_billet = generateNumeroBillet()
-          await tx.billet.create({
+          const billet = await tx.billet.create({
             data: {
               reservation_id: reservation.id,
               numero_billet,
@@ -153,9 +154,11 @@ export async function POST(request: Request) {
               code_qr: generateQRPayload(numero_billet, publicBaseUrl(request)),
             },
           })
+          billets = [billet]
         }
 
-        return reservation
+        // Le billet est renvoyé avec la réservation : le portail peut l'imprimer tout de suite.
+        return { ...reservation, billets }
       })
     } catch (e: any) {
       if (e?.statusCode && e?.errorMsg) {
@@ -164,13 +167,25 @@ export async function POST(request: Request) {
       throw e
     }
 
-    // CREATE NOTIFICATION
+    // Notification du client : trajet, départ et siège attribué au guichet, pour que son téléphone montre
+    // la même chose que l'agent (le message disait seulement « confirmée pour le trajet »).
     try {
+      const t = await prisma.trajet.findUnique({
+        where: { id: trajetId },
+        select: {
+          date_depart: true,
+          heure_depart: true,
+          ville_depart: { select: { nom: true } },
+          ville_arrivee: { select: { nom: true } },
+        },
+      })
+      const trajetTexte = t ? ` : ${t.ville_depart?.nom} → ${t.ville_arrivee?.nom}, ${formatDepartLong(t)}` : ''
+      const siegeTexte = seatNumber ? ` Siège #${seatNumber}.` : ''
       await prisma.notification.create({
         data: {
           userId: userIdNum,
           title: 'Réservation confirmée ! 🎫',
-          message: `Réservation #${newReservation.id} confirmée pour le trajet.`,
+          message: `Réservation #${newReservation.id} confirmée${trajetTexte}.${siegeTexte}`,
           type: 'RESERVATION',
         }
       })

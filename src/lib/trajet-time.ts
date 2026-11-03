@@ -14,6 +14,15 @@ export function departureInstant(t: { date_depart: Date | string; heure_depart?:
   )
 }
 
+const jourLong = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })
+const heureCourte = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'UTC' })
+
+/** Départ en toutes lettres pour un message : « mercredi 4 novembre à 07h30 ». */
+export function formatDepartLong(t: { date_depart: Date | string; heure_depart?: Date | string | null }): string {
+  const d = departureInstant(t)
+  return `${jourLong.format(d)} à ${heureCourte.format(d).replace(':', 'h')}`
+}
+
 /** Vrai si l'heure de départ du trajet est déjà passée. */
 export function hasDeparted(
   t: { date_depart: Date | string; heure_depart?: Date | string | null },

@@ -242,17 +242,4 @@ export function handleWebhook(
   }
 }
 
-export function generateNumeroBillet(): string {
-  const ts = Date.now().toString(36).toUpperCase()
-  const rnd = Math.random().toString(36).slice(2, 6).toUpperCase()
-  return `TT-${ts}-${rnd}`
-}
-
-export function generateQRPayload(reservationId: number, numeroBillet: string): string {
-  return JSON.stringify({
-    type: 'billet_togotransit',
-    reservation_id: reservationId,
-    numero_billet: numeroBillet,
-    v: 1,
-  })
-}
+// Numéro de billet et contenu du QR code : voir '@/lib/billet'.

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
-import { generateNumeroBillet, generateQRPayload } from '@/lib/paygate'
+import { generateNumeroBillet, generateQRPayload, publicBaseUrl } from '@/lib/billet'
 import { hasDeparted } from '@/lib/trajet-time'
 
 const statutMap: Record<string, any> = {
@@ -150,7 +150,7 @@ export async function POST(request: Request) {
               reservation_id: reservation.id,
               numero_billet,
               statut: 'valide',
-              code_qr: generateQRPayload(reservation.id, numero_billet),
+              code_qr: generateQRPayload(numero_billet, publicBaseUrl(request)),
             },
           })
         }

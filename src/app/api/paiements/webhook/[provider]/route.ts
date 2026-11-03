@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { verifierSignatureWebhook, generateNumeroBillet, generateQRPayload } from '@/lib/paygate'
+import { verifierSignatureWebhook } from '@/lib/paygate'
+import { generateNumeroBillet, generateQRPayload, publicBaseUrl } from '@/lib/billet'
 
 export async function POST(
   request: Request,
@@ -123,7 +124,7 @@ export async function POST(
               reservation_id: reservation.id,
               numero_billet,
               statut: 'valide',
-              code_qr: generateQRPayload(reservation.id, numero_billet),
+              code_qr: generateQRPayload(numero_billet, publicBaseUrl(request)),
             }
           })
         }

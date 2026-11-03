@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole, assertCompagnieOwnership } from '@/lib/auth'
+import { departureInstant } from '@/lib/trajet-time'
 
 export async function GET(
   request: Request,
@@ -78,6 +79,7 @@ export async function GET(
                     ville_depart: billet.reservation.trajet.ville_depart,
                     ville_arrivee: billet.reservation.trajet.ville_arrivee,
                     date_depart: billet.reservation.trajet.date_depart,
+                    depart_at: departureInstant(billet.reservation.trajet).toISOString(),
                     vehicule: billet.reservation.trajet.vehicule
                       ? {
                           type: billet.reservation.trajet.vehicule.type,

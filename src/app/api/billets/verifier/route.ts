@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
+import { extractNumeroBillet } from '@/lib/billet'
+import { departureInstant } from '@/lib/trajet-time'
 import { z } from 'zod'
 
+// Le scanner envoie ce qu'il a lu : adresse de vérification, ancien QR au format JSON ou numéro seul.
 const verifierSchema = z.object({
-  numero_billet: z.string().min(5, 'Numéro de billet invalide'),
+  numero_billet: z.string().optional(),
   code_qr_payload: z.string().optional(),
 })
 
@@ -25,7 +28,14 @@ export async function POST(request: Request) {
       )
     }
 
-    const { numero_billet } = parsed.data
+    const numero_billet =
+      extractNumeroBillet(parsed.data.numero_billet) ?? extractNumeroBillet(parsed.data.code_qr_payload)
+    if (!numero_billet) {
+      return NextResponse.json(
+        { error: "QR code non reconnu : ce n'est pas un billet TogoTransit.", code: 'QR_INVALIDE' },
+        { status: 400 }
+      )
+    }
 
     const result = await prisma.$transaction(
       async (tx: any) => {
@@ -35,9 +45,9 @@ export async function POST(request: Request) {
             reservation: {
               include: {
                 trajet: {
-                  include: { compagnie: true, ville_depart: true, ville_arrivee: true },
+                  include: { compagnie: true, vehicule: true, ville_depart: true, ville_arrivee: true },
                 },
-                passagers: true,
+                passagers: { orderBy: { id: 'asc' } },
                 utilisateur: {
                   select: { id: true, nom: true, prenom: true, telephone: true },
                 },
@@ -76,11 +86,36 @@ export async function POST(request: Request) {
           }
         }
 
-        if (billet.reservation?.statut === 'annulee') {
+        // Ce que le contrôleur doit voir : qui voyage, où, quand, sur quel siège.
+        const reservation = billet.reservation
+        const trajet = reservation?.trajet
+        const details = {
+          numero_billet: billet.numero_billet,
+          passagers: reservation?.passagers ?? [],
+          sieges: (reservation?.passagers ?? [])
+            .map((p: { numero_siege: string | null }) => p.numero_siege)
+            .filter(Boolean),
+          nombre_places: reservation?.nombre_places ?? 1,
+          trajet: trajet
+            ? {
+                compagnie: trajet.compagnie?.nom,
+                ville_depart: trajet.ville_depart?.nom,
+                ville_arrivee: trajet.ville_arrivee?.nom,
+                date_depart: trajet.date_depart,
+                depart_at: departureInstant(trajet).toISOString(),
+                vehicule: trajet.vehicule
+                  ? { type: trajet.vehicule.type, immatriculation: trajet.vehicule.immatriculation }
+                  : null,
+              }
+            : null,
+        }
+
+        if (reservation?.statut === 'annulee') {
           return {
             status: 409,
             error: 'Réservation annulée — billet invalide.',
             code: 'RESERVATION_ANNULEE',
+            info: details,
           }
         }
 
@@ -89,57 +124,46 @@ export async function POST(request: Request) {
             status: 409,
             error: 'Billet annulé — invalide.',
             code: 'BILLET_ANNULE',
+            info: details,
           }
         }
 
-        if (billet.statut === 'utilise') {
+        // Passage à « utilisé » en une seule instruction conditionnelle : si deux appareils scannent le même billet
+        // au même instant, un seul obtient la mise à jour, l'autre est refusé comme « déjà utilisé ».
+        const pris = await tx.billet.updateMany({
+          where: { id: billet.id, statut: 'valide' },
+          data: { statut: 'utilise' },
+        })
+
+        if (pris.count === 0) {
           return {
             status: 409,
             error: '⚠️  Billet déjà scanné (utilisé)',
             code: 'BILLET_DEJA_UTILISE',
-            info: {
-              date_scan_precedent: billet.date_emission,
-              passagers: billet.reservation?.passagers,
-              trajet: billet.reservation?.trajet
-                ? {
-                    ville_depart: billet.reservation.trajet.ville_depart?.nom,
-                    ville_arrivee: billet.reservation.trajet.ville_arrivee?.nom,
-                  }
-                : null,
-            },
+            info: { ...details, date_emission: billet.date_emission },
           }
         }
-
-        await tx.billet.update({
-          where: { id: billet.id },
-          data: { statut: 'utilise' },
-        })
 
         return {
           status: 200,
           success: true,
+          code: 'BILLET_VALIDE',
           message: '✅ Billet validé — embarquement autorisé',
           billet: {
             id: billet.id,
             numero_billet: billet.numero_billet,
             statut: 'utilise',
           },
-          passagers: billet.reservation?.passagers ?? [],
-          client: billet.reservation?.utilisateur
+          passagers: details.passagers,
+          sieges: details.sieges,
+          client: reservation?.utilisateur
             ? {
-                nom: `${billet.reservation.utilisateur.prenom} ${billet.reservation.utilisateur.nom}`,
-                telephone: billet.reservation.utilisateur.telephone,
+                nom: `${reservation.utilisateur.prenom} ${reservation.utilisateur.nom}`,
+                telephone: reservation.utilisateur.telephone,
               }
             : null,
-          trajet: billet.reservation?.trajet
-            ? {
-                compagnie: billet.reservation.trajet.compagnie?.nom,
-                ville_depart: billet.reservation.trajet.ville_depart?.nom,
-                ville_arrivee: billet.reservation.trajet.ville_arrivee?.nom,
-                date_depart: billet.reservation.trajet.date_depart,
-              }
-            : null,
-          nombre_places: billet.reservation?.nombre_places ?? 1,
+          trajet: details.trajet,
+          nombre_places: details.nombre_places,
           scanne_a: new Date().toISOString(),
         }
       },

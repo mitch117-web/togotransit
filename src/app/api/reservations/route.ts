@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
-import { generateNumeroBillet, generateQRPayload } from '@/lib/paygate'
 import { hasDeparted } from '@/lib/trajet-time'
 import { z } from 'zod'
 
@@ -142,8 +141,6 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       reservation: result.data,
-      numero_billet: generateNumeroBillet(),
-      qr_payload: generateQRPayload(result.data.id, generateNumeroBillet()),
       montant_attendu: result.data.montant_total,
     })
   } catch (error: any) {

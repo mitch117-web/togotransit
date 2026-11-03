@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import PrintTicketButton from '@/components/admin/PrintTicketButton'
 import { getSessionContext, compagnieFilterFor } from '@/lib/session'
+import { ticketFields } from '@/lib/ticket-data'
 
 async function getBookingsData() {
   const session = await getSessionContext()
@@ -43,8 +44,10 @@ async function getBookingsData() {
     take: 5,
     include: {
       utilisateur: true,
-      passagers: true,
-      trajet: { include: { ville_depart: true, ville_arrivee: true, vehicule: true } }
+      passagers: { orderBy: { id: 'asc' } },
+      billets: { orderBy: { id: 'asc' } },
+      paiements: true,
+      trajet: { include: { ville_depart: true, ville_arrivee: true, vehicule: true, compagnie: true } }
     },
     orderBy: {
       date_reservation: 'desc'
@@ -52,6 +55,7 @@ async function getBookingsData() {
   })
 
   const recentBookings: any[] = recentReservations.map((r: any) => ({
+    ...ticketFields(r),
     id: r.id,
     seatNumber: r.passagers?.[0]?.numero_siege ?? r.nombre_places ?? 1,
     price: r.montant_total ?? 0,

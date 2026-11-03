@@ -1,104 +1,81 @@
 'use client'
 
-import React from 'react'
-import jsPDF from 'jspdf'
+import React, { useState } from 'react'
+import { createRoot } from 'react-dom/client'
+import { flushSync } from 'react-dom'
 import { QRCodeCanvas } from 'qrcode.react'
+import { billetUrl } from '@/lib/billet-url'
+import { buildTicketPdf, type TicketPdfData } from '@/lib/ticket-pdf'
 
 interface PrintTicketButtonProps {
   booking: any
 }
 
+/** Dessine le QR code hors de la page et le rend en PNG : rien n'est calculé tant qu'on n'imprime pas. */
+async function qrEnPng(valeur: string): Promise<string | null> {
+  const hote = document.createElement('div')
+  const racine = createRoot(hote)
+  flushSync(() => racine.render(<QRCodeCanvas value={valeur} size={512} level="M" marginSize={2} />))
+  await new Promise((resolve) => setTimeout(resolve, 0)) // laisse l'effet qui dessine le canvas s'exécuter
+  const png = hote.querySelector('canvas')?.toDataURL('image/png') ?? null
+  racine.unmount()
+  return png
+}
+
 export default function PrintTicketButton({ booking }: PrintTicketButtonProps) {
-  const generateTicket = async () => {
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: [80, 150] // Format ticket de caisse / reçu
-    })
+  const [enCours, setEnCours] = useState(false)
 
-    const qrCanvas = document.getElementById(`qr-${booking.id}`) as HTMLCanvasElement
-    const qrDataUrl = qrCanvas?.toDataURL('image/png')
+  // Un billet par passager quand la réservation en compte plusieurs ; les billets annulés ne s'impriment pas.
+  const billets: { numero: string; statut: string }[] = (booking.tickets ?? []).filter(
+    (t: { statut: string }) => t.statut !== 'annule'
+  )
+  const imprimable = booking.status === 'CONFIRMED' && billets.length > 0 && !!booking.departureAt
 
-    // Style
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(14)
-    doc.text('TOGOTRANSIT', 40, 15, { align: 'center' })
-    
-    doc.setFontSize(10)
-    doc.text('TICKET DE TRANSPORT', 40, 22, { align: 'center' })
-    
-    doc.setLineWidth(0.5)
-    doc.line(10, 26, 70, 26)
+  const imprimer = async () => {
+    if (enCours || !imprimable) return
+    setEnCours(true)
+    try {
+      const passagers: { name: string; seat: string | null; phone?: string | null }[] = booking.passengers?.length
+        ? booking.passengers
+        : [{ name: booking.user?.name || 'Passager', seat: null, phone: booking.user?.phone }]
+      // Avec autant de billets que de passagers, chaque billet porte le nom du passager de même rang.
+      const unParBillet = billets.length > 1 && passagers.length === billets.length
 
-    // Infos Passager
-    doc.setFontSize(8)
-    doc.setFont('helvetica', 'normal')
-    doc.text('Passager:', 10, 35)
-    doc.setFont('helvetica', 'bold')
-    doc.text(booking.user.name, 10, 40)
-
-    doc.setFont('helvetica', 'normal')
-    doc.text('Téléphone:', 10, 48)
-    doc.setFont('helvetica', 'bold')
-    doc.text(booking.user.phone, 10, 53)
-
-    // Infos Voyage
-    doc.line(10, 58, 70, 58)
-    
-    doc.setFont('helvetica', 'normal')
-    doc.text('Trajet:', 10, 65)
-    doc.setFont('helvetica', 'bold')
-    doc.text(`${booking.trip.origin} > ${booking.trip.destination}`, 10, 70)
-
-    doc.setFont('helvetica', 'normal')
-    doc.text('Départ:', 10, 78)
-    doc.setFont('helvetica', 'bold')
-    doc.text(new Date(booking.trip.departureTime).toLocaleString('fr-FR'), 10, 83)
-
-    doc.setFont('helvetica', 'normal')
-    doc.text('Siège:', 10, 91)
-    doc.setFontSize(16)
-    doc.text(`#${booking.seatNumber}`, 10, 98)
-
-    // Prix
-    doc.setFontSize(10)
-    doc.text('PRIX:', 45, 91)
-    doc.setFontSize(14)
-    doc.text(`${booking.price.toLocaleString('fr-FR')} F`, 45, 98)
-
-    // QR Code
-    if (qrDataUrl) {
-      doc.addImage(qrDataUrl, 'PNG', 25, 105, 30, 30)
+      // Le QR code encode l'adresse du site telle que l'agent la voit : la page de vérification du billet.
+      const origine = window.location.origin
+      const pages: TicketPdfData[] = []
+      for (const [i, b] of billets.entries()) {
+        const url = billetUrl(b.numero, origine)
+        const liste = unParBillet ? [passagers[i]] : passagers
+        pages.push({
+          numero: b.numero,
+          url,
+          compagnie: booking.company,
+          depart: booking.trip?.origin ?? '',
+          arrivee: booking.trip?.destination ?? '',
+          departAt: booking.departureAt,
+          passagers: liste.map((p) => ({ nom: p.name, siege: p.seat })),
+          telephone: liste[0]?.phone || booking.user?.phone,
+          prix: booking.price / billets.length,
+          paiement: booking.paymentLabel,
+          qrDataUrl: await qrEnPng(url),
+        })
+      }
+      buildTicketPdf(pages).save(`Billet_${billets[0].numero}${billets.length > 1 ? `_x${billets.length}` : ''}.pdf`)
+    } finally {
+      setEnCours(false)
     }
-
-    doc.setFontSize(7)
-    doc.setFont('helvetica', 'italic')
-    doc.text('Merci de voyager avec TogoTransit', 40, 142, { align: 'center' })
-    doc.text(`ID: ${booking.id}`, 40, 146, { align: 'center' })
-
-    doc.save(`Ticket_${booking.id}.pdf`)
   }
 
   return (
-    <>
-      {/* Hidden QR Code for capture */}
-      <div style={{ display: 'none' }}>
-        <QRCodeCanvas 
-          id={`qr-${booking.id}`}
-          value={`TOGOTRANSIT-BOOKING-${booking.id}`}
-          size={128}
-          level="H"
-        />
-      </div>
-      
-      <button 
-        onClick={generateTicket}
-        className="text-primary hover:bg-primary/10 p-1.5 rounded-lg transition-colors flex items-center gap-1 group"
-        title="Imprimer le ticket"
-      >
-        <span className="material-symbols-outlined text-[1.125rem]">print</span>
-        <span className="text-[0.625rem] font-bold uppercase hidden group-hover:inline">Ticket</span>
-      </button>
-    </>
+    <button
+      onClick={imprimer}
+      disabled={!imprimable || enCours}
+      className="text-primary hover:bg-primary/10 p-1.5 rounded-lg transition-colors flex items-center gap-1 group disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+      title={imprimable ? 'Imprimer le billet' : 'Aucun billet à imprimer (réservation non confirmée ou annulée)'}
+    >
+      <span className="material-symbols-outlined text-[1.125rem]">{enCours ? 'hourglass_top' : 'print'}</span>
+      <span className="text-[0.625rem] font-bold uppercase hidden group-hover:inline">Billet</span>
+    </button>
   )
 }

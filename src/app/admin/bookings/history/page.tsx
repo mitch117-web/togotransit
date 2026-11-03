@@ -3,6 +3,13 @@ import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import PrintTicketButton from '@/components/admin/PrintTicketButton'
 import { getSessionContext, compagnieFilterFor } from '@/lib/session'
+import { ticketFields } from '@/lib/ticket-data'
+
+const STATUTS: Record<string, { label: string; classes: string }> = {
+  CONFIRMED: { label: 'Confirmé', classes: 'bg-emerald-500/10 text-emerald-700' },
+  PENDING: { label: 'En attente', classes: 'bg-amber-500/10 text-amber-700' },
+  CANCELLED: { label: 'Annulé', classes: 'bg-error-container text-on-error-container' },
+}
 
 export default async function BookingHistoryPage() {
   const session = await getSessionContext()
@@ -10,8 +17,10 @@ export default async function BookingHistoryPage() {
     where: { trajet: compagnieFilterFor(session) },
     include: {
       utilisateur: true,
-      passagers: true,
-      trajet: { include: { ville_depart: true, ville_arrivee: true } }
+      passagers: { orderBy: { id: 'asc' } },
+      billets: { orderBy: { id: 'asc' } },
+      paiements: true,
+      trajet: { include: { ville_depart: true, ville_arrivee: true, compagnie: true } }
     },
     orderBy: {
       date_reservation: 'desc'
@@ -19,10 +28,11 @@ export default async function BookingHistoryPage() {
   })
 
   const bookings: any[] = reservations.map((r: any) => ({
+    ...ticketFields(r),
     id: r.id,
     seatNumber: r.passagers?.[0]?.numero_siege ?? r.nombre_places ?? 1,
     price: r.montant_total ?? 0,
-    status: r.statut === 'confirmee' ? 'CONFIRMED' : r.statut === 'en_attente' ? 'PENDING' : r.statut,
+    status: r.statut === 'confirmee' ? 'CONFIRMED' : r.statut === 'en_attente' ? 'PENDING' : r.statut === 'annulee' ? 'CANCELLED' : r.statut,
     createdAt: r.date_reservation,
     user: r.utilisateur ? {
       id: r.utilisateur.id,
@@ -94,8 +104,8 @@ export default async function BookingHistoryPage() {
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <PrintTicketButton booking={booking} />
-                      <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-emerald-500/10 text-emerald-700 uppercase">
-                        Confirmé
+                      <span className={`px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase ${(STATUTS[booking.status] ?? STATUTS.PENDING).classes}`}>
+                        {(STATUTS[booking.status] ?? STATUTS.PENDING).label}
                       </span>
                     </div>
                   </td>

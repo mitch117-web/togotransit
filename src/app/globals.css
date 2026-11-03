@@ -1,40 +1,44 @@
 @import "tailwindcss";
 
 @theme {
-  /* Identité "clean light" — fond blanc cassé, cartes blanches à ombres
-     douces, accent orange réservé aux éléments interactifs (boutons,
-     onglet actif, badges importants). Texte en anthracite pour un
-     contraste confortable sans jamais recourir au noir pur. */
-  --color-primary: #c2410c;
+  /* Identité « Soleil » — indigo pour tout ce qui est interactif, soleil (#FFB020) en accent chaud,
+     turquoise pour les confirmations. Fond légèrement teinté d'indigo, cartes blanches à ombres douces,
+     texte en indigo nuit pour un contraste confortable sans jamais recourir au noir pur. */
+  --color-primary: #1C2A5E;
   --color-on-primary: #ffffff;
-  --color-primary-container: #ffedd5;
-  --color-on-primary-container: #9a3412;
+  --color-primary-container: #E3E8F8;
+  --color-on-primary-container: #101A3F;
 
-  --color-secondary: #9d4300;
+  --color-secondary: #0B7A70;
   --color-on-secondary: #ffffff;
-  --color-secondary-container: #ffe8d1;
-  --color-on-secondary-container: #7c2d12;
+  --color-secondary-container: #D3F1EC;
+  --color-on-secondary-container: #053F39;
 
-  --color-background: #f8fafc;
-  --color-on-background: #1e293b;
+  --color-tertiary: #FFB020;
+  --color-on-tertiary: #2B1A00;
+  --color-tertiary-container: #FFE7B8;
+  --color-on-tertiary-container: #4A2E00;
+
+  --color-background: #F6F8FD;
+  --color-on-background: #0E1530;
 
   --color-surface: #ffffff;
-  --color-on-surface: #1e293b;
-  --color-surface-variant: #f1f5f9;
-  --color-on-surface-variant: #475569;
+  --color-on-surface: #0E1530;
+  --color-surface-variant: #EEF1F8;
+  --color-on-surface-variant: #55607F;
 
-  --color-outline: #64748b;
-  --color-outline-variant: #e2e8f0;
+  --color-outline: #6B7597;
+  --color-outline-variant: #DCE1F0;
 
-  --color-error: #dc2626;
+  --color-error: #D92D20;
   --color-on-error: #ffffff;
-  --color-error-container: #fee2e2;
-  --color-on-error-container: #991b1b;
+  --color-error-container: #FEF0EE;
+  --color-on-error-container: #7A1710;
 
-  --color-surface-container-low: #f8fafc;
-  --color-surface-container: #f1f5f9;
-  --color-surface-container-high: #e2e8f0;
-  --color-surface-container-highest: #cbd5e1;
+  --color-surface-container-low: #F8FAFE;
+  --color-surface-container: #EEF1F8;
+  --color-surface-container-high: #E1E6F3;
+  --color-surface-container-highest: #D5DBEC;
   --color-surface-container-lowest: #ffffff;
   --color-surface-bright: #ffffff;
 
@@ -42,8 +46,8 @@
 }
 
 :root {
-  --background: #f8fafc;
-  --foreground: #1e293b;
+  --background: #F6F8FD;
+  --foreground: #0E1530;
 }
 
 body {

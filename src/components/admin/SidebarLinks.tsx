@@ -53,7 +53,7 @@ export default function SidebarLinks() {
             href={link.href} 
             className={`flex items-center gap-3 px-4 py-3 rounded-lg font-label-md text-label-md transition-all ${
               isActive 
-                ? 'bg-secondary-container text-on-secondary-container font-bold shadow-sm' 
+                ? 'bg-primary-container text-on-primary-container font-bold shadow-sm'
                 : 'text-on-surface-variant hover:bg-surface-container-high'
             }`}
           >

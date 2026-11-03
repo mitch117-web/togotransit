@@ -51,7 +51,7 @@ export default function TrackingClient({ initialParcel, initialId }: { initialPa
           <button 
             type="submit"
             disabled={loading}
-            className="bg-secondary text-on-secondary px-8 py-4 rounded-2xl font-black text-lg hover:brightness-110 shadow-lg shadow-secondary/20 transition-all flex items-center justify-center gap-2"
+            className="bg-primary text-on-primary px-8 py-4 rounded-2xl font-black text-lg hover:brightness-110 shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2"
           >
             {loading ? <span className="animate-spin material-symbols-outlined">sync</span> : 'SUIVRE'}
           </button>

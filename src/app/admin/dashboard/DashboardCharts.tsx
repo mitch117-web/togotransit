@@ -9,7 +9,7 @@ import {
 // Palette de graphiques adaptée à l'identité "clean light" du dashboard :
 // tangerine (marque), émeraude, ciel, ambre, rose — des teintes vives et
 // distinctes qui restent lisibles sur fond blanc.
-const COLORS = ['#c2410c', '#059669', '#0284c7', '#d97706', '#db2777']
+const COLORS = ['#1C2A5E', '#FFB020', '#14A89A', '#5B6FD6', '#E85D75']
 const GRID_STROKE = 'rgba(30,41,59,0.08)'
 const AXIS_TICK = { fontSize: 10, fill: '#64748b' }
 const TOOLTIP_STYLE = {
@@ -65,7 +65,7 @@ export default function DashboardCharts({
                   labelStyle={TOOLTIP_LABEL_STYLE}
                   cursor={{ fill: 'rgba(30,41,59,0.05)' }}
                 />
-                <Bar dataKey="colis" fill="#c2410c" radius={[4, 4, 0, 0]} barSize={30} />
+                <Bar dataKey="colis" fill="#1C2A5E" radius={[4, 4, 0, 0]} barSize={30} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -82,8 +82,8 @@ export default function DashboardCharts({
               <AreaChart data={monthlyRevenue}>
                 <defs>
                   <linearGradient id="colorMonthly" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#34d399" stopOpacity={0.35}/>
-                    <stop offset="95%" stopColor="#34d399" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#14A89A" stopOpacity={0.35}/>
+                    <stop offset="95%" stopColor="#14A89A" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={GRID_STROKE} />
@@ -106,7 +106,7 @@ export default function DashboardCharts({
                 <Area
                   type="monotone"
                   dataKey="revenue"
-                  stroke="#34d399"
+                  stroke="#14A89A"
                   fillOpacity={1}
                   fill="url(#colorMonthly)"
                   strokeWidth={3}

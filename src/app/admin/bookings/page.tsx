@@ -2,6 +2,7 @@ import React from 'react'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import PrintTicketButton from '@/components/admin/PrintTicketButton'
+import CancelReservationButton from '@/components/admin/CancelReservationButton'
 import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 import { ticketFields } from '@/lib/ticket-data'
 
@@ -92,11 +93,12 @@ async function getBookingsData() {
     ? ((ticketsLast24h - ticketsPrev24h) / ticketsPrev24h) * 100
     : (ticketsLast24h > 0 ? null : 0)
 
-  return { trips, recentBookings, ticketsLast24h, ticketsGrowthPct }
+  // Annuler une réservation est une action de la compagnie : le super-administrateur supervise sans intervenir.
+  return { trips, recentBookings, ticketsLast24h, ticketsGrowthPct, canCancel: session?.role === 'gestionnaire' }
 }
 
 export default async function BookingsPage() {
-  const { trips, recentBookings, ticketsLast24h, ticketsGrowthPct } = await getBookingsData()
+  const { trips, recentBookings, ticketsLast24h, ticketsGrowthPct, canCancel } = await getBookingsData()
   const session = await getSessionContext()
   // Planifier un voyage / créer une réservation sont des actions
   // opérationnelles propres à une compagnie — le super-admin supervise la
@@ -229,6 +231,14 @@ export default async function BookingsPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <PrintTicketButton booking={booking} />
+                      {canCancel && booking.status !== 'CANCELLED' && (
+                        <CancelReservationButton
+                          reservationId={booking.id}
+                          nom={booking.user.name}
+                          trajet={`${booking.trip.origin} → ${booking.trip.destination}`}
+                          siege={booking.seatNumber}
+                        />
+                      )}
                       <span className={`px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase ${
                         booking.status === 'CONFIRMED' ? 'bg-emerald-500/10 text-emerald-700' :
                         booking.status === 'CANCELLED' ? 'bg-red-500/10 text-error' :

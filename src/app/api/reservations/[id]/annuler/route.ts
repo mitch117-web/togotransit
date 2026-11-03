@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { extractAuthFromRequest, requireAnyRole, assertCompagnieOwnership } from '@/lib/auth'
+import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
+import { formatDepartLong } from '@/lib/trajet-time'
 
 export async function POST(
   request: Request,
@@ -22,7 +23,7 @@ export async function POST(
         const reservation = await tx.reservation.findUnique({
           where: { id: reservationId },
           include: {
-            trajet: true,
+            trajet: { include: { ville_depart: true, ville_arrivee: true } },
           },
         })
 
@@ -50,10 +51,15 @@ export async function POST(
           return { status: 400, error: 'Impossible d\'annuler un trajet déjà parti.' }
         }
 
-        await tx.reservation.update({
-          where: { id: reservationId },
+        // Annulation en une seule instruction conditionnelle : si deux demandes arrivent en même temps (double clic,
+        // deux agents), une seule passe et les places ne sont rendues qu'une fois.
+        const prise = await tx.reservation.updateMany({
+          where: { id: reservationId, statut: { not: 'annulee' } },
           data: { statut: 'annulee' },
         })
+        if (prise.count === 0) {
+          return { status: 400, error: 'Réservation déjà annulée' }
+        }
 
         if (reservation.trajet_id) {
           await tx.trajet.update({
@@ -67,13 +73,20 @@ export async function POST(
           data: { statut: 'annule' },
         })
 
+        // Le client sait quelle réservation est annulée, et par qui : quand c'est la compagnie, il est renvoyé vers elle
+        // pour un éventuel remboursement (aucun remboursement n'est automatique).
+        const t = reservation.trajet
+        const trajetTexte = t ? ` (${t.ville_depart?.nom} → ${t.ville_arrivee?.nom}, ${formatDepartLong(t)})` : ''
+        const parLaCompagnie = auth!.role === 'gestionnaire'
         try {
           await tx.notification.create({
             data: {
               userId: reservation.utilisateur_id,
               tripId: reservation.trajet_id,
               title: 'Réservation annulée',
-              message: `Votre réservation #${reservationId} a été annulée.`,
+              message: parLaCompagnie
+                ? `Votre réservation #${reservationId}${trajetTexte} a été annulée par la compagnie. Contactez-la pour un éventuel remboursement.`
+                : `Votre réservation #${reservationId}${trajetTexte} a été annulée.`,
               type: 'RESERVATION',
               isRead: false,
             },

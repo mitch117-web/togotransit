@@ -2,6 +2,7 @@ import React from 'react'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import PrintTicketButton from '@/components/admin/PrintTicketButton'
+import CancelReservationButton from '@/components/admin/CancelReservationButton'
 import { getSessionContext, compagnieFilterFor } from '@/lib/session'
 import { ticketFields } from '@/lib/ticket-data'
 
@@ -13,6 +14,8 @@ const STATUTS: Record<string, { label: string; classes: string }> = {
 
 export default async function BookingHistoryPage() {
   const session = await getSessionContext()
+  // Annuler une réservation est une action de la compagnie : le super-administrateur supervise sans intervenir.
+  const canCancel = session?.role === 'gestionnaire'
   const reservations = await prisma.reservation.findMany({
     where: { trajet: compagnieFilterFor(session) },
     include: {
@@ -104,6 +107,14 @@ export default async function BookingHistoryPage() {
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <PrintTicketButton booking={booking} />
+                      {canCancel && booking.status !== 'CANCELLED' && (
+                        <CancelReservationButton
+                          reservationId={booking.id}
+                          nom={booking.user.name}
+                          trajet={`${booking.trip.origin} → ${booking.trip.destination}`}
+                          siege={booking.seatNumber}
+                        />
+                      )}
                       <span className={`px-2 py-0.5 rounded-full text-[0.5625rem] font-bold uppercase ${(STATUTS[booking.status] ?? STATUTS.PENDING).classes}`}>
                         {(STATUTS[booking.status] ?? STATUTS.PENDING).label}
                       </span>

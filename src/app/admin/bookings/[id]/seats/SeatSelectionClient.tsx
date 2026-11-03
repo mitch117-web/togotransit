@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { imprimerBillets, type BookingImprimable } from '@/lib/ticket-print'
+import CancelReservationButton from '@/components/admin/CancelReservationButton'
 
 // Réservation sans siège numéroté (faite depuis l'application), telle que la page la prépare.
 type SansSiege = { id: number; places: number; name: string; par: string | null }
@@ -262,9 +263,17 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
                         <p className="text-[0.625rem] text-on-surface-variant">{booking.user.phone}</p>
                       </div>
                     </div>
-                    <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-emerald-500/10 text-emerald-700 uppercase">
-                      Confirmé
-                    </span>
+                    <div className="flex items-center gap-1">
+                      <CancelReservationButton
+                        reservationId={booking.id}
+                        nom={booking.user?.name ?? 'Client'}
+                        trajet={`${trip.origin} → ${trip.destination}`}
+                        siege={booking.seatNumber}
+                      />
+                      <span className="px-2 py-0.5 rounded-full text-[0.5625rem] font-bold bg-emerald-500/10 text-emerald-700 uppercase">
+                        Confirmé
+                      </span>
+                    </div>
                   </div>
                 ))
               ) : trip.unseated?.length > 0 ? null : (
@@ -281,10 +290,13 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
                   {(trip.unseated as SansSiege[]).reduce((n, u) => n + u.places, 0)} place(s)
                 </p>
                 {(trip.unseated as SansSiege[]).map((u) => (
-                  <p key={u.id} className="text-sm text-on-surface">
-                    {u.name} · {u.places} place{u.places > 1 ? 's' : ''}
-                    {u.par ? <span className="text-on-surface-variant"> (réservé par {u.par})</span> : null}
-                  </p>
+                  <div key={u.id} className="flex items-center justify-between gap-2">
+                    <p className="text-sm text-on-surface">
+                      {u.name} · {u.places} place{u.places > 1 ? 's' : ''}
+                      {u.par ? <span className="text-on-surface-variant"> (réservé par {u.par})</span> : null}
+                    </p>
+                    <CancelReservationButton reservationId={u.id} nom={u.name} trajet={`${trip.origin} → ${trip.destination}`} />
+                  </div>
                 ))}
               </div>
             )}

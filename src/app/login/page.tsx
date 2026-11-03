@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { LogoMark } from '@/components/Logo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -85,16 +86,17 @@ export default function LoginPage() {
           mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
         }`}
       >
-        {/* Liseré orange */}
+        {/* Liseré de marque */}
         <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
 
         {/* Logo + Titre */}
         <div className="flex flex-col items-center gap-3 relative z-10">
           <Link
             href="/"
-            className="w-16 h-16 rounded-3xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-on-primary text-3xl font-black shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-transform"
+            aria-label="TogoTransit, retour à l'accueil"
+            className="drop-shadow-lg hover:scale-105 active:scale-95 transition-transform"
           >
-            T
+            <LogoMark size={72} />
           </Link>
           <div className="text-center">
             <h1 className="text-2xl font-black text-on-background tracking-tight">TOGOTRANSIT</h1>

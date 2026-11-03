@@ -4,6 +4,7 @@ import SidebarLinks from '@/components/admin/SidebarLinks'
 import LogoutButton from '@/components/admin/LogoutButton'
 import MobileNav from '@/components/admin/MobileNav'
 import LanguageSelector from '@/components/LanguageSelector'
+import { LogoMark } from '@/components/Logo'
 import AdminUserBadge from '@/components/admin/AdminUserBadge'
 import { getSessionContext } from '@/lib/session'
 
@@ -22,9 +23,7 @@ export default async function AdminLayout({
       {/* SideNavBar (Desktop) */}
       <nav className="hidden md:flex flex-col h-screen w-64 left-0 top-0 sticky bg-surface-container-low border-r border-outline-variant p-4 gap-2 z-40 shadow-sm overflow-y-auto">
         <div className="flex items-center gap-3 mb-6 px-2 shrink-0">
-          <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-on-primary font-black text-xl shadow-md">
-            T
-          </div>
+          <LogoMark size={40} />
           <div>
             <h1 className="font-black text-lg text-primary leading-tight">TogoTransit</h1>
             <p className="text-[0.625rem] text-on-surface-variant uppercase font-bold tracking-wider opacity-70">Portail Pro & Admin</p>
@@ -51,9 +50,7 @@ export default async function AdminLayout({
         <header className="sticky top-0 w-full z-40 flex justify-between items-center px-4 md:px-8 h-16 bg-surface/90 backdrop-blur-md border-b border-outline-variant">
           {/* Mobile Logo */}
           <div className="flex items-center gap-2 md:hidden">
-            <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-on-primary font-black text-sm">
-              T
-            </div>
+            <LogoMark size={32} />
             <div className="font-black text-primary text-sm">TogoTransit Pro</div>
           </div>
 

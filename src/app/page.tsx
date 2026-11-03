@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { Logo } from '@/components/Logo'
 
 const TOGO_CORRIDOR_CITIES = [
   { name: 'Dapaong', x: 78, y: 40 },
@@ -50,13 +51,13 @@ function BusIllustration() {
         strokeWidth="1.5"
       />
 
-      {/* bande turquoise inférieure (couleur SOTRAL/Chamotor) */}
+      {/* bande indigo inférieure aux couleurs TogoTransit */}
       <path
         d="M40 140 H410 V168 H40 Z"
-        fill="#0E8C82"
+        fill="#1C2A5E"
       />
-      {/* filet orange TogoTransit */}
-      <rect x="40" y="136" width="370" height="5" fill="var(--color-primary, #E4572E)" />
+      {/* filet soleil TogoTransit */}
+      <rect x="40" y="136" width="370" height="5" fill="#FFB020" />
 
       {/* pare-brise avant panoramique */}
       <path d="M352 60 Q374 61 388 82 L402 104 L348 106 L348 62 Z" fill="#22333F" opacity="0.85" />
@@ -78,9 +79,14 @@ function BusIllustration() {
       <ellipse cx="400" cy="118" rx="7" ry="9" fill="#FFE9A8" />
       <rect x="392" y="132" width="16" height="8" rx="2" fill="#22333F" opacity="0.4" />
 
-      {/* logo T à l'avant */}
-      <circle cx="222" cy="153" r="12" fill="#ffffff" />
-      <text x="222" y="158" textAnchor="middle" fontSize="14" fontWeight="900" fill="var(--color-primary, #E4572E)">T</text>
+      {/* logo TogoTransit sur la carrosserie */}
+      <g transform="translate(205 136) scale(0.53)">
+        <circle cx="32" cy="32" r="34" fill="#ffffff" />
+        <circle cx="32" cy="32" r="32" fill="#1C2A5E" />
+        <path d="M22.5 20 A9.5 9.5 0 0 1 41.5 20 Z" fill="#FFB020" />
+        <rect x="12" y="20" width="40" height="9" rx="3" fill="#ffffff" />
+        <rect x="26.5" y="24" width="11" height="30" rx="3" fill="#ffffff" />
+      </g>
 
       {/* roues */}
       {[110, 350].map((cx, i) => (
@@ -127,11 +133,8 @@ export default function LandingPage() {
       {/* En-tête */}
       <header className="w-full bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant sticky top-0 z-30">
         <div className="max-w-7xl mx-auto flex items-center gap-6 px-4 md:px-8 py-4">
-          <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-md">
-              <span className="text-xl font-black">T</span>
-            </div>
-            <span className="text-lg font-black tracking-tight text-on-background">TOGOTRANSIT</span>
+          <Link href="/" className="shrink-0">
+            <Logo size={40} />
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-sm font-bold text-on-surface-variant ml-4">

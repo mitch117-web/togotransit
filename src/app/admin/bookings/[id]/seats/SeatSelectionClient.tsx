@@ -267,7 +267,7 @@ export default function SeatSelectionClient({ trip, users }: { trip: any, users:
                     </span>
                   </div>
                 ))
-              ) : (
+              ) : trip.unseated?.length > 0 ? null : (
                 <div className="py-10 text-center text-on-surface-variant italic opacity-50">
                   Aucun passager pour le moment.
                 </div>

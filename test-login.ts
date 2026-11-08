@@ -1,6 +1,7 @@
 import prisma from './src/lib/prisma';
 import { UtilisateurRole, UtilisateurStatut, CompagnieStatut } from '@prisma/client';
 import bcrypt from 'bcryptjs'
+import { randomBytes } from 'crypto';
 
 /**
  * TEST D'AUTHENTIFICATION — Schéma Multi-Compagnies SQLite
@@ -14,7 +15,8 @@ import bcrypt from 'bcryptjs'
  */
 const TEMP_PHONE = '+22899999999';
 const TEMP_EMAIL = 'test.login@togotransit.tg';
-const PASSWORD_HASH = await bcrypt.hash('password123', 10);
+const TEST_PASSWORD = randomBytes(12).toString('base64url');
+const PASSWORD_HASH = await bcrypt.hash(TEST_PASSWORD, 10);
 
 async function loginDirect(identifier: string, password: string) {
   console.log(`\n🔐 Test Prisma direct: identifier="${identifier}" / pwd="${password}"`);
@@ -134,10 +136,10 @@ async function main() {
   // 2. Tests login par téléphone et email
   console.log('\n' + '-'.repeat(70));
   console.log('TEST 1/5 — Super-admin (auth par téléphone)');
-  await loginWithRoleChecks('+22899999991', 'password123', UtilisateurRole.super_admin);
+  await loginWithRoleChecks('+22899999991', TEST_PASSWORD, UtilisateurRole.super_admin);
 
   console.log('\nTEST 2/5 — Gestionnaire (auth par email) + rattachement compagnie');
-  const okGest = await loginWithRoleChecks(TEMP_EMAIL, 'password123', UtilisateurRole.gestionnaire);
+  const okGest = await loginWithRoleChecks(TEMP_EMAIL, TEST_PASSWORD, UtilisateurRole.gestionnaire);
   if (okGest) {
     const g = await prisma.utilisateur.findUnique({
       where: { id: gestionnaire.id },
@@ -148,7 +150,7 @@ async function main() {
   }
 
   console.log('\nTEST 3/5 — Voyageur (auth par téléphone)');
-  await loginWithRoleChecks('+22899999992', 'password123', UtilisateurRole.voyageur);
+  await loginWithRoleChecks('+22899999992', TEST_PASSWORD, UtilisateurRole.voyageur);
 
   // 3. Tests d'échecs (mot de passe / utilisateur inexistant)
   console.log('\nTEST 4/5 — Mot de passe erroné (doit échouer)');
@@ -156,7 +158,7 @@ async function main() {
   console.log(`  → Résultat attendu: échec. Obtenu: ${failPwd.ok ? '❌ SUCCES INATTENDU' : '✅ ÉCHEC OK'}`);
 
   console.log('\nTEST 5/5 — Utilisateur inexistant (doit échouer)');
-  const failUser = await loginDirect('+22800000000', 'password123');
+  const failUser = await loginDirect('+22800000000', TEST_PASSWORD);
   console.log(`  → Résultat attendu: échec. Obtenu: ${failUser.ok ? '❌ SUCCES INATTENDU' : '✅ ÉCHEC OK'}`);
 
   // 4. Test middleware scoping compagnie

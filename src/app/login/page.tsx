@@ -191,10 +191,11 @@ export default function LoginPage() {
             </summary>
             <div className="mt-3 flex flex-col gap-1 p-3 bg-surface-container-low rounded-xl border border-outline-variant">
               {[
-                { label: '👑 Super-Admin Plateforme', sub: 'Vue globale — toutes compagnies', email: 'superadmin@togotransit.tg', pass: 'Admin2026!' },
-                { label: '🏢 Nagodé Transport', sub: 'Gestionnaire — Lomé / Nord', email: 'admin@nagode.tg', pass: 'Nagode2026!' },
-                { label: '🏢 SOLIM Transport', sub: 'Gestionnaire — Centre / Kara', email: 'admin@solim.tg', pass: 'Solim2026!' },
-                { label: '🏢 LK Transport', sub: 'Gestionnaire — Plateaux / Kpalimé', email: 'admin@lk.tg', pass: 'Lk2026!' },
+                // Mots de passe lus dans .env (NEXT_PUBLIC_DEMO_PASSWORD_*), jamais écrits dans le code.
+                { label: '👑 Super-Admin Plateforme', sub: 'Vue globale — toutes compagnies', email: 'superadmin@togotransit.tg', pass: process.env.NEXT_PUBLIC_DEMO_PASSWORD_SUPERADMIN ?? '' },
+                { label: '🏢 Nagodé Transport', sub: 'Gestionnaire — Lomé / Nord', email: 'admin@nagode.tg', pass: process.env.NEXT_PUBLIC_DEMO_PASSWORD_NAGODE ?? '' },
+                { label: '🏢 SOLIM Transport', sub: 'Gestionnaire — Centre / Kara', email: 'admin@solim.tg', pass: process.env.NEXT_PUBLIC_DEMO_PASSWORD_SOLIM ?? '' },
+                { label: '🏢 LK Transport', sub: 'Gestionnaire — Plateaux / Kpalimé', email: 'admin@lk.tg', pass: process.env.NEXT_PUBLIC_DEMO_PASSWORD_LK ?? '' },
               ].map(acc => (
                 <button
                   key={acc.email}

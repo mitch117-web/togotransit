@@ -1,5 +1,6 @@
 import prisma from '../src/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { randomBytes } from 'crypto'
 import {
   CompagnieStatut,
   UtilisateurRole,
@@ -20,7 +21,8 @@ import {
  * réalistes (compagnies togolaises, vraies villes, tarifs
  * plausibles) pour tester l'API et l'app mobile.
  *
- * Comptes créés (mot de passe: password123 pour tous, haché en bcrypt) :
+ * Comptes créés (mot de passe partagé : variable SEED_DEV_PASSWORD, sinon généré au hasard
+ * et affiché à la fin ; haché en bcrypt) :
  *   Super-admin:  sa@togotransit.tg   / +22800000000
  *   Gestionnaire:  secretariat@stt.tg  / +22891000001  (STT)
  *   Gestionnaire:  contact@nagode.tg   / +22891000002  (Nagodé)
@@ -34,7 +36,8 @@ async function main() {
   console.log('🌍 SEED DÉVELOPPEMENT — Données réalistes du Togo')
   console.log('='.repeat(70))
 
-  const PWD = 'password123'
+  const PWD = process.env.SEED_DEV_PASSWORD || randomBytes(12).toString('base64url')
+  const PWD_FOURNI = Boolean(process.env.SEED_DEV_PASSWORD)
   const PWD_HASH = await bcrypt.hash(PWD, 10)
 
   /* ------------------------------------------------------------------ *
@@ -155,7 +158,9 @@ async function main() {
   ]
   await Promise.all(usersData.map(u => prisma.utilisateur.create({ data: u })))
   console.log('  ✅ 6 comptes créés.')
-  console.log('     🔑 Mot de passe partagé: password123 (haché bcrypt)')
+  console.log(PWD_FOURNI
+    ? '     🔑 Mot de passe partagé: valeur de SEED_DEV_PASSWORD (haché bcrypt)'
+    : `     🔑 Mot de passe partagé (généré): ${PWD} (haché bcrypt)`)
 
   /* ------------------------------------------------------------------ *
    * 5. AGENCES LOCALES
@@ -277,7 +282,9 @@ async function main() {
   console.log(`  Trajets:      ${nbTrajets}`)
   console.log(`  Utilisateurs: ${nbUsers}`)
   console.log('')
-  console.log('🔑 COMPTES DE TEST (tous: password123, haché bcrypt)')
+  console.log(PWD_FOURNI
+    ? '🔑 COMPTES DE TEST (tous: valeur de SEED_DEV_PASSWORD, haché bcrypt)'
+    : `🔑 COMPTES DE TEST (tous: ${PWD}, haché bcrypt)`)
   console.log('  Super-admin:   sa@togotransit.tg    · +22800000000')
   console.log('  Gestionnaires: secretariat@stt.tg   · +22891000001 · STT')
   console.log('                 contact@nagode.tg    · +22891000002 · Nagodé')

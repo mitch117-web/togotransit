@@ -1,5 +1,18 @@
 import prisma from '../src/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { randomBytes } from 'crypto'
+
+// Mots de passe des comptes de démonstration : lus dans l'environnement
+// (NEXT_PUBLIC_DEMO_PASSWORD_<CLE>, voir .env.example) et jamais écrits dans le code.
+// Si une variable manque, un mot de passe aléatoire est généré et affiché en fin de seed.
+const motsDePasseGeneres: Record<string, string> = {}
+function demoPassword(cle: string): string {
+  const depuisEnv = process.env[`NEXT_PUBLIC_DEMO_PASSWORD_${cle}`]
+  if (depuisEnv) return depuisEnv
+  const genere = randomBytes(12).toString('base64url')
+  motsDePasseGeneres[cle] = genere
+  return genere
+}
 
 async function main() {
   console.log('🌱 Démarrage du seed TogoTransit (Données réelles du Togo pour la soutenance)...')
@@ -181,7 +194,7 @@ async function main() {
       prenom: 'Komi (Super Admin)',
       email: 'superadmin@togotransit.tg',
       telephone: '+228 90 00 00 01',
-      mot_de_passe: await bcrypt.hash('Admin2026!', 10),
+      mot_de_passe: await bcrypt.hash(demoPassword('SUPERADMIN'), 10),
       role: 'super_admin',
       statut: 'actif',
     },
@@ -193,7 +206,7 @@ async function main() {
       prenom: 'Nayra (Gestionnaire)',
       email: 'admin@nagode.tg',
       telephone: '+228 90 11 22 33',
-      mot_de_passe: await bcrypt.hash('Nagode2026!', 10),
+      mot_de_passe: await bcrypt.hash(demoPassword('NAGODE'), 10),
       role: 'gestionnaire',
       compagnie_id: nagode.id,
       statut: 'actif',
@@ -206,7 +219,7 @@ async function main() {
       prenom: 'Michel (Gestionnaire)',
       email: 'admin@solim.tg',
       telephone: '+228 91 22 33 44',
-      mot_de_passe: await bcrypt.hash('Solim2026!', 10),
+      mot_de_passe: await bcrypt.hash(demoPassword('SOLIM'), 10),
       role: 'gestionnaire',
       compagnie_id: solim.id,
       statut: 'actif',
@@ -219,7 +232,7 @@ async function main() {
       prenom: 'Marcel (Gestionnaire)',
       email: 'admin@lk.tg',
       telephone: '+228 92 33 44 55',
-      mot_de_passe: await bcrypt.hash('Lk2026!', 10),
+      mot_de_passe: await bcrypt.hash(demoPassword('LK'), 10),
       role: 'gestionnaire',
       compagnie_id: lkTransport.id,
       statut: 'actif',
@@ -232,7 +245,7 @@ async function main() {
       prenom: 'Koffi (Chauffeur)',
       email: 'chauffeur@nagode.tg',
       telephone: '+228 99 88 77 66',
-      mot_de_passe: await bcrypt.hash('Chauffeur2026!', 10),
+      mot_de_passe: await bcrypt.hash(demoPassword('CHAUFFEUR'), 10),
       role: 'voyageur',
       compagnie_id: nagode.id,
       statut: 'actif',
@@ -245,7 +258,7 @@ async function main() {
       prenom: 'Kossi (Client)',
       email: 'voyageur@gmail.com',
       telephone: '+228 90 55 66 77',
-      mot_de_passe: await bcrypt.hash('Voyageur2026!', 10),
+      mot_de_passe: await bcrypt.hash(demoPassword('VOYAGEUR'), 10),
       role: 'voyageur',
       statut: 'actif',
     },
@@ -490,6 +503,14 @@ async function main() {
   })
 
   console.log('🎉 Seed TogoTransit terminé avec succès sur PostgreSQL !')
+
+  if (Object.keys(motsDePasseGeneres).length > 0) {
+    console.log('')
+    console.log('🔑 Mots de passe générés (notez-les, ils ne seront plus affichés) :')
+    for (const [cle, mdp] of Object.entries(motsDePasseGeneres)) {
+      console.log(`   ${cle.padEnd(11)} ${mdp}`)
+    }
+  }
 }
 
 main()

@@ -8,13 +8,17 @@ import prisma from './prisma'
  * différente, sans mémoire partagée entre elles. En passant par la base de
  * données déjà utilisée par l'application, le compteur est correct quel que
  * soit le nombre d'instances actives.
+ *
+ * La fenêtre est d'une minute par défaut ; `windowMs` permet d'en choisir une plus longue (par exemple la
+ * durée de vie d'un code de réinitialisation, pour plafonner le nombre d'essais sur ce code).
  */
 const WINDOW_MS = 60 * 1000
 const MAX_ATTEMPTS_DEFAUT = 5
 
 export async function isRateLimited(
   key: string,
-  maxAttempts: number = MAX_ATTEMPTS_DEFAUT
+  maxAttempts: number = MAX_ATTEMPTS_DEFAUT,
+  windowMs: number = WINDOW_MS
 ): Promise<{ limited: boolean; retryAfterSec: number }> {
   const now = new Date()
 
@@ -23,8 +27,8 @@ export async function isRateLimited(
   if (!entry || entry.resetAt <= now) {
     await prisma.rateLimitEntry.upsert({
       where: { key },
-      update: { count: 1, resetAt: new Date(now.getTime() + WINDOW_MS) },
-      create: { key, count: 1, resetAt: new Date(now.getTime() + WINDOW_MS) },
+      update: { count: 1, resetAt: new Date(now.getTime() + windowMs) },
+      create: { key, count: 1, resetAt: new Date(now.getTime() + windowMs) },
     })
     return { limited: false, retryAfterSec: 0 }
   }

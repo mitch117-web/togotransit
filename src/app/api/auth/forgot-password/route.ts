@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { z } from 'zod'
 import { randomInt } from 'node:crypto'
 import { sendEmail } from '@/lib/email'
+import { isRateLimited, getClientIp } from '@/lib/rate-limit'
 
 const forgotSchema = z.object({
   email: z.string().email().optional(),
@@ -11,8 +12,24 @@ const forgotSchema = z.object({
 
 const CODE_TTL_MS = 15 * 60 * 1000
 
+// Demandes de code limitées par quart d'heure : 10 par adresse IP, 3 pour un même compte.
+const FENETRE_MS = 15 * 60 * 1000
+const DEMANDES_MAX_PAR_IP = 10
+const DEMANDES_MAX_PAR_COMPTE = 3
+
+function tropDeDemandes(retryAfterSec: number) {
+  const minutes = Math.max(1, Math.ceil(retryAfterSec / 60))
+  return NextResponse.json(
+    { error: `Trop de demandes. Réessayez dans ${minutes} minute${minutes > 1 ? 's' : ''}.` },
+    { status: 429 }
+  )
+}
+
 export async function POST(request: Request) {
   try {
+    const parIp = await isRateLimited(`forgot-ip:${getClientIp(request)}`, DEMANDES_MAX_PAR_IP, FENETRE_MS)
+    if (parIp.limited) return tropDeDemandes(parIp.retryAfterSec)
+
     const body = await request.json()
     const parsed = forgotSchema.safeParse(body)
     if (!parsed.success) {
@@ -22,24 +39,24 @@ export async function POST(request: Request) {
       )
     }
 
+    // Un seul identifiant fait foi, pour la clé du code comme pour la recherche du compte : l'e-mail s'il est
+    // fourni, sinon le téléphone. Chercher « e-mail OU téléphone » permettait de rattacher le code d'un compte
+    // à un autre compte.
     const { email, telephone } = parsed.data
-    if (!email && !telephone) {
+    const key = email || telephone
+    if (!key) {
       return NextResponse.json(
         { error: 'Email ou téléphone requis' },
         { status: 400 }
       )
     }
+    const identifiant = email ? { email } : { telephone: key }
 
-    const user = await prisma.utilisateur.findFirst({
-      where: {
-        OR: [
-          ...(email ? [{ email }] : []),
-          ...(telephone ? [{ telephone }] : []),
-        ],
-      },
-    })
+    const parCompte = await isRateLimited(`forgot:${key}`, DEMANDES_MAX_PAR_COMPTE, FENETRE_MS)
+    if (parCompte.limited) return tropDeDemandes(parCompte.retryAfterSec)
 
-    const key = `${email || telephone}`
+    const user = await prisma.utilisateur.findFirst({ where: identifiant })
+
     // Générateur cryptographique : un code prévisible permettrait de réinitialiser le compte d'autrui.
     const code = String(randomInt(100000, 1000000))
 
@@ -73,11 +90,11 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: 'Si un compte existe, un code a été envoyé.',
-      // Le code n'est renvoyé ici que lorsque l'e-mail réel n'a pas pu être
-      // envoyé (pas de compte, numéro de téléphone, ou limite du compte
-      // Resend sans domaine vérifié) — sinon il ne doit apparaître nulle
-      // part ailleurs que dans la boîte mail du destinataire.
-      otp_dev: user && !emailSent ? code : undefined,
+      // Le code ne figure dans la réponse qu'en développement local (`next dev`), pour les essais sans envoi
+      // réel. En production il n'est jamais renvoyé : il suffirait sinon de connaître le numéro ou l'adresse
+      // d'un compte pour en changer le mot de passe. Tant que l'envoi par SMS est simulé, le code reste
+      // lisible dans le journal du serveur (ligne « [OTP] » ci-dessus).
+      otp_dev: process.env.NODE_ENV === 'development' && user && !emailSent ? code : undefined,
     })
   } catch (error) {
     console.error('Forgot password Error:', error)

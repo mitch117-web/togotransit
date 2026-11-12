@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { sendSMS } from '@/lib/sms'
 import { extractAuthFromRequest, requireAnyRole, assertCompagnieOwnership } from '@/lib/auth'
+import { toPublicParcel } from '@/lib/parcel-public'
 
 async function findParcelByIdOrTracking(id: string) {
   const idNum = parseInt(id, 10)
@@ -14,36 +15,6 @@ async function findParcelByIdOrTracking(id: string) {
     },
     include: { pod: true }
   })
-}
-
-/**
- * Projection publique d'un colis, renvoyée à quiconque connaît le numéro de suivi (sans compte).
- * Les numéros étant séquentiels (TRK-1000, TRK-1001…), elle ne contient aucune donnée personnelle :
- * ni noms ni téléphones, ni prix, ni positions GPS, ni signature ou photo de remise.
- */
-function toPublicParcel(parcel: any) {
-  let etapes: any[] = []
-  try {
-    etapes = JSON.parse(parcel.statusHistory || '[]')
-  } catch {}
-  return {
-    trackingId: parcel.trackingId,
-    status: parcel.status,
-    origin: parcel.origin,
-    destination: parcel.destination,
-    weight: parcel.weight,
-    deliveryType: parcel.deliveryType,
-    paymentStatus: parcel.paymentStatus,
-    createdAt: parcel.createdAt,
-    updatedAt: parcel.updatedAt,
-    // seules les étapes de statut (sans lieu ni coordonnées) ; les relevés GPS sont écartés
-    statusHistory: JSON.stringify(
-      etapes
-        .filter((e) => !e.metadata && !String(e.location ?? '').startsWith('GPS Update'))
-        .map((e) => ({ status: e.status, timestamp: e.timestamp }))
-    ),
-    pod: parcel.pod ? { deliveredAt: parcel.pod.deliveredAt } : null,
-  }
 }
 
 export async function GET(

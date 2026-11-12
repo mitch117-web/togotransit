@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { UtilisateurRole } from '@prisma/client'
+import prisma from './prisma'
 import { verifyToken } from './jwt'
 
 export interface AuthContext {
@@ -14,19 +15,46 @@ const ROLE_HIERARCHY: Record<UtilisateurRole, number> = {
   super_admin: 3,
 }
 
+/**
+ * Contexte d'authentification à partir d'un jeton. Le jeton prouve QUI appelle ; la base dit ce que ce compte
+ * a le droit de faire MAINTENANT. Le rôle et la compagnie sont donc relus à chaque requête, et un compte
+ * supprimé ou bloqué, comme le gestionnaire d'une compagnie suspendue, n'est plus authentifié : il n'attend
+ * pas l'expiration de son jeton (30 jours) pour perdre l'accès.
+ */
+export async function authFromToken(token: string | null | undefined): Promise<AuthContext | null> {
+  if (!token) return null
+  const payload = verifyToken(token)
+  if (!payload) return null
+
+  const user = await prisma.utilisateur.findUnique({
+    where: { id: payload.userId },
+    select: {
+      id: true,
+      role: true,
+      statut: true,
+      compagnie_id: true,
+      compagnie: { select: { statut: true } },
+    },
+  })
+  if (!user || user.statut === 'bloque') return null
+  // Même règle qu'à la connexion : le gestionnaire d'une compagnie suspendue n'a plus accès.
+  if (user.role === 'gestionnaire' && user.compagnie?.statut === 'suspendu') return null
+
+  return { userId: user.id, role: user.role, compagnieId: user.compagnie_id }
+}
+
 export async function extractAuthFromRequest(request: NextRequest): Promise<AuthContext | null> {
   const authHeader = request.headers.get('authorization')
 
   if (authHeader?.startsWith('Bearer ')) {
-    const token = authHeader.slice(7)
-    return verifyToken(token)
+    return authFromToken(authHeader.slice(7))
   }
 
   // Fallback pour le front web (Server Actions / fetch client) qui s'appuie
   // sur le cookie de session plutôt que sur un header Authorization explicite.
   const cookieToken = request.cookies.get('auth_token')?.value
   if (cookieToken) {
-    return verifyToken(cookieToken)
+    return authFromToken(cookieToken)
   }
 
   return null

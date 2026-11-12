@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireRole } from '@/lib/auth'
 import { z } from 'zod'
+import bcrypt from 'bcryptjs'
 
 export async function GET(request: Request) {
   try {
@@ -110,7 +111,8 @@ export async function POST(request: Request) {
         prenom: parsed.data.prenom,
         email: parsed.data.email || null,
         telephone: parsed.data.telephone,
-        mot_de_passe: parsed.data.mot_de_passe,
+        // Toujours haché : le mot de passe ne doit jamais être écrit en clair dans la base.
+        mot_de_passe: await bcrypt.hash(parsed.data.mot_de_passe, 10),
         role: parsed.data.role,
         compagnie_id: parsed.data.role === 'gestionnaire' ? parsed.data.compagnie_id! : null,
         statut: 'actif',

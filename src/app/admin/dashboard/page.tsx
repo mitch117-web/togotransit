@@ -2,28 +2,8 @@ import React from 'react'
 import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import DashboardCharts from './DashboardCharts'
-import { cookies } from 'next/headers'
-import { verifyToken } from '@/lib/jwt'
-
-/**
- * Lecture du contexte de la session depuis le JWT signé (cookie).
- * Retourne le rôle, l'ID utilisateur, et l'ID de la compagnie.
- */
-async function getSessionContext() {
-  const cookieStore = await cookies()
-  const token = cookieStore.get('auth_token')?.value
-
-  if (!token) return { role: null, compagnieId: null, userId: null }
-
-  const payload = verifyToken(token)
-  if (!payload) return { role: null, compagnieId: null, userId: null }
-
-  return {
-    role: payload.role,
-    compagnieId: payload.compagnieId,
-    userId: payload.userId,
-  }
-}
+import { redirect } from 'next/navigation'
+import { getSessionContext } from '@/lib/session'
 
 /**
  * Récupération des statistiques filtrées selon le rôle connecté :
@@ -31,14 +11,11 @@ async function getSessionContext() {
  * - gestionnaire → voit uniquement les données de sa compagnie
  */
 async function getStats(role: string | null, compagnieId: number | null) {
-  // Filtre de compagnie : null = tout voir (super_admin), sinon filtrer
-  const compagnieFilter = (role === 'super_admin' || !compagnieId)
-    ? {}
-    : { compagnie_id: compagnieId }
-
-  const parcelFilter = (role === 'super_admin' || !compagnieId)
-    ? {}
-    : { compagnie_id: compagnieId }
+  // Filtre de compagnie : seul le super-admin voit tout. Un gestionnaire ne voit que sa compagnie, et un
+  // gestionnaire sans compagnie ne voit rien (on échoue fermé, comme `compagnieFilterFor`) : avant, l'absence
+  // de compagnie ouvrait les chiffres de toutes les compagnies.
+  const compagnieFilter = role === 'super_admin' ? {} : { compagnie_id: compagnieId ?? -1 }
+  const parcelFilter = compagnieFilter
 
   // Infos de la compagnie connectée (pour l'affichage)
   const compagnie = compagnieId
@@ -181,7 +158,9 @@ async function getStats(role: string | null, compagnieId: number | null) {
 }
 
 export default async function AdminDashboard() {
+  // Session recontrôlée en base (rôle et compagnie du moment) ; un compte bloqué est renvoyé vers la connexion.
   const session = await getSessionContext()
+  if (!session) redirect('/login?expired=1')
   const stats = await getStats(session.role, session.compagnieId)
 
   const isSuperAdmin = session.role === 'super_admin'

@@ -6,6 +6,7 @@ import {
   assertCompagnieOwnership,
   buildCompagnieScope,
 } from '@/lib/auth'
+import { libererReservationsExpirees } from '@/lib/reservation-expiry'
 
 type RouteParams = { params: Promise<{ id: string }> }
 
@@ -17,6 +18,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     if (isNaN(trajetId)) {
       return NextResponse.json({ error: 'Identifiant de trajet invalide' }, { status: 400 })
     }
+
+    // Places affichées à jour : les réservations non payées depuis plus de 30 minutes rendent les leurs.
+    await libererReservationsExpirees()
 
     const scope = buildCompagnieScope(auth)
     const where: Record<string, unknown> = { id: trajetId }

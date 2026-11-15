@@ -103,11 +103,36 @@ export async function POST(
 
     // Traitement selon le statut
     if (transaction.status === 'réussi') {
-      // Confirmation de la réservation si ce n'est pas déjà le cas
-      if (reservation.statut !== 'confirmee') {
-        await prisma.reservation.update({
-          where: { id: reservation.id },
-          data: { statut: 'confirmee' },
+      // Confirmation en une seule instruction conditionnelle : une réservation annulée ou expirée (ses places
+      // ont déjà été rendues) n'est jamais confirmée, même si le paiement de l'opérateur arrive après coup.
+      const confirmation = await prisma.reservation.updateMany({
+        where: { id: reservation.id, statut: 'en_attente' },
+        data: { statut: 'confirmee' },
+      })
+      const confirmee =
+        confirmation.count === 1 ||
+        (await prisma.reservation.findUnique({ where: { id: reservation.id }, select: { statut: true } }))?.statut === 'confirmee'
+
+      if (!confirmee) {
+        // L'argent a été reçu (le paiement reste enregistré « réussi ») mais il n'y a plus de place réservée :
+        // aucun billet n'est émis et le client est renvoyé vers la compagnie pour son remboursement.
+        await prisma.notification.create({
+          data: {
+            userId: reservation.utilisateur_id,
+            tripId: reservation.trajet_id,
+            title: 'Paiement reçu après annulation',
+            message: `Votre paiement pour la réservation #${reservation.id} est arrivé alors qu'elle était annulée ou expirée. Aucun billet n'a été émis : contactez la compagnie pour être remboursé.`,
+            type: 'PAIEMENT',
+            isRead: false,
+          }
+        })
+        return NextResponse.json({
+          status: 200,
+          paiement_id: paiement.id,
+          reservation_id: reservation.id,
+          statut: transaction.status,
+          reservation_statut: 'annulee',
+          billet_genere: false,
         })
       }
 

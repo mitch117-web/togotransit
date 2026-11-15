@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { libererReservationsExpirees } from '@/lib/reservation-expiry';
 
 export async function GET(request: Request) {
   try {
+    // La recherche n'affiche que les trajets où il reste des places : on rend d'abord celles des
+    // réservations non payées depuis plus de 30 minutes, sinon un trajet resterait « complet » à tort.
+    await libererReservationsExpirees()
+
     const { searchParams } = new URL(request.url)
 
     const depart = (searchParams.get('depart') || searchParams.get('ville_depart') || searchParams.get('origin') || '').trim()

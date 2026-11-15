@@ -3,6 +3,29 @@ import prisma from '@/lib/prisma'
 import { sendSMS } from '@/lib/sms'
 import { extractAuthFromRequest } from '@/lib/auth'
 import { toPublicParcel, SELECTION_SUIVI_PUBLIC } from '@/lib/parcel-public'
+import { estimerPrixColis } from '@/lib/parcel-price'
+import { z } from 'zod'
+
+const texte = (max: number) => z.string().trim().min(1).max(max)
+
+// Ce que le guichet (formulaire du portail) ou l'application mobile envoie pour enregistrer un colis.
+// Les champs inconnus sont ignorés ; les nombres sont acceptés sous forme de texte.
+const creerColisSchema = z.object({
+  senderId: z.coerce.number().int().positive().nullish(),
+  driverId: z.coerce.number().int().positive().nullish(),
+  senderName: texte(120),
+  senderPhone: texte(30),
+  receiverName: texte(120),
+  receiverPhone: texte(30),
+  weight: z.coerce.number().positive().max(1000),
+  origin: texte(80),
+  destination: texte(80),
+  category: texte(40),
+  deliveryType: texte(40),
+  price: z.coerce.number().min(0).max(100_000_000).optional(),
+  paymentMethod: z.string().trim().max(30).nullish(),
+  photo: z.string().max(4_500_000).nullish(),
+})
 
 export async function POST(request: Request) {
   try {
@@ -18,7 +41,22 @@ export async function POST(request: Request) {
       )
     }
 
-    const data = await request.json()
+    const parsed = creerColisSchema.safeParse(await request.json().catch(() => null))
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Données invalides', details: parsed.error.format() }, { status: 400 })
+    }
+    const data = parsed.data
+
+    // Deux origines, deux niveaux de confiance. Au guichet, l'agent de la compagnie pèse le colis, fixe le
+    // prix et encaisse. Depuis l'application, rien n'a encore été pesé ni payé : le serveur recalcule lui-même
+    // l'estimation (le prix envoyé par le téléphone est ignoré), le colis reste « à payer », et le client ne
+    // choisit ni le chauffeur ni la compagnie.
+    const auGuichet = auth.role === 'gestionnaire'
+    if (auGuichet && data.price === undefined) {
+      return NextResponse.json({ error: 'Prix requis' }, { status: 400 })
+    }
+    const price = auGuichet ? data.price! : estimerPrixColis(data.weight, data.category)
+    const paymentStatus = auGuichet && data.paymentMethod !== 'CASH' ? 'PAID' : 'PENDING'
 
     // Génération d'un ID de tracking unique (ex: TRK-1000)
     // On récupère tous les IDs commençant par TRK- pour trouver le maximum numériquement
@@ -51,14 +89,14 @@ export async function POST(request: Request) {
     const newParcel = await prisma.parcel.create({
       data: {
         trackingId,
-        senderId: auth.role === 'voyageur' ? auth.userId : (data.senderId ?? null),
-        driverId: data.driverId ?? null,
-        compagnie_id: auth.role === 'gestionnaire' ? auth.compagnieId : (data.compagnie_id ?? null),
+        senderId: auGuichet ? (data.senderId ?? null) : auth.userId,
+        driverId: auGuichet ? (data.driverId ?? null) : null,
+        compagnie_id: auGuichet ? auth.compagnieId : null,
         senderName: data.senderName,
         senderPhone: data.senderPhone,
         receiverName: data.receiverName,
         receiverPhone: data.receiverPhone,
-        weight: parseFloat(data.weight),
+        weight: data.weight,
         origin: data.origin,
         destination: data.destination,
         category: data.category,
@@ -70,9 +108,9 @@ export async function POST(request: Request) {
           location: data.origin,
           note: 'Colis enregistré en agence'
         }]),
-        price: parseFloat(data.price),
-        paymentStatus: data.paymentMethod === 'CASH' ? 'PENDING' : 'PAID',
-        paymentMethod: data.paymentMethod,
+        price,
+        paymentStatus,
+        paymentMethod: data.paymentMethod ?? null,
         photo: data.photo ?? null,
       } as any
     })
@@ -80,7 +118,7 @@ export async function POST(request: Request) {
     // Notification SMS Simulation
     await sendSMS(
       data.senderPhone,
-      `TogoTransit: Votre colis pour ${data.receiverName} a été enregistré. Tracking ID: ${trackingId}. Prix: ${data.price} F.`
+      `TogoTransit: Votre colis pour ${data.receiverName} a été enregistré. Tracking ID: ${trackingId}. Prix: ${price} F.`
     )
 
     return NextResponse.json(newParcel)

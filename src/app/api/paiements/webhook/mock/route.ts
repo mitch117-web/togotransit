@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 import { generateNumeroBillet, generateQRPayload, publicBaseUrl } from '@/lib/billet'
+import { libererReservationsExpirees } from '@/lib/reservation-expiry'
 import { z } from 'zod'
 
 const mockSchema = z.object({
@@ -36,6 +37,9 @@ export async function POST(request: Request) {
       )
     }
 
+    // Une réservation non payée depuis plus de 30 minutes est d'abord annulée : elle ne se paie plus.
+    await libererReservationsExpirees()
+
     const paiement = await prisma.paiement.findFirst({
       where: { reference_transaction },
       include: {
@@ -64,6 +68,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
 
+    // Une réservation annulée ou expirée ne se paie plus : ses places ont été rendues, la confirmer
+    // délivrerait un billet sans place.
+    const refusAnnulee = () =>
+      NextResponse.json(
+        { error: 'Réservation annulée ou expirée : elle ne peut plus être payée. Refaites une réservation.' },
+        { status: 409 }
+      )
+    if (reservation.statut === 'annulee') return refusAnnulee()
+
+    if (statut === 'reussi') {
+      // Confirmation en une seule instruction conditionnelle : si l'annulation ou l'expiration arrive au même
+      // instant, une seule des deux l'emporte.
+      const confirmation = await prisma.reservation.updateMany({
+        where: { id: reservation.id, statut: 'en_attente' },
+        data: { statut: 'confirmee' },
+      })
+      if (confirmation.count === 0) {
+        const actuelle = await prisma.reservation.findUnique({
+          where: { id: reservation.id },
+          select: { statut: true },
+        })
+        if (actuelle?.statut !== 'confirmee') return refusAnnulee()
+      }
+    }
+
     const nouveauStatut = statut === 'reussi' ? 'reussi' : 'echoue'
 
     await prisma.paiement.update({
@@ -75,13 +104,6 @@ export async function POST(request: Request) {
     })
 
     if (statut === 'reussi') {
-      if (reservation.statut !== 'confirmee') {
-        await prisma.reservation.update({
-          where: { id: reservation.id },
-          data: { statut: 'confirmee' },
-        })
-      }
-
       const billetsExistants = await prisma.billet.findMany({
         where: { reservation_id: reservation.id },
       })

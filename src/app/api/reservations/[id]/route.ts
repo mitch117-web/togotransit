@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole, assertCompagnieOwnership } from '@/lib/auth'
+import { libererReservationsExpirees } from '@/lib/reservation-expiry'
 
 export async function GET(
   request: Request,
@@ -16,6 +17,9 @@ export async function GET(
     if (isNaN(reservationId)) {
       return NextResponse.json({ error: 'ID invalide' }, { status: 400 })
     }
+
+    // Une réservation non payée depuis plus de 30 minutes doit apparaître annulée, pas « en attente ».
+    await libererReservationsExpirees()
 
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },

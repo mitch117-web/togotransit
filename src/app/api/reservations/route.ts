@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 import { hasDeparted } from '@/lib/trajet-time'
+import { libererReservationsExpirees, PLACES_MAX_EN_ATTENTE } from '@/lib/reservation-expiry'
 import { z } from 'zod'
 
 const passagerSchema = z.object({
@@ -34,6 +35,9 @@ export async function POST(request: Request) {
     const nombre_places = passagers.length
     const utilisateur_id = auth!.userId
 
+    // Les réservations non payées depuis plus de 30 minutes rendent d'abord leurs places.
+    await libererReservationsExpirees()
+
     const result = await prisma.$transaction(
       async (tx: any) => {
         const trajet = await tx.trajet.findUnique({
@@ -64,6 +68,22 @@ export async function POST(request: Request) {
           const msg = places_dispos === 0
             ? 'Ce trajet est complet. Plus de places disponibles.'
             : `Places insuffisantes. Il reste ${places_dispos} place${places_dispos > 1 ? 's' : ''}.`
+          throw Object.assign(new Error(msg), { statusCode: 409, errorMsg: msg })
+        }
+
+        // Un compte ne peut pas tenir plus de 10 places sans les avoir payées, ni en une réservation ni en
+        // plusieurs : sans cette limite, une seule demande suffisait à bloquer tout un car.
+        if (nombre_places > PLACES_MAX_EN_ATTENTE) {
+          const msg = `Une réservation est limitée à ${PLACES_MAX_EN_ATTENTE} places. Pour un groupe plus nombreux, adressez-vous au guichet de la compagnie.`
+          throw Object.assign(new Error(msg), { statusCode: 400, errorMsg: msg })
+        }
+        const enAttente = await tx.reservation.aggregate({
+          where: { utilisateur_id, statut: 'en_attente' },
+          _sum: { nombre_places: true },
+        })
+        const dejaEnAttente = enAttente._sum.nombre_places ?? 0
+        if (dejaEnAttente + nombre_places > PLACES_MAX_EN_ATTENTE) {
+          const msg = `Vous avez déjà ${dejaEnAttente} place${dejaEnAttente > 1 ? 's' : ''} en attente de paiement. Payez ou annulez ces réservations avant d'en faire une autre (${PLACES_MAX_EN_ATTENTE} places non payées au maximum).`
           throw Object.assign(new Error(msg), { statusCode: 409, errorMsg: msg })
         }
 

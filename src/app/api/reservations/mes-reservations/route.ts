@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
+import { libererReservationsExpirees } from '@/lib/reservation-expiry'
 
 export async function GET(request: Request) {
   try {
     const auth = await extractAuthFromRequest(request as any)
     const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
     if (blocked) return blocked
+
+    // Une réservation non payée depuis plus de 30 minutes doit apparaître annulée, pas « en attente ».
+    await libererReservationsExpirees()
 
     const { searchParams } = new URL(request.url)
     const statut = searchParams.get('statut') as any

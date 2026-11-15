@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 import { generateNumeroBillet, generateQRPayload, publicBaseUrl } from '@/lib/billet'
 import { hasDeparted, formatDepartLong } from '@/lib/trajet-time'
+import { libererReservationsExpirees } from '@/lib/reservation-expiry'
 
 const statutMap: Record<string, any> = {
   CONFIRMED: 'confirmee',
@@ -29,6 +30,9 @@ export async function POST(request: Request) {
     const seatNumber = parseInt(data.seatNumber, 10)
 
     const statut = statutMap[data.status] ?? 'confirmee'
+
+    // Les réservations non payées depuis plus de 30 minutes rendent d'abord leurs places.
+    await libererReservationsExpirees()
 
     const trajet = await prisma.trajet.findUnique({
       where: { id: trajetId }

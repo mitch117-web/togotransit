@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import SeatSelectionClient from '@/app/admin/bookings/[id]/seats/SeatSelectionClient'
 import { getSessionContext } from '@/lib/session'
 import { departureInstant } from '@/lib/trajet-time'
+import { libererReservationsExpirees } from '@/lib/reservation-expiry'
 
 // Ce que le plan de sièges lit dans une réservation du trajet.
 type ReservationPlan = {
@@ -19,7 +20,10 @@ export default async function SeatSelectionPage({
 }) {
   const { id } = await params
   const idNum = parseInt(id, 10)
-  
+
+  // Plan de sièges à jour : les réservations non payées depuis plus de 30 minutes rendent d'abord leurs places.
+  await libererReservationsExpirees()
+
   const trajetRaw = await prisma.trajet.findUnique({
     where: { id: idNum },
     include: {

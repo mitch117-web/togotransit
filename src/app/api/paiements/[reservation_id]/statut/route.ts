@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
+import { libererReservationsExpirees } from '@/lib/reservation-expiry'
 
 export async function GET(
   request: Request,
@@ -16,6 +17,9 @@ export async function GET(
     if (isNaN(reservationId)) {
       return NextResponse.json({ error: 'ID réservation invalide' }, { status: 400 })
     }
+
+    // Le délai annoncé plus bas (30 minutes sans paiement) est réellement appliqué ici.
+    await libererReservationsExpirees()
 
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservationId },

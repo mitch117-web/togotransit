@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { initierPaiement } from '@/lib/paygate'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
+import { libererReservationsExpirees, echeancePaiement } from '@/lib/reservation-expiry'
 import { z } from 'zod'
 
 const initierSchema = z.object({
@@ -29,6 +30,9 @@ export async function POST(request: Request) {
     const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
     if (blocked) return blocked
 
+    // Une réservation non payée depuis plus de 30 minutes est d'abord annulée : elle ne se paie plus.
+    await libererReservationsExpirees()
+
     // Récupération de la réservation
     const reservation = await prisma.reservation.findUnique({
       where: { id: reservation_id },
@@ -54,7 +58,10 @@ export async function POST(request: Request) {
     }
 
     if (reservation.statut === 'annulee') {
-      return NextResponse.json({ error: 'Réservation annulée, paiement impossible' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Réservation annulée ou expirée (non payée dans les 30 minutes) : paiement impossible. Refaites une réservation.' },
+        { status: 400 }
+      )
     }
     if (reservation.statut === 'confirmee') {
       return NextResponse.json({
@@ -120,7 +127,8 @@ export async function POST(request: Request) {
             'Utilisez les boutons « Simuler succès / échec » ci-dessous pour continuer le test.',
           ],
         },
-        date_expiration_attente: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        // Heure limite réelle : 30 minutes après la création de la réservation, pas après cette demande.
+        date_expiration_attente: echeancePaiement(reservation.date_reservation).toISOString(),
       })
     }
 
@@ -173,7 +181,7 @@ export async function POST(request: Request) {
           provider_label: methode === 'flooz' ? 'Flooz (Moov Money Togo)' : 'T-Money (Togocom)',
           instructions,
         },
-        date_expiration_attente: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        date_expiration_attente: echeancePaiement(reservation.date_reservation).toISOString(),
       })
     } catch (paygateError: any) {
       // Erreur PayGate (API injoignable, clés manquantes, etc.)

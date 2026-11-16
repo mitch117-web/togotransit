@@ -1,5 +1,10 @@
 import { z } from 'zod'
 
+// Dans le navigateur, la politique de sécurité du site interdit l'évaluation de code (pas de « unsafe-eval »).
+// Zod sait valider sans compiler de fonction à la volée : on le lui dit d'emblée, sinon il tente une fois
+// et le navigateur signale une violation — sans conséquence, mais inutile.
+if (typeof window !== 'undefined') z.config({ jitless: true })
+
 export const vehicleSchema = z.object({
   compagnie_id: z.number().int().positive().optional(),
   plateNumber: z.string().min(3, 'Immatriculation trop courte').regex(/^[A-Z0-9-]+$/, 'Format invalide (Ex: TG-1234-A)'),

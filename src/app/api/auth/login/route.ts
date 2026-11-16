@@ -4,12 +4,15 @@ import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import { signToken } from '@/lib/jwt'
 import { isRateLimited, getClientIp } from '@/lib/rate-limit'
+import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/session-cookie'
 
 const loginFlexSchema = z.object({
   identifier: z.string().min(2).optional(),
   email: z.string().optional(),
   telephone: z.string().optional(),
   mot_de_passe: z.string().min(6),
+  // Envoyé par la page de connexion du portail : la session est alors posée dans un cookie HttpOnly.
+  web: z.boolean().optional(),
 })
 
 const BCRYPT_PREFIX = '$2'
@@ -107,6 +110,19 @@ export async function POST(request: Request) {
     })
 
     const { mot_de_passe: _, ...userWithoutPassword } = user
+
+    // Connexion depuis le portail web : le jeton n'est jamais confié au JavaScript de la page. Le serveur le
+    // pose lui-même dans un cookie HttpOnly (voir lib/session-cookie), et seulement pour un compte
+    // professionnel — un voyageur n'a pas d'espace web.
+    if (parsed.data.web) {
+      const response = NextResponse.json({ success: true, user: userWithoutPassword })
+      if (user.role === 'gestionnaire' || user.role === 'super_admin') {
+        response.cookies.set(SESSION_COOKIE, token, sessionCookieOptions())
+      }
+      return response
+    }
+
+    // Application mobile : elle reçoit le jeton et l'envoie ensuite dans l'en-tête Authorization.
     return NextResponse.json({
       success: true,
       user: userWithoutPassword,

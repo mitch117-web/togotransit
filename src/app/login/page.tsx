@@ -32,7 +32,8 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, mot_de_passe: password }),
+        // `web: true` : le serveur pose la session dans un cookie HttpOnly et ne renvoie pas le jeton.
+        body: JSON.stringify({ identifier, mot_de_passe: password, web: true }),
       })
 
       const data = await res.json()
@@ -47,13 +48,10 @@ export default function LoginPage() {
       }
 
       if (typeof window !== 'undefined') {
-        localStorage.setItem('tgt_token', data.token)
+        // Le jeton de session n'est plus manipulé par la page : le serveur vient de le poser dans un cookie
+        // HttpOnly. On ne garde ici que le profil affiché dans le portail (nom, rôle, compagnie).
+        localStorage.removeItem('tgt_token')
         localStorage.setItem('tgt_user', JSON.stringify(data.user))
-        document.cookie = `auth_token=${data.token}; path=/; max-age=86400`
-        document.cookie = `auth_role=${data.user.role}; path=/; max-age=86400`
-        if (data.user.compagnie_id) {
-          document.cookie = `compagnie_id=${data.user.compagnie_id}; path=/; max-age=86400`
-        }
       }
 
       router.push('/admin/dashboard')

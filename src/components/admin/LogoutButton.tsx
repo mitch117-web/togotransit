@@ -4,20 +4,23 @@ import React from 'react'
 import Link from 'next/link'
 
 export default function LogoutButton() {
-  const handleLogout = () => {
-    // Supprimer les cookies de session posés à la connexion (jeton, rôle, compagnie) et le profil local ;
-    // sans cela le jeton reste valide et le garde /admin laisse repasser l'utilisateur.
-    for (const name of ['auth_token', 'auth_role', 'compagnie_id', 'auth']) {
-      document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;`
-    }
+  const handleLogout = async (event: React.MouseEvent) => {
+    event.preventDefault()
+    // Le cookie de session est HttpOnly : la page ne peut pas l'effacer, c'est le serveur qui le fait.
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } catch {}
     try {
       localStorage.removeItem('tgt_token')
       localStorage.removeItem('tgt_user')
     } catch {}
+    // Chargement complet de la page de connexion : les pages du portail gardées en mémoire par le
+    // navigateur sont ainsi abandonnées.
+    window.location.assign('/login')
   }
 
   return (
-    <Link 
+    <Link
       href="/login"
       onClick={handleLogout}
       className="w-10 h-10 rounded-full hover:bg-error/10 flex items-center justify-center text-error transition-colors"

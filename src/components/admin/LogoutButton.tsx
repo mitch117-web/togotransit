@@ -14,8 +14,10 @@ export default function LogoutButton() {
       localStorage.removeItem('tgt_token')
       localStorage.removeItem('tgt_user')
     } catch {}
-    // Chargement complet de la page de connexion : les pages du portail gardées en mémoire par le
-    // navigateur sont ainsi abandonnées.
+    // Chargement complet de la page de connexion, et non une navigation interne : les pages du portail
+    // gardées en mémoire par le navigateur sont ainsi abandonnées, et le bouton « Précédent » ne peut plus
+    // les réafficher après la déconnexion.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- rechargement complet voulu à la déconnexion
     window.location.assign('/login')
   }
 

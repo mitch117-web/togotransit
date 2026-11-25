@@ -26,7 +26,10 @@ async function getStats(role: string | null, compagnieId: number | null) {
     : null
 
   // 1. KPIs principaux
-  const [totalParcels, inTransitParcels, totalTrips, revenueResult] = await Promise.all([
+  // Chiffre d'affaires = colis payés + billets payés (paiements réussis des réservations sur les trajets de la
+  // compagnie : vente au guichet ou paiement depuis l'application). Avant, seuls les colis étaient comptés.
+  const billetsFilter = { statut: 'reussi' as const, reservation: { trajet: compagnieFilter } }
+  const [totalParcels, inTransitParcels, totalTrips, revenueResult, ticketsResult] = await Promise.all([
     prisma.parcel.count({ where: parcelFilter }),
     prisma.parcel.count({ where: { ...parcelFilter, status: 'IN_TRANSIT' } }),
     prisma.trajet.count({ where: compagnieFilter }),
@@ -34,7 +37,10 @@ async function getStats(role: string | null, compagnieId: number | null) {
       _sum: { price: true },
       where: { ...parcelFilter, paymentStatus: 'PAID' },
     }),
+    prisma.paiement.aggregate({ _sum: { montant: true }, where: billetsFilter }),
   ])
+  const revenueParcels = revenueResult._sum.price || 0
+  const revenueTickets = ticketsResult._sum.montant || 0
 
   // 2. Dernières expéditions
   const recentParcels = await prisma.parcel.findMany({
@@ -107,17 +113,23 @@ async function getStats(role: string | null, compagnieId: number | null) {
     last6Months.map(async (date) => {
       const nextMonth = new Date(date)
       nextMonth.setMonth(date.getMonth() + 1)
-      const rev = await prisma.parcel.aggregate({
-        _sum: { price: true },
-        where: {
-          ...parcelFilter,
-          paymentStatus: 'PAID',
-          createdAt: { gte: date, lt: nextMonth },
-        },
-      })
+      const [rev, billets] = await Promise.all([
+        prisma.parcel.aggregate({
+          _sum: { price: true },
+          where: {
+            ...parcelFilter,
+            paymentStatus: 'PAID',
+            createdAt: { gte: date, lt: nextMonth },
+          },
+        }),
+        prisma.paiement.aggregate({
+          _sum: { montant: true },
+          where: { ...billetsFilter, date_paiement: { gte: date, lt: nextMonth } },
+        }),
+      ])
       return {
         month: date.toLocaleDateString('fr-FR', { month: 'short' }),
-        revenue: rev._sum.price || 0,
+        revenue: (rev._sum.price || 0) + (billets._sum.montant || 0),
       }
     })
   )
@@ -146,7 +158,9 @@ async function getStats(role: string | null, compagnieId: number | null) {
     totalParcels,
     inTransitParcels,
     totalTrips,
-    revenue: revenueResult._sum.price || 0,
+    revenue: revenueParcels + revenueTickets,
+    revenueParcels,
+    revenueTickets,
     revenueGrowthPct,
     recentParcels,
     chartData,
@@ -228,7 +242,7 @@ export default async function AdminDashboard() {
             )}
           </div>
           <div className="mt-auto relative z-10">
-            <p className="text-[0.625rem] text-on-surface-variant font-bold uppercase opacity-50">Performance temps réel</p>
+            <p className="text-[0.625rem] text-on-surface-variant font-bold uppercase opacity-50">Colis : {stats.revenueParcels.toLocaleString('fr-FR')} F · Billets : {stats.revenueTickets.toLocaleString('fr-FR')} F</p>
           </div>
           <div className="absolute -right-4 -bottom-4 w-32 h-32 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-700" />
         </div>

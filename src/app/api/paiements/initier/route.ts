@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { initierPaiement } from '@/lib/paygate'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 import { libererReservationsExpirees, echeancePaiement } from '@/lib/reservation-expiry'
+import { enMaintenance, reponseMaintenance } from '@/lib/maintenance'
 import { z } from 'zod'
 
 const initierSchema = z.object({
@@ -27,8 +28,10 @@ export async function POST(request: Request) {
 
     // Extraction de l'auth utilisateur
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    // Opération d une compagnie ou d un voyageur : le super-administrateur supervise sans réserver, payer ni valider.
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire'])
     if (blocked) return blocked
+    if (auth!.role === 'voyageur' && (await enMaintenance())) return reponseMaintenance()
 
     // Une réservation non payée depuis plus de 30 minutes est d'abord annulée : elle ne se paie plus.
     await libererReservationsExpirees()

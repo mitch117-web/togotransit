@@ -101,7 +101,8 @@ export default async function SeatSelectionPage({
   }
 
   const utilisateurs = await prisma.utilisateur.findMany({
-    where: { role: 'voyageur' as any },
+    // Clients de la plateforme et membres de sa propre compagnie : jamais les chauffeurs d'une autre compagnie.
+    where: { role: 'voyageur' as any, OR: [{ compagnie_id: null }, { compagnie_id: session?.compagnieId ?? -1 }] },
     orderBy: { prenom: 'asc' } as any
   })
 

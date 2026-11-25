@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
-import { signToken } from '@/lib/jwt'
+import { signTokenForUser } from '@/lib/jwt'
+import { enMaintenance, reponseMaintenance } from '@/lib/maintenance'
 
 const registerSchema = z.object({
   nom: z.string().min(2, 'Nom trop court'),
@@ -14,6 +15,8 @@ const registerSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    if (await enMaintenance()) return reponseMaintenance()
+
     const body = await request.json()
     const parsed = registerSchema.safeParse(body)
     if (!parsed.success) {
@@ -60,11 +63,7 @@ export async function POST(request: Request) {
       },
     })
 
-    const token = signToken({
-      userId: user.id,
-      role: user.role,
-      compagnieId: user.compagnie_id,
-    })
+    const token = signTokenForUser(user)
 
     const { mot_de_passe: _, ...userWithoutPassword } = user
     return NextResponse.json({

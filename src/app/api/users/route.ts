@@ -67,10 +67,15 @@ export async function POST(request: Request) {
     const telephone = (data.phone ?? data.telephone)!
     const email = data.email || null
     const role = roleMap[data.role ?? 'voyageur']
+    // Client enregistré au guichet (« Créer un nouveau client » du plan de sièges) : c'est un client de la
+    // plateforme, pas un membre de la compagnie. Il n'y est donc pas rattaché — sinon il apparaissait parmi ses
+    // chauffeurs et se retrouvait bloqué si la compagnie était suspendue.
+    const estClientGuichet = data.role === 'CLIENT'
 
     // Un gestionnaire ne peut créer que du personnel de sa propre compagnie,
     // jamais un compte super_admin ni un compte rattaché à une autre compagnie.
-    const compagnie_id = auth!.role === 'gestionnaire' ? auth!.compagnieId : (data.compagnie_id ?? null)
+    const compagnie_id =
+      auth!.role === 'gestionnaire' ? (estClientGuichet ? null : auth!.compagnieId) : (data.compagnie_id ?? null)
     if (auth!.role === 'gestionnaire' && role === 'super_admin') {
       return NextResponse.json({ error: 'Rôle non autorisé' }, { status: 403 })
     }
@@ -89,7 +94,14 @@ export async function POST(request: Request) {
 
     if (existingUser) {
       // Un gestionnaire ne doit pas pouvoir sonder l'existence d'un compte d'une autre compagnie.
-      if (auth!.role === 'gestionnaire' && existingUser.compagnie_id !== auth!.compagnieId) {
+      // Exception : un client sans compagnie (inscrit depuis l'application ou au guichet d'une autre compagnie)
+      // est rendu au guichet qui le recrée, comme le montre déjà la liste des clients de la vente.
+      const clientDeLaPlateforme = existingUser.role === 'voyageur' && existingUser.compagnie_id === null
+      if (
+        auth!.role === 'gestionnaire' &&
+        existingUser.compagnie_id !== auth!.compagnieId &&
+        !(estClientGuichet && clientDeLaPlateforme)
+      ) {
         return NextResponse.json({ error: 'Un compte existe déjà avec ces informations' }, { status: 409 })
       }
       const { mot_de_passe: _pw, ...safeExisting } = existingUser
@@ -125,7 +137,12 @@ export async function POST(request: Request) {
     // l'activer. Envoyé après la réponse (le SMS simulé attend 1 s) et sans jamais
     // faire échouer la création.
     if (!motDePasseFourni) {
-      const parCompagnie = newUser.compagnie ? ` par ${newUser.compagnie.nom}` : ''
+      const nomCompagnie =
+        newUser.compagnie?.nom ??
+        (auth!.compagnieId
+          ? (await prisma.compagnie.findUnique({ where: { id: auth!.compagnieId }, select: { nom: true } }))?.nom
+          : undefined)
+      const parCompagnie = nomCompagnie ? ` par ${nomCompagnie}` : ''
       after(async () => {
         try {
           await sendSMS(

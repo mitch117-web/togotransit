@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
-import { signToken } from '@/lib/jwt'
+import { signTokenForUser } from '@/lib/jwt'
 import { isRateLimited, getClientIp } from '@/lib/rate-limit'
 import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/session-cookie'
 
@@ -84,6 +84,7 @@ export async function POST(request: Request) {
     // mot de passe en clair hérité des anciens comptes (migré automatiquement au premier login)
     const storedPassword = user.mot_de_passe
     let passwordOk = false
+    let motDePasseEnregistre = storedPassword
 
     if (storedPassword.startsWith(BCRYPT_PREFIX)) {
       passwordOk = await bcrypt.compare(mot_de_passe, storedPassword)
@@ -96,6 +97,7 @@ export async function POST(request: Request) {
           where: { id: user.id },
           data: { mot_de_passe: hash },
         })
+        motDePasseEnregistre = hash
       }
     }
 
@@ -103,11 +105,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Mot de passe incorrect' }, { status: 401 })
     }
 
-    const token = signToken({
-      userId: user.id,
-      role: user.role,
-      compagnieId: user.compagnie_id,
-    })
+    // Le jeton porte l'empreinte du mot de passe enregistré : il cessera d'être accepté au prochain changement.
+    const token = signTokenForUser({ ...user, mot_de_passe: motDePasseEnregistre })
 
     const { mot_de_passe: _, ...userWithoutPassword } = user
 

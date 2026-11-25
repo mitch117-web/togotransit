@@ -6,6 +6,17 @@ import Link from 'next/link'
 import ExportButton from '@/components/admin/export/ExportButton'
 import { KpiGrid, VehicleGrid } from './FleetCards'
 
+/** « Aujourd'hui », « Hier », « Il y a 3 jours » ou la date : le Togo est à UTC+0, on compte en jours UTC. */
+function libelleDernierTrajet(depart: Date | null | undefined, maintenant = new Date()): string {
+  if (!depart) return 'Aucun trajet'
+  const jour = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate())
+  const ecart = Math.round((jour(maintenant) - jour(depart)) / 86_400_000)
+  if (ecart <= 0) return "Aujourd'hui"
+  if (ecart === 1) return 'Hier'
+  if (ecart < 7) return `Il y a ${ecart} jours`
+  return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(depart)
+}
+
 async function getFleetData() {
   const session = await getSessionContext()
   const vehiclesRaw = await prisma.vehicule.findMany({
@@ -22,6 +33,14 @@ async function getFleetData() {
     }
   })
 
+  // Dernier départ déjà passé de chaque véhicule (la carte affichait « Hier » pour tous, écrit en dur).
+  const derniersDeparts = await prisma.trajet.groupBy({
+    by: ['vehicule_id'],
+    where: { vehicule_id: { in: vehiclesRaw.map((v) => v.id) }, date_depart: { lte: new Date() } },
+    _max: { date_depart: true },
+  })
+  const dernierDepartDe = new Map(derniersDeparts.map((d) => [d.vehicule_id, d._max.date_depart]))
+
   // Adaptation to legacy shape
   const vehicles: any[] = vehiclesRaw.map((v: any) => ({
     id: v.id,
@@ -32,6 +51,7 @@ async function getFleetData() {
              v.statut === 'en_maintenance' ? 'MAINTENANCE' :
              v.statut === 'hors_service' ? 'OUT_OF_SERVICE' : v.statut),
     trips: v.trajets ?? [],
+    lastTrip: libelleDernierTrajet(dernierDepartDe.get(v.id)),
   }))
 
   const stats = {

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
 import { hasDeparted } from '@/lib/trajet-time'
+import { enMaintenance, reponseMaintenance } from '@/lib/maintenance'
 import { libererReservationsExpirees, PLACES_MAX_EN_ATTENTE } from '@/lib/reservation-expiry'
 import { z } from 'zod'
 
@@ -19,8 +20,10 @@ const createReservationSchema = z.object({
 export async function POST(request: Request) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    // Opération d une compagnie ou d un voyageur : le super-administrateur supervise sans réserver, payer ni valider.
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire'])
     if (blocked) return blocked
+    if (auth!.role === 'voyageur' && (await enMaintenance())) return reponseMaintenance()
 
     const body = await request.json()
     const parsed = createReservationSchema.safeParse(body)

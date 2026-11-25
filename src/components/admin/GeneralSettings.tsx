@@ -133,7 +133,7 @@ export default function GeneralSettings() {
         <div className="flex items-center justify-between py-2">
           <div>
             <p className="font-label-md text-label-md text-on-surface font-bold">Mode Maintenance</p>
-            <p className="text-[0.6875rem] text-on-surface-variant">Désactiver l'accès public</p>
+            <p className="text-[0.6875rem] text-on-surface-variant">Suspendre inscriptions, réservations, paiements et envois de colis des voyageurs (le portail reste ouvert)</p>
           </div>
           <div 
             onClick={() => setSettings({...settings, maintenance: !settings.maintenance})}

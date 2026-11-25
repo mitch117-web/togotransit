@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { extractAuthFromRequest, requireAnyRole } from '@/lib/auth'
+import { signTokenForUser } from '@/lib/jwt'
+import { SESSION_COOKIE, sessionCookieOptions } from '@/lib/session-cookie'
 
 export async function GET(request: Request) {
   try {
@@ -91,8 +93,22 @@ export async function PATCH(request: Request) {
       },
     })
 
+    // Un nouveau mot de passe invalide tous les jetons émis avant (voir lib/jwt), y compris celui de cette
+    // requête : on en remet un neuf à l'appareil qui vient de faire le changement, pour qu'il reste connecté.
+    // L'application mobile le reçoit dans la réponse ; le portail web, dans son cookie HttpOnly.
+    const nouveauJeton = updateData.mot_de_passe ? signTokenForUser(updated) : null
+    const viaEnTete = request.headers.get('authorization')?.startsWith('Bearer ') ?? false
+
     const { mot_de_passe: _, ...userWithoutPassword } = updated
-    return NextResponse.json({ success: true, user: userWithoutPassword })
+    const response = NextResponse.json({
+      success: true,
+      user: userWithoutPassword,
+      ...(nouveauJeton && viaEnTete ? { token: nouveauJeton } : {}),
+    })
+    if (nouveauJeton && !viaEnTete) {
+      response.cookies.set(SESSION_COOKIE, nouveauJeton, sessionCookieOptions())
+    }
+    return response
   } catch (error: any) {
     if (error?.code === 'P2002') {
       return NextResponse.json(

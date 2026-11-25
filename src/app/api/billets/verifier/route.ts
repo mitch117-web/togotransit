@@ -16,7 +16,8 @@ export async function POST(request: Request) {
     const auth = await extractAuthFromRequest(request as any)
     // Un voyageur ne peut valider un embarquement que s'il est le chauffeur
     // assigné au trajet du billet — vérifié après lecture du billet ci-dessous.
-    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    // Opération d une compagnie ou d un voyageur : le super-administrateur supervise sans réserver, payer ni valider.
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire'])
     if (blocked) return blocked
 
     const body = await request.json()

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { extractAuthFromRequest, requireRole, assertCompagnieOwnership } from '@/lib/auth'
+import { extractAuthFromRequest, requireRole, requireAnyRole, assertCompagnieOwnership } from '@/lib/auth'
 import { z } from 'zod'
 
 const updateTrajetSchema = z.object({
@@ -69,7 +69,9 @@ export async function GET(request: Request, { params }: { params: RouteParams })
 export async function PUT(request: Request, { params }: { params: RouteParams }) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireRole(auth!, 'gestionnaire')
+    // Écriture réservée au gestionnaire de la compagnie : le super-administrateur supervise sans modifier
+    // (requireRole est hiérarchique et laissait passer le super-administrateur).
+    const blocked = requireAnyRole(auth, ['gestionnaire'])
     if (blocked) return blocked
 
     const { id } = await params
@@ -131,7 +133,9 @@ export async function PUT(request: Request, { params }: { params: RouteParams })
 export async function DELETE(request: Request, { params }: { params: RouteParams }) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireRole(auth!, 'gestionnaire')
+    // Écriture réservée au gestionnaire de la compagnie : le super-administrateur supervise sans modifier
+    // (requireRole est hiérarchique et laissait passer le super-administrateur).
+    const blocked = requireAnyRole(auth, ['gestionnaire'])
     if (blocked) return blocked
 
     const { id } = await params

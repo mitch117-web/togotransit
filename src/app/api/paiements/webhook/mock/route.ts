@@ -20,7 +20,8 @@ const mockSchema = z.object({
 export async function POST(request: Request) {
   try {
     const auth = await extractAuthFromRequest(request as any)
-    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire', 'super_admin'])
+    // Opération d une compagnie ou d un voyageur : le super-administrateur supervise sans réserver, payer ni valider.
+    const blocked = requireAnyRole(auth, ['voyageur', 'gestionnaire'])
     if (blocked) return blocked
 
     const body = await request.json()

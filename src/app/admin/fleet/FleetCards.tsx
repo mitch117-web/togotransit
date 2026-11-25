@@ -10,6 +10,8 @@ type Vehicle = {
   type: string
   capacity: number
   status: 'AVAILABLE' | 'OUT_OF_SERVICE' | 'MAINTENANCE' | string
+  /** « Aujourd'hui », « Hier », « Il y a 3 jours », une date, ou « Aucun trajet » (calculé par la page). */
+  lastTrip?: string
 }
 
 type Stats = {
@@ -156,7 +158,7 @@ export function VehicleGrid({ vehicles, canOperate = true }: { vehicles: Vehicle
               </span>
               <span className="text-on-surface-variant font-body-sm text-body-sm flex items-center gap-1">
                 <span className="material-symbols-outlined text-[1.125rem]">history</span>
-                Dernier trajet: Hier
+                Dernier trajet : {vehicle.lastTrip ?? '—'}
               </span>
             </div>
 

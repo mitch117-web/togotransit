@@ -4,6 +4,7 @@ import { sendSMS } from '@/lib/sms'
 import { extractAuthFromRequest } from '@/lib/auth'
 import { toPublicParcel, SELECTION_SUIVI_PUBLIC } from '@/lib/parcel-public'
 import { estimerPrixColis } from '@/lib/parcel-price'
+import { enMaintenance, reponseMaintenance } from '@/lib/maintenance'
 import { z } from 'zod'
 
 const texte = (max: number) => z.string().trim().min(1).max(max)
@@ -13,6 +14,8 @@ const texte = (max: number) => z.string().trim().min(1).max(max)
 const creerColisSchema = z.object({
   senderId: z.coerce.number().int().positive().nullish(),
   driverId: z.coerce.number().int().positive().nullish(),
+  // Compagnie choisie par le voyageur dans l'application (ignorée au guichet : c'est celle de l'agent).
+  compagnie_id: z.coerce.number().int().positive().nullish(),
   senderName: texte(120),
   senderPhone: texte(30),
   receiverName: texte(120),
@@ -41,6 +44,8 @@ export async function POST(request: Request) {
       )
     }
 
+    if (auth.role === 'voyageur' && (await enMaintenance())) return reponseMaintenance()
+
     const parsed = creerColisSchema.safeParse(await request.json().catch(() => null))
     if (!parsed.success) {
       return NextResponse.json({ error: 'Données invalides', details: parsed.error.format() }, { status: 400 })
@@ -50,13 +55,29 @@ export async function POST(request: Request) {
     // Deux origines, deux niveaux de confiance. Au guichet, l'agent de la compagnie pèse le colis, fixe le
     // prix et encaisse. Depuis l'application, rien n'a encore été pesé ni payé : le serveur recalcule lui-même
     // l'estimation (le prix envoyé par le téléphone est ignoré), le colis reste « à payer », et le client ne
-    // choisit ni le chauffeur ni la compagnie.
+    // choisit pas le chauffeur. Il choisit en revanche la compagnie qui transportera le colis : sans elle, aucun
+    // guichet ne voyait le colis dans son portail.
     const auGuichet = auth.role === 'gestionnaire'
     if (auGuichet && data.price === undefined) {
       return NextResponse.json({ error: 'Prix requis' }, { status: 400 })
     }
     const price = auGuichet ? data.price! : estimerPrixColis(data.weight, data.category)
     const paymentStatus = auGuichet && data.paymentMethod !== 'CASH' ? 'PAID' : 'PENDING'
+
+    let compagnieChoisie: number | null = null
+    if (!auGuichet && data.compagnie_id) {
+      const compagnie = await prisma.compagnie.findUnique({
+        where: { id: data.compagnie_id },
+        select: { statut: true },
+      })
+      if (!compagnie || compagnie.statut !== 'actif') {
+        return NextResponse.json(
+          { error: 'Cette compagnie est inconnue ou ne prend pas de colis en ce moment. Choisissez-en une autre.' },
+          { status: 400 }
+        )
+      }
+      compagnieChoisie = data.compagnie_id
+    }
 
     // Génération d'un ID de tracking unique (ex: TRK-1000)
     // On récupère tous les IDs commençant par TRK- pour trouver le maximum numériquement
@@ -77,43 +98,49 @@ export async function POST(request: Request) {
       }
     }
 
-    // Safety loop to ensure uniqueness
+    // Le numéro est attribué à l'enregistrement : si deux colis sont créés au même instant avec le même
+    // numéro, la base refuse le second (numéro unique) et on retente avec le suivant, au lieu d'échouer.
     let trackingId = `TRK-${nextNumber}`
-    let exists = await prisma.parcel.findUnique({ where: { trackingId } })
-    while (exists) {
-      nextNumber++
-      trackingId = `TRK-${nextNumber}`
-      exists = await prisma.parcel.findUnique({ where: { trackingId } })
+    let newParcel: Awaited<ReturnType<typeof prisma.parcel.create>> | null = null
+    for (let essai = 0; essai < 10 && !newParcel; essai++) {
+      try {
+        newParcel = await prisma.parcel.create({
+          data: {
+            trackingId,
+            senderId: auGuichet ? (data.senderId ?? null) : auth.userId,
+            driverId: auGuichet ? (data.driverId ?? null) : null,
+            compagnie_id: auGuichet ? auth.compagnieId : compagnieChoisie,
+            senderName: data.senderName,
+            senderPhone: data.senderPhone,
+            receiverName: data.receiverName,
+            receiverPhone: data.receiverPhone,
+            weight: data.weight,
+            origin: data.origin,
+            destination: data.destination,
+            category: data.category,
+            deliveryType: data.deliveryType,
+            status: 'IN_AGENCY',
+            statusHistory: JSON.stringify([{
+              status: 'IN_AGENCY',
+              timestamp: new Date().toISOString(),
+              location: data.origin,
+              note: 'Colis enregistré en agence'
+            }]),
+            price,
+            paymentStatus,
+            paymentMethod: data.paymentMethod ?? null,
+            photo: data.photo ?? null,
+          } as any
+        })
+      } catch (e: any) {
+        if (e?.code !== 'P2002') throw e
+        nextNumber++
+        trackingId = `TRK-${nextNumber}`
+      }
     }
-
-    const newParcel = await prisma.parcel.create({
-      data: {
-        trackingId,
-        senderId: auGuichet ? (data.senderId ?? null) : auth.userId,
-        driverId: auGuichet ? (data.driverId ?? null) : null,
-        compagnie_id: auGuichet ? auth.compagnieId : null,
-        senderName: data.senderName,
-        senderPhone: data.senderPhone,
-        receiverName: data.receiverName,
-        receiverPhone: data.receiverPhone,
-        weight: data.weight,
-        origin: data.origin,
-        destination: data.destination,
-        category: data.category,
-        deliveryType: data.deliveryType,
-        status: 'IN_AGENCY',
-        statusHistory: JSON.stringify([{
-          status: 'IN_AGENCY',
-          timestamp: new Date().toISOString(),
-          location: data.origin,
-          note: 'Colis enregistré en agence'
-        }]),
-        price,
-        paymentStatus,
-        paymentMethod: data.paymentMethod ?? null,
-        photo: data.photo ?? null,
-      } as any
-    })
+    if (!newParcel) {
+      return NextResponse.json({ error: 'Enregistrement impossible pour le moment. Réessayez.' }, { status: 409 })
+    }
 
     // Notification SMS Simulation
     await sendSMS(

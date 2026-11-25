@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { UtilisateurRole } from '@prisma/client'
 import prisma from './prisma'
-import { verifyToken } from './jwt'
+import { verifyToken, passwordFingerprint } from './jwt'
 
 export interface AuthContext {
   userId: number
@@ -20,6 +20,10 @@ const ROLE_HIERARCHY: Record<UtilisateurRole, number> = {
  * a le droit de faire MAINTENANT. Le rôle et la compagnie sont donc relus à chaque requête, et un compte
  * supprimé ou bloqué, comme le gestionnaire d'une compagnie suspendue, n'est plus authentifié : il n'attend
  * pas l'expiration de son jeton (30 jours) pour perdre l'accès.
+ *
+ * Le jeton doit aussi porter l'empreinte du mot de passe actuel du compte : après un changement ou une
+ * réinitialisation du mot de passe, les jetons émis avant sont refusés partout. Un jeton émis avant cette
+ * règle (sans empreinte) est refusé lui aussi : son titulaire se reconnecte une fois.
  */
 export async function authFromToken(token: string | null | undefined): Promise<AuthContext | null> {
   if (!token) return null
@@ -33,10 +37,12 @@ export async function authFromToken(token: string | null | undefined): Promise<A
       role: true,
       statut: true,
       compagnie_id: true,
+      mot_de_passe: true,
       compagnie: { select: { statut: true } },
     },
   })
   if (!user || user.statut === 'bloque') return null
+  if (!payload.pwv || payload.pwv !== passwordFingerprint(user.mot_de_passe)) return null
   // Même règle qu'à la connexion : le gestionnaire d'une compagnie suspendue n'a plus accès.
   if (user.role === 'gestionnaire' && user.compagnie?.statut === 'suspendu') return null
 

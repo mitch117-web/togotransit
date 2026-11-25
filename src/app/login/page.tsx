@@ -218,7 +218,7 @@ export default function LoginPage() {
       </div>
 
       <p className="mt-5 text-[0.625rem] text-outline text-center relative z-10">
-        TogoTransit S.A. · Plateforme de transport multi-compagnies · Togo
+        TogoTransit · Plateforme de transport multi-compagnies · Togo
       </p>
     </div>
   )

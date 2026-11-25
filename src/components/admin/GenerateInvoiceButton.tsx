@@ -30,13 +30,13 @@ export default function GenerateInvoiceButton({ parcel }: { parcel: Parcel }) {
     // Header
     doc.setFontSize(22)
     doc.setTextColor(40, 44, 52)
-    doc.text('TOGO TRANSIT S.A.', 20, 20)
+    doc.text('TOGOTRANSIT', 20, 20)
     
     doc.setFontSize(10)
     doc.setTextColor(100)
-    doc.text('Logistique & Transport International', 20, 27)
-    doc.text('Lomé, Togo - Quartier Adéwui', 20, 32)
-    doc.text('Tél: +228 90 00 00 00 | Email: contact@togotransit.tg', 20, 37)
+    doc.text('Plateforme de transport et de colis multi-compagnies', 20, 27)
+    doc.text('Lomé, Togo', 20, 32)
+    doc.text('Facture émise via la plateforme TogoTransit', 20, 37)
 
     // Invoice Info
     doc.setFontSize(16)

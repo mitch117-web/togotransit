@@ -41,7 +41,7 @@ export default async function TrackingPage({
           </div>
           <div className="hidden md:block text-right">
             <p className="text-xs font-bold uppercase text-primary tracking-widest">Suivi de Colis</p>
-            <p className="text-[0.625rem] text-on-surface-variant">Service National de Logistique</p>
+            <p className="text-[0.625rem] text-on-surface-variant">Plateforme multi-compagnies</p>
           </div>
         </div>
       </header>
@@ -51,7 +51,7 @@ export default async function TrackingPage({
       </main>
 
       <footer className="mt-auto py-12 text-center text-on-surface-variant/40 text-xs border-t border-outline-variant/10">
-        <p>© 2026 TogoTransit S.A. - Tous droits réservés.</p>
+        <p>© 2026 TogoTransit — projet académique, données de démonstration.</p>
       </footer>
     </div>
   )

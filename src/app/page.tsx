@@ -139,7 +139,7 @@ export default function LandingPage() {
 
           <nav className="hidden md:flex items-center gap-6 text-sm font-bold text-on-surface-variant ml-4">
             <a href="#services" className="hover:text-primary transition-colors">Nos services</a>
-            <a href="#compagnies" className="hover:text-primary transition-colors">Compagnies partenaires</a>
+            <a href="#compagnies" className="hover:text-primary transition-colors">Compagnies</a>
           </nav>
 
           <Link
@@ -217,13 +217,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Compagnies partenaires */}
+      {/* Compagnies de la démonstration */}
       <section id="compagnies" className="relative z-10 max-w-6xl w-full mx-auto px-4 pb-20">
         <div className="bg-white/60 backdrop-blur-md border border-outline-variant rounded-[2rem] p-8 md:p-12 text-center flex flex-col items-center gap-4 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_1px_3px_rgba(15,23,42,0.06)]">
-          <span className="material-symbols-outlined text-primary text-4xl">handshake</span>
-          <h3 className="text-2xl font-black text-on-background">Nagodé Transport, SOLIM Transport, LK Transport…</h3>
+          <span className="material-symbols-outlined text-primary text-4xl">directions_bus</span>
+          <h3 className="text-2xl font-black text-on-background">Une plateforme pour toutes les compagnies</h3>
           <p className="text-on-surface-variant max-w-xl">
-            Déjà plusieurs compagnies togolaises font confiance à TogoTransit pour gérer leur flotte et leurs réservations en ligne.
+            TogoTransit réunit l&apos;offre de plusieurs compagnies dans une seule application. Les compagnies présentées ici (Nagodé Transport, SOLIM Transport, LK Transport, Rakiéta Transport) servent à la démonstration du projet : aucun partenariat n&apos;a été conclu avec elles.
           </p>
         </div>
       </section>
@@ -237,7 +237,7 @@ export default function LandingPage() {
             <span className="material-symbols-outlined text-base">local_shipping</span>
             Suivi de colis
           </Link>
-          <p className="text-xs opacity-60">© 2026 TogoTransit S.A. - Service National de Logistique &amp; Transport. Tous droits réservés.</p>
+          <p className="text-xs opacity-60">© 2026 TogoTransit — projet académique de fin d&apos;études, données de démonstration.</p>
         </div>
       </footer>
     </div>

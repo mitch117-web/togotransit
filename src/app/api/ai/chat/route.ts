@@ -4,8 +4,8 @@ import prisma from '@/lib/prisma'
 import { isRateLimited, getClientIp } from '@/lib/rate-limit'
 import { hasDeparted, departureInstant } from '@/lib/trajet-time'
 
-const HEURES_OUVERTURE = 'Nos agences sont ouvertes du lundi au samedi de 6h à 19h (fermé le dimanche, sauf agence de Lomé-Gare ouverte jusqu\'à 13h).'
-const CONTACT = 'Vous pouvez nous joindre au +228 22 21 00 00 ou par email à contact@togotransit.tg.'
+const HEURES_OUVERTURE = 'Les horaires d\'ouverture dépendent de chaque compagnie : renseignez-vous auprès de son agence.'
+const CONTACT = 'Pour une question sur un trajet, une réservation ou un colis, adressez-vous à l\'agence de la compagnie concernée : son nom figure sur votre billet et sur le suivi du colis.'
 
 type ChatContext = {
   // Aucune donnée personnelle (noms, téléphones, prix) : l'assistant est public et les numéros de suivi sont séquentiels.
@@ -277,7 +277,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Chatbot error:', error)
     return NextResponse.json(
-      { message: "Désolé, une erreur est survenue. Réessayez dans un instant ou contactez-nous au +228 22 21 00 00." }
+      { message: "Désolé, une erreur est survenue. Réessayez dans un instant." }
     )
   }
 }

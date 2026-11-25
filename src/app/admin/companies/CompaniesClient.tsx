@@ -125,7 +125,7 @@ export default function CompaniesClient({ initialCompanies }: { initialCompanies
           </div>
           <h2 className="font-black text-2xl md:text-3xl text-primary">Gestion des Compagnies Agréées</h2>
           <p className="text-on-surface-variant text-sm mt-1">
-            Supervisez les compagnies de transport togolaises partenaires, leurs agences et leurs flottes.
+            Supervisez les compagnies de transport agréées, leurs agences et leurs flottes.
           </p>
         </div>
 

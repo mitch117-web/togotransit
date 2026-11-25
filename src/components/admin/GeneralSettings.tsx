@@ -16,7 +16,7 @@ export default function GeneralSettings() {
   const [fetching, setFetching] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [settings, setSettings] = useState<Settings>({
-    companyName: 'TogoTransit S.A.',
+    companyName: 'TogoTransit',
     currency: 'XOF',
     smsEnabled: true,
     maintenance: false,

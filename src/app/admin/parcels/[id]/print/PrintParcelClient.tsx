@@ -41,7 +41,7 @@ export default function PrintParcelClient({ parcel }: { parcel: any }) {
           <div className="flex flex-col gap-1">
             <h1 className="text-3xl font-black text-primary">TOGOTRANSIT</h1>
             <p className="text-sm font-bold uppercase tracking-widest text-gray-600">Logistique & Transport de Colis</p>
-            <p className="text-xs mt-2">Siège: Lomé, Togo • Tél: +228 90 00 00 00</p>
+            <p className="text-xs mt-2">Plateforme TogoTransit · Lomé, Togo</p>
           </div>
           <div className="text-right">
             <h2 className="text-xl font-bold uppercase">Bordereau d'Expédition</h2>

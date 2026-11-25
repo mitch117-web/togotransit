@@ -79,6 +79,22 @@ export async function POST(request: Request) {
       compagnieChoisie = data.compagnie_id
     }
 
+    // Depuis l'application, l'expéditeur est le compte connecté : son nom et son téléphone sont lus en base,
+    // jamais pris dans la requête (un voyageur ne peut pas envoyer un colis au nom d'un autre).
+    let expediteur = { nom: data.senderName, telephone: data.senderPhone }
+    if (!auGuichet) {
+      const compte = await prisma.utilisateur.findUnique({
+        where: { id: auth.userId },
+        select: { prenom: true, nom: true, telephone: true },
+      })
+      if (compte) {
+        expediteur = {
+          nom: `${compte.prenom ?? ''} ${compte.nom ?? ''}`.trim() || data.senderName,
+          telephone: compte.telephone || data.senderPhone,
+        }
+      }
+    }
+
     // Génération d'un ID de tracking unique (ex: TRK-1000)
     // On récupère tous les IDs commençant par TRK- pour trouver le maximum numériquement
     const allParcels = await prisma.parcel.findMany({
@@ -110,8 +126,8 @@ export async function POST(request: Request) {
             senderId: auGuichet ? (data.senderId ?? null) : auth.userId,
             driverId: auGuichet ? (data.driverId ?? null) : null,
             compagnie_id: auGuichet ? auth.compagnieId : compagnieChoisie,
-            senderName: data.senderName,
-            senderPhone: data.senderPhone,
+            senderName: expediteur.nom,
+            senderPhone: expediteur.telephone,
             receiverName: data.receiverName,
             receiverPhone: data.receiverPhone,
             weight: data.weight,
